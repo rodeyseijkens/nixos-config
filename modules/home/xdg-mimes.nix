@@ -2,13 +2,12 @@
 with lib;
 let
   defaultApps = {
-    browser = [ "floorp.desktop" ];
+    browser = [ "firefox.desktop" ];
     text = [ "org.gnome.TextEditor.desktop" ];
     image = [ "viewnior.desktop" ];
     audio = [ "mpv.desktop" ];
     video = [ "mpv.desktop" ];
     directory = [ "nemo.desktop" ];
-    office = [ "libreoffice.desktop" ];
     pdf = [ "org.gnome.Evince.desktop" ];
     terminal = [ "kitty.desktop" ];
     archive = [ "org.gnome.FileRoller.desktop" ];
@@ -54,18 +53,6 @@ let
       "x-scheme-handler/http"
       "x-scheme-handler/https"
       "x-scheme-handler/unknown"
-    ];
-    office = [
-      "application/vnd.oasis.opendocument.text"
-      "application/vnd.oasis.opendocument.spreadsheet"
-      "application/vnd.oasis.opendocument.presentation"
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-      "application/msword"
-      "application/vnd.ms-excel"
-      "application/vnd.ms-powerpoint"
-      "application/rtf"
     ];
     pdf = [ "application/pdf" ];
     terminal = [ "terminal" ];

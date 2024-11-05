@@ -3,7 +3,7 @@
   services = {
     xserver = {
       enable = true;
-      xkb.layout = "us,fr";
+      xkb.layout = "us,nl";
     };
 
     displayManager.autoLogin = {
@@ -12,9 +12,9 @@
     };
     libinput = {
       enable = true;
-      # mouse = {
-      #   accelProfile = "flat";
-      # };
+      mouse = {
+        accelProfile = "flat";
+      };
     };
   };
   # To prevent getting stuck at shutdown

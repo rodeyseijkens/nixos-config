@@ -17,7 +17,7 @@ in
     entr                              # perform action when file change
     fd                                # find replacement
     ffmpeg
-    file                              # Show file information 
+    file                               # Show file information 
     gtt                               # google translate TUI
     gifsicle                          # gif utility
     gtrash                            # rm replacement, put deleted files in system trash
@@ -36,17 +36,10 @@ in
     onefetch                          # fetch utility for git repo
     pamixer                           # pulseaudio command line mixer
     playerctl                         # controller for media players
-    poweralertd
-    programmer-calculator
     ripgrep                           # grep replacement
     swappy                            # snapshot editing tool
-    tdf                               # cli pdf viewer
-    tldr
-    todo                              # cli todo list
-    toipe                             # typing test in the terminal
-    ttyper                            # cli typing test
+    tldr                              # tldr.sh
     unzip
-    valgrind                          # c memory analyzer
     wl-clipboard                      # clipboard utils for wayland (wl-copy, wl-paste)
     wget
     yazi                              # terminal file manager
@@ -62,17 +55,10 @@ in
     tty-clock                         # cli clock
 
     ## GUI Apps
-    audacity
     bleachbit                         # cache cleaner
-    gimp
-    libreoffice
     nix-prefetch-github
-    obs-studio
     pavucontrol                       # pulseaudio volume controle (GUI)
-    pitivi                            # video editing
-    qalculate-gtk                     # calculator
     soundwireserver
-    thunderbird
     vlc
     winetricks
     wineWowPackages.wayland

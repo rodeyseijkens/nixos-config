@@ -2,7 +2,7 @@
 
 init() {
     # Vars
-    CURRENT_USERNAME='frostphoenix'
+    CURRENT_USERNAME='rodey'
 
     # Colors
     NORMAL=$(tput sgr0)
@@ -30,11 +30,6 @@ confirm() {
 
 print_header() {
     echo -E "$CYAN
-      _____              _   ____  _                      _        
-     |  ___| __ ___  ___| |_|  _ \| |__   ___   ___ _ __ (_)_  __  
-     | |_ | '__/ _ \/ __| __| |_) | '_ \ / _ \ / _ \ '_ \| \ \/ /  
-     |  _|| | | (_) \__ \ |_|  __/| | | | (_) |  __/ | | | |>  <   
-     |_|  |_|  \___/|___/\__|_|   |_| |_|\___/ \___|_| |_|_/_/\_\  
      _   _ _       ___        ___           _        _ _           
     | \ | (_)_  __/ _ \ ___  |_ _|_ __  ___| |_ __ _| | | ___ _ __ 
     |  \| | \ \/ / | | / __|  | || '_ \/ __| __/ _' | | |/ _ \ '__|
@@ -42,7 +37,7 @@ print_header() {
     |_| \_|_/_/\_\\\\___/|___/ |___|_| |_|___/\__\__,_|_|_|\___|_| 
 
 
-                  $BLUE https://github.com/Frost-Phoenix $RED 
+                  $BLUE https://github.com/rodeyseijkens $RED 
       ! To make sure everything runs correctly DONT run as root ! $GREEN
                         -> '"./install.sh"' $NORMAL
 
@@ -59,7 +54,6 @@ get_username() {
 
 set_username() {
     sed -i -e "s/${CURRENT_USERNAME}/${username}/g" ./flake.nix
-    sed -i -e "s/${CURRENT_USERNAME}/${username}/g" ./modules/home/audacious.nix
 }
 
 get_host() {
@@ -89,12 +83,14 @@ install() {
 
     # Create basic directories
     echo -e "Creating folders:"
-    echo -e "    - ${MAGENTA}~/Music${NORMAL}"
+    echo -e "    - ${MAGENTA}~/Downloads${NORMAL}"
     echo -e "    - ${MAGENTA}~/Documents${NORMAL}"
     echo -e "    - ${MAGENTA}~/Pictures/wallpapers/others${NORMAL}"
-    mkdir -p ~/Music
+    echo -e "    - ${MAGENTA}~/Projects${NORMAL}\n"
+    mkdir -p ~/Downloads
     mkdir -p ~/Documents
     mkdir -p ~/Pictures/wallpapers/others
+    mkdir -p ~/Projects
     sleep 0.2
 
     # Copy the wallpapers

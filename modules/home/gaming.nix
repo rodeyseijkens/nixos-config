@@ -8,24 +8,16 @@
     # inputs.nix-gaming.packages.${pkgs.system}.wine-ge
 
     ## Minecraft
-    prismlauncher
+    # prismlauncher
 
     ## Cli games
     _2048-in-terminal
     vitetris
     nethack
-    
-    ## Celeste
-    celeste-classic
-    celeste-classic-pm
-
-    ## Doom
-    # gzdoom
-    crispy-doom
 
     ## Emulation
-    sameboy
-    snes9x
+    # sameboy
+    # snes9x
     # cemu
     # dolphin-emu
   ];
