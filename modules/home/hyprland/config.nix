@@ -98,13 +98,13 @@
           xray = true;
         };
 
-        drop_shadow = true;
+        # drop_shadow = true;
 
-        shadow_ignore_window = true;
-        shadow_offset = "0 2";
-        shadow_range = 20;
-        shadow_render_power = 3;
-        "col.shadow" = "rgba(00000055)";
+        # shadow_ignore_window = true;
+        # shadow_offset = "0 2";
+        # shadow_range = 20;
+        # shadow_render_power = 3;
+        # "col.shadow" = "rgba(00000055)";
       };
 
       animations = {
@@ -145,7 +145,7 @@
         "$mainMod, Return, exec, kitty"
         "ALT, Return, exec, [float; center; size 950 650] kitty"
         "$mainMod SHIFT, Return, exec, [fullscreen] kitty"
-        "$mainMod, B, exec, hyprctl dispatch exec '[workspace 1 silent] firefox'"
+        "$mainMod, B, exec, firefox"
         "$mainMod, Q, killactive,"
         "$mainMod, F, fullscreen, 0"
         "$mainMod SHIFT, F, fullscreen, 1"
@@ -342,7 +342,7 @@
     };
 
     extraConfig = "
-      monitor=,preferred,auto,auto
+      monitor = , preferred, auto, 1
 
       xwayland {
         force_zero_scaling = true
