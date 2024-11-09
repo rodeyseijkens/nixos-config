@@ -21,8 +21,8 @@
         "hyprlock"
 
         ## App auto start
-        # "[workspace 1 silent] firefox"
-        # "[workspace 2 silent] kitty"
+        "[workspace 1 silent] firefox"
+        "[workspace 2 silent] kitty"
       ];
 
       input = {
@@ -32,7 +32,9 @@
         follow_mouse = 0;
         float_switch_override_focus = 0;
         mouse_refocus = 0;
-        sensitivity = 0;
+        accel_profile =  "flat";
+        sensitivity = 0.8; # -1.0 - 1.0, 0 means no modification.
+        force_no_accel = 0;
         touchpad = {
           natural_scroll = true;
         };
@@ -142,9 +144,9 @@
         "$mainMod, F1, exec, show-keybinds"
 
         # keybindings
-        "$mainMod, Return, exec, kitty"
-        "ALT, Return, exec, [float; center; size 950 650] kitty"
-        "$mainMod SHIFT, Return, exec, [fullscreen] kitty"
+        "$mainMod, Return, exec, [float; center; size 950 650] kitty"
+        "$mainMod SHIFT, Return, exec, kitty"
+        "$mainMod ALT, Return, exec, [fullscreen] kitty"
         "$mainMod, B, exec, firefox"
         "$mainMod, Q, killactive,"
         "$mainMod, F, fullscreen, 0"
