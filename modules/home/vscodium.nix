@@ -1,79 +1,75 @@
-{ pkgs, ... }: 
+{ inputs, pkgs, ... }: 
 let 
-  jonathanharty.gruvbox-material-icon-theme = pkgs.vscode-utils.buildVscodeMarketplaceExtension {
-    mktplcRef = {
-      name = "gruvbox-material-icon-theme";
-      publisher = "JonathanHarty";
-      version = "1.1.5";
-      hash = "sha256-86UWUuWKT6adx4hw4OJw3cSZxWZKLH4uLTO+Ssg75gY=";
-    };
-  };
-  # sainnhe.gruvbox-material = pkgs.vscode-utils.buildVscodeMarketplaceExtension {
-  #   mktplcRef = {
-  #     name = "gruvbox-material";
-  #     publisher = "sainnhe";
-  #     version = "6.5.2";
-  #     hash = "sha256-D+SZEQQwjZeuyENOYBJGn8tqS3cJiWbEkmEqhNRY/i4=";
-  #   };
-  # };
+  marketplace = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace;
+  marketplace-release = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace-release;
 in
 {
   programs.vscode = {
     enable = true;
     package = pkgs.vscodium;
-    extensions = with pkgs.vscode-extensions; [
-      # nix language
-      bbenoist.nix
-      # nix-shell suport 
-      arrterian.nix-env-selector
-      
-      # misc
-      GitHub.copilot
-      vivaxy.vscode-conventional-commits # commit message helper
+    extensions =
+      (with pkgs.vscode-extensions; [
+        # nix language
+        bbenoist.nix
+        # nix-shell suport 
+        arrterian.nix-env-selector
+      ])
+      ++ (with marketplace; [
+        github.copilot
+        github.copilot-chat
+        
+        vivaxy.vscode-conventional-commits # commit message helper  
 
-      # Color theme
-      jdinhlife.gruvbox
-      # sainnhe.gruvbox-material
-      jonathanharty.gruvbox-material-icon-theme
-    ];
+        # Color theme
+        jdinhlife.gruvbox
+        jonathanharty.gruvbox-material-icon-theme
+      ])
+      ++ (with marketplace-release; [
+        ###
+      ]);
     userSettings = {
       "update.mode" = "none";
-      "extensions.autoUpdate" = false; # This stuff fixes vscode freaking out when theres an update
-      "window.titleBarStyle" = "custom"; # needed otherwise vscode crashes, see https://github.com/NixOS/nixpkgs/issues/246509
 
-      "window.menuBarVisibility" = "toggle";
       "editor.fontFamily" = "'Maple Mono', 'SymbolsNerdFont', 'monospace', monospace";
-      "terminal.integrated.fontFamily" = "'Maple Mono', 'SymbolsNerdFont'";
-      "editor.fontSize" = 18;
-      "workbench.colorTheme" = "Gruvbox Dark Hard";
-      "workbench.iconTheme" = "gruvbox-material-icon-theme";
-      "material-icon-theme.folders.theme" = "classic";
-      "vsicons.dontShowNewVersionMessage" = true;
-      "explorer.confirmDragAndDrop" = false;
       "editor.fontLigatures" = true;
-      "editor.minimap.enabled" = false;
-      "workbench.startupEditor" = "none";
+      "editor.fontSize" = 18;
 
+      "editor.formatOnPaste" = true;
       "editor.formatOnSave" = true;
       "editor.formatOnType" = true;
-      "editor.formatOnPaste" = true;
 
-      "workbench.layoutControl.type" = "menu";
-      "workbench.editor.limit.enabled" = true;
-      "workbench.editor.limit.value" = 10;
-      "workbench.editor.limit.perEditorGroup" = true;
-      "workbench.editor.showTabs" = "single";
-      "files.autoSave" = "onWindowChange";
-      "explorer.openEditors.visible" = 0;
-      "breadcrumbs.enabled" = false;
-      "editor.renderControlCharacters" = false;
-      "workbench.activityBar.location" = "top";
-      "workbench.statusBar.visible" = false;
-      "editor.scrollbar.verticalScrollbarSize" = 2;
-      "editor.scrollbar.horizontalScrollbarSize" = 2;
-      "workbench.layoutControl.enabled" = false;
-
+      "editor.minimap.enabled" = true;
       "editor.mouseWheelZoom" = true;
+      "editor.renderControlCharacters" = false;
+      "editor.scrollbar.horizontalScrollbarSize" = 5;
+      "editor.scrollbar.verticalScrollbarSize" = 5;
+
+      "explorer.confirmDragAndDrop" = false;
+      "explorer.openEditors.visible" = 0;
+
+      "extensions.autoUpdate" = false; # This stuff fixes vscode freaking out when theres an update
+
+      "files.autoSave" = "onWindowChange";
+      "terminal.integrated.fontFamily" = "'Maple Mono', 'SymbolsNerdFont'";
+      "vsicons.dontShowNewVersionMessage" = true;
+
+      "window.customTitleBarVisibility" = "auto";
+      "window.menuBarVisibility" = "toggle";
+      
+      "workbench.activityBar.location" = "top";
+      "workbench.colorTheme" = "Gruvbox Dark Hard";
+      "workbench.editor.limit.enabled" = true;
+      "workbench.editor.limit.perEditorGroup" = true;
+      "workbench.editor.limit.value" = 10;
+      "workbench.editor.showTabs" = "single";
+      "workbench.iconTheme" = "gruvbox-material-icon-theme";
+      "workbench.layoutControl.enabled" = false;
+      "workbench.layoutControl.type" = "menu";
+      "workbench.startupEditor" = "none";
+      "workbench.statusBar.visible" = false;
+
+      # Extension settings
+      "material-icon-theme.folders.theme" = "classic";
 
       "C_Cpp.autocompleteAddParentheses" = true;
       "C_Cpp.formatting" = "clangFormat";
