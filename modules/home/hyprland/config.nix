@@ -26,7 +26,7 @@
       ];
 
       input = {
-        kb_layout = "us,fr";
+        kb_layout = "us";
         kb_options ="grp:alt_caps_toggle"; 
         numlock_by_default = true;
         follow_mouse = 0;
@@ -152,7 +152,6 @@
         "$mainMod, G, exec, toggle_float"
         "$mainMod, Space, exec, rofi -show drun || pkill rofi"
         "$mainMod SHIFT, D, exec, webcord --enable-features=UseOzonePlatform --ozone-platform=wayland"
-        "$mainMod SHIFT, S, exec, hyprctl dispatch exec '[workspace 5 silent] SoundWireServer'"
         "$mainMod, Escape, exec, swaylock"
         "ALT, Escape, exec, hyprlock"
         "$mainMod SHIFT, Escape, exec, power-menu"
@@ -193,7 +192,7 @@
         "$mainMod, 9, workspace, 9"
         "$mainMod, 0, workspace, 10"
 
-        # same as above, but switch to the workspace
+        # same as above, but move to the workspace
         "$mainMod SHIFT, 1, movetoworkspacesilent, 1" # movetoworkspacesilent
         "$mainMod SHIFT, 2, movetoworkspacesilent, 2"
         "$mainMod SHIFT, 3, movetoworkspacesilent, 3"
@@ -265,8 +264,8 @@
 
       # mouse binding
       bindm = [
-        "$mainMod, mouse:272, movewindow"
-        "$mainMod, mouse:273, resizewindow"
+        "$mainMod, mouse:274, movewindow"
+        "$mainMod SHIFT, mouse:274, resizewindow"
       ];
 
       # windowrule
@@ -285,7 +284,6 @@
         "tile, neovide"
         "idleinhibit focus,mpv"
         "float,udiskie"
-        "float,title:^(Transmission)$"
         "float,title:^(Volume Control)$"
         "float,title:^(Firefox — Sharing Indicator)$"
         "move 0 0,title:^(Firefox — Sharing Indicator)$"
@@ -317,7 +315,6 @@
         "size 850 500,class:^(org.gnome.FileRoller)$"
         "size 850 500,title:^(File Upload)$"
         "float,class:^(pavucontrol)$"
-        "float,class:^(SoundWireServer)$"
         "float,class:^(.sameboy-wrapped)$"
         "float,class:^(file_progress)$"
         "float,class:^(confirm)$"

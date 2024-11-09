@@ -8,7 +8,6 @@ in
 
     ## CLI utility
     ani-cli
-    binsider
     bitwise                           # cli tool for bit / hex manipulation
     caligula                          # User-friendly, lightweight TUI for disk imaging
     dconf-editor
@@ -17,7 +16,7 @@ in
     entr                              # perform action when file change
     fd                                # find replacement
     ffmpeg
-    file                               # Show file information 
+    file                              # Show file information 
     gtt                               # google translate TUI
     gifsicle                          # gif utility
     gtrash                            # rm replacement, put deleted files in system trash
@@ -58,11 +57,10 @@ in
     bleachbit                         # cache cleaner
     nix-prefetch-github
     pavucontrol                       # pulseaudio volume controle (GUI)
-    soundwireserver
     vlc
     winetricks
     wineWowPackages.wayland
-    zenity
+    zenity                            # simple dialog creator
 
     # C / C++
     gcc

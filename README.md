@@ -254,7 +254,6 @@ Keybindings
 - `$mainMod, G, toggle_float,`
 - `$mainMod, Space, exec, rofi -show drun`
 - `$mainMod SHIFT, D, exec, hyprctl dispatch exec '[workspace 4 silent] discord --enable-features=UseOzonePlatform --ozone-platform=wayland'`
-- `$mainMod SHIFT, S, exec, hyprctl dispatch exec '[workspace 5 silent] SoundWireServer'`
 - `$mainMod, Escape, exec, swaylock`
 - `ALT, Escape, exec, hyprlock`
 - `$mainMod SHIFT, Escape, exec, power-menu`
@@ -293,7 +292,7 @@ Keybindings
 - `$mainMod, 9, workspace, 9`
 - `$mainMod, 0, workspace, 10`
 
-##### same as above, but switch to the workspace
+##### same as above, but move to the workspace
 
 - `$mainMod SHIFT, 1, movetoworkspacesilent, 1" # movetoworkspacesilent`
 - `$mainMod SHIFT, 2, movetoworkspacesilent, 2"`
@@ -321,6 +320,11 @@ Keybindings
 - `$mainMod ALT, right, moveactive, 80 0`
 - `$mainMod ALT, up, moveactive, 0 -80`
 - `$mainMod ALT, down, moveactive, 0 80`
+
+#### mouse bindings
+- `$mainMod, mouse:274, movewindow`
+- `$mainMod SHIFT, mouse:274, movewindow`
+
 
 ##### media and volume controls
 
