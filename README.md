@@ -69,7 +69,7 @@ Hyprlock (EXPAND)
 | **Application Launcher**    |                                    [rofi][rofi]                                     |
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
 | **Terminal Emulator**       |                                 [Kitty][Kitty]                                      |
-| **Shell**                   |             [zsh][zsh] + [oh-my-zsh][oh-my-zsh] + [Starship][Starship]              |
+| **Shell**                   |                       [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                           |
 | **Text Editor**             |                       [VSCodium][VSCodium] + [Neovim][Neovim]                       |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
@@ -294,24 +294,24 @@ Keybindings
 
 ##### same as above, but move to the workspace
 
-- `$mainMod SHIFT, 1, movetoworkspacesilent, 1" # movetoworkspacesilent`
-- `$mainMod SHIFT, 2, movetoworkspacesilent, 2"`
-- `$mainMod SHIFT, 3, movetoworkspacesilent, 3"`
-- `$mainMod SHIFT, 4, movetoworkspacesilent, 4"`
-- `$mainMod SHIFT, 5, movetoworkspacesilent, 5"`
-- `$mainMod SHIFT, 6, movetoworkspacesilent, 6"`
-- `$mainMod SHIFT, 7, movetoworkspacesilent, 7"`
-- `$mainMod SHIFT, 8, movetoworkspacesilent, 8"`
-- `$mainMod SHIFT, 9, movetoworkspacesilent, 9"`
-- `$mainMod SHIFT, 0, movetoworkspacesilent, 10"`
+- `$mainMod SHIFT, 1, movetoworkspacesilent, 1 # movetoworkspacesilent`
+- `$mainMod SHIFT, 2, movetoworkspacesilent, 2`
+- `$mainMod SHIFT, 3, movetoworkspacesilent, 3`
+- `$mainMod SHIFT, 4, movetoworkspacesilent, 4`
+- `$mainMod SHIFT, 5, movetoworkspacesilent, 5`
+- `$mainMod SHIFT, 6, movetoworkspacesilent, 6`
+- `$mainMod SHIFT, 7, movetoworkspacesilent, 7`
+- `$mainMod SHIFT, 8, movetoworkspacesilent, 8`
+- `$mainMod SHIFT, 9, movetoworkspacesilent, 9`
+- `$mainMod SHIFT, 0, movetoworkspacesilent, 10`
 - `$mainMod CTRL, c, movetoworkspace, empty"`
 
 ##### window control
 
-- `$mainMod SHIFT, left, movewindow, l`
-- `$mainMod SHIFT, right, movewindow, r`
-- `$mainMod SHIFT, up, movewindow, u`
-- `$mainMod SHIFT, down, movewindow, d`
+- `$mainMod SHIFT, left, movewindoworgroup, l`
+- `$mainMod SHIFT, right, movewindoworgroup, r`
+- `$mainMod SHIFT, up, movewindoworgroup, u`
+- `$mainMod SHIFT, down, movewindoworgroup, d`
 - `$mainMod CTRL, left, resizeactive, -80 0`
 - `$mainMod CTRL, right, resizeactive, 80 0`
 - `$mainMod CTRL, up, resizeactive, 0 -80`
@@ -321,10 +321,16 @@ Keybindings
 - `$mainMod ALT, up, moveactive, 0 -80`
 - `$mainMod ALT, down, moveactive, 0 80`
 
-#### mouse bindings
-- `$mainMod, mouse:274, movewindow`
-- `$mainMod SHIFT, mouse:274, movewindow`
+#### window tabbed grouping
+- `$mainMod SHIFT, T, togglegroup # toggle tabbed group`
+- `$mainMod ALT, left, changegroupactive, b # change active tab back`
+- `$mainMod ALT, right, changegroupactive, f # change active tab forward`
+- `$mainMod ALT, j, changegroupactive, b # change active tab back` 
+- `$mainMod ALT, l, changegroupactive, f # change active tab forward`
 
+#### mouse bindings
+- `$mainMod, mouse:274, movewindoworgroup`
+- `$mainMod SHIFT, mouse:274, resizewindow`
 
 ##### media and volume controls
 
