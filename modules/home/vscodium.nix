@@ -26,12 +26,10 @@ in
       bbenoist.nix
       # nix-shell suport 
       arrterian.nix-env-selector
-      # python
-      ms-python.python
-      # C/C++
-      ms-vscode.cpptools
-      # OCaml
-      ocamllabs.ocaml-platform
+      
+      # misc
+      GitHub.copilot
+      vivaxy.vscode-conventional-commits # commit message helper
 
       # Color theme
       jdinhlife.gruvbox
@@ -69,12 +67,10 @@ in
       "explorer.openEditors.visible" = 0;
       "breadcrumbs.enabled" = false;
       "editor.renderControlCharacters" = false;
-      "workbench.activityBar.location" = "hidden";
+      "workbench.activityBar.location" = "top";
       "workbench.statusBar.visible" = false;
       "editor.scrollbar.verticalScrollbarSize" = 2;
       "editor.scrollbar.horizontalScrollbarSize" = 2;
-      "editor.scrollbar.vertical" = "hidden";
-      "editor.scrollbar.horizontal" = "hidden";
       "workbench.layoutControl.enabled" = false;
 
       "editor.mouseWheelZoom" = true;
