@@ -267,7 +267,7 @@
 
       # mouse binding
       bindm = [
-        "$mainMod, mouse:274, movewindoworgroup"
+        "$mainMod, mouse:274, movewindow"
         "$mainMod SHIFT, mouse:274, resizewindow"
       ];
 
