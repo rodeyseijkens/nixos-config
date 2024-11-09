@@ -80,22 +80,18 @@
 
       decoration = {
         rounding = 0;
-        # active_opacity = 0.90;
-        # inactive_opacity = 0.90;
-        # fullscreen_opacity = 1.0;
 
         blur = {
           enabled = true;
           size = 2;
           passes = 2;
-          # size = 4;
-          # passes = 2;
           brightness = 1;
           contrast = 1.400;
           ignore_opacity = true;
           noise = 0;
           new_optimizations = true;
           xray = true;
+          popups = false;
         };
 
 
@@ -147,15 +143,13 @@
         "$mainMod, Return, exec, [float; center; size 950 650] kitty"
         "$mainMod SHIFT, Return, exec, kitty"
         "$mainMod ALT, Return, exec, [fullscreen] kitty"
-        "$mainMod, B, exec, hyprctl dispatch exec '[workspace 1 silent] firefox'"
+        "$mainMod, B, exec, firefox'"
         "$mainMod, Q, killactive,"
         "$mainMod, F, fullscreen, 0"
         "$mainMod SHIFT, F, fullscreen, 1"
         "$mainMod, G, exec, toggle_float"
         "$mainMod, Space, exec, rofi -show drun || pkill rofi"
         "$mainMod SHIFT, D, exec, webcord --enable-features=UseOzonePlatform --ozone-platform=wayland"
-        "$mainMod, Escape, exec, swaylock"
-        "ALT, Escape, exec, hyprlock"
         "$mainMod SHIFT, Escape, exec, power-menu"
         "$mainMod, P, pseudo,"
         "$mainMod, X, togglesplit,"

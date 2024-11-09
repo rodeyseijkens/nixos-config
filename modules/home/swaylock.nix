@@ -1,7 +1,7 @@
 { pkgs, lib, config, inputs, ... }: 
 {
   programs.swaylock = {
-    enable = true;
+    enable = false;
     package = pkgs.swaylock-effects;
     settings = {
       clock = true;

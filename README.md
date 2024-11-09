@@ -79,7 +79,7 @@ Hyprlock (EXPAND)
 | **Color Scheme**            |                            [Gruvbox Dark Hard][Gruvbox]                             |
 | **Cursor**                  |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
 | **Icons**                   |                            [Papirus-Dark][Papirus-Dark]                             |
-| **Lockscreen**              |             [Hyprlock][Hyprlock] + [Swaylock-effects][Swaylock-effects]             |
+| **Lockscreen**              |                                [Hyprlock][Hyprlock]                                 |
 | **Image Viewer**            |                                   [qview][qview]                                    |
 | **Media Player**            |                                     [mpv][mpv]                                      |
 | **Screenshot Software**     |                               [grimblast][grimblast]                                |
@@ -247,15 +247,13 @@ Keybindings
 - `$mainMod, Return, exec, [float; center] kitty start --always-new-process`
 - `$mainMod SHIFT, Return, exec, kitty start --always-new-process`
 - `$mainMod ALT, Return, exec, [fullscreen] kitty start --always-new-process`
-- `$mainMod, B, exec, hyprctl dispatch exec '[workspace 1 silent] firefox'`
+- `$mainMod, B, exec, firefox`
 - `$mainMod, Q, killactive,`
 - `$mainMod, F, fullscreen, 0`
 - `$mainMod SHIFT, F, fullscreen, 1`
 - `$mainMod, G, toggle_float,`
 - `$mainMod, Space, exec, rofi -show drun`
 - `$mainMod SHIFT, D, exec, hyprctl dispatch exec '[workspace 4 silent] discord --enable-features=UseOzonePlatform --ozone-platform=wayland'`
-- `$mainMod, Escape, exec, swaylock`
-- `ALT, Escape, exec, hyprlock`
 - `$mainMod SHIFT, Escape, exec, power-menu`
 - `$mainMod, P, pseudo,`
 - `$mainMod, J, togglesplit,`
