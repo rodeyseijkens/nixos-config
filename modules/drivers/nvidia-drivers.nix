@@ -18,11 +18,6 @@ in
 
     nixpkgs.config.nvidia.acceptLicense = true;
     
-    # Enable OpenGL
-    hardware.opengl = {
-      enable = true;
-    };
-    
     services.xserver.videoDrivers = [ "nvidia" ];
 
     environment.variables = {
