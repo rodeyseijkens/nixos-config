@@ -65,7 +65,6 @@
       };
 
       dwindle = {
-        # no_gaps_when_only = false;
         force_split = 0;
         special_scale_factor = 1.0;
         split_width_multiplier = 1.0;
@@ -77,7 +76,6 @@
       master = {
         new_status = "master";
         special_scale_factor = 1;
-        # no_gaps_when_only = false;
       };
 
       decoration = {
@@ -100,13 +98,15 @@
           xray = true;
         };
 
-        # drop_shadow = true;
 
-        # shadow_ignore_window = true;
-        # shadow_offset = "0 2";
-        # shadow_range = 20;
-        # shadow_render_power = 3;
-        # "col.shadow" = "rgba(00000055)";
+        shadow = {
+          enabled = true;
+          range = 20;
+          render_power = 3;
+          ignore_window = true;
+          color = "rgba(00000055)";
+          offset = "0 2";
+        };
       };
 
       animations = {

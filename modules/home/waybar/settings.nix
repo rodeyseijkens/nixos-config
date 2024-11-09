@@ -79,6 +79,9 @@ in
             "5"= [];
         };
     };
+    "hyprland/window"= {
+        separate-outputs = true;
+    };  
     cpu= {
         format= "<span foreground='${green}'> </span> {usage}%";
         format-alt= "<span foreground='${green}'> </span> {avg_frequency} GHz";
