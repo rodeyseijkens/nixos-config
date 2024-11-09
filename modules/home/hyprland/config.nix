@@ -147,7 +147,7 @@
         "$mainMod, Return, exec, [float; center; size 950 650] kitty"
         "$mainMod SHIFT, Return, exec, kitty"
         "$mainMod ALT, Return, exec, [fullscreen] kitty"
-        "$mainMod, B, exec, firefox"
+        "$mainMod, B, exec, hyprctl dispatch exec '[workspace 1 silent] firefox'"
         "$mainMod, Q, killactive,"
         "$mainMod, F, fullscreen, 0"
         "$mainMod SHIFT, F, fullscreen, 1"
@@ -341,7 +341,7 @@
     };
 
     extraConfig = "
-      monitor = , preferred, auto, 1
+      monitor =,preferred,auto,auto
 
       xwayland {
         force_zero_scaling = true
