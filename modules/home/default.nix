@@ -5,7 +5,7 @@
     ./btop.nix                        # resouces monitor 
     ./discord/discord.nix             # discord with gruvbox
     ./fastfetch.nix                   # fetch tool
-    ./firefox.nix                      # firefox browser
+    ./firefox.nix                     # browser
     ./fzf.nix                         # fuzzy finder
     ./gaming.nix                      # packages related to gaming
     ./git.nix                         # version control
@@ -16,9 +16,9 @@
     ./micro.nix                       # nano replacement
     ./nemo.nix                        # file manager
     ./nvim.nix                        # neovim editor
-    ./p10k/p10k.nix
+    ./p10k/p10k.nix                   # zsh theme
     ./packages.nix                    # other packages
-    ./rofi.nix                         # launcher
+    ./rofi.nix                        # launcher
     ./scripts/scripts.nix             # personal scripts
     ./spicetify.nix                   # spotify client
     ./starship.nix                    # shell prompt
