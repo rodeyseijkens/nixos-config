@@ -91,7 +91,7 @@
           noise = 0;
           new_optimizations = true;
           xray = true;
-          popups = false;
+          popups = true;
         };
 
 
@@ -153,7 +153,7 @@
         "$mainMod SHIFT, Escape, exec, power-menu"
         "$mainMod, P, pseudo,"
         "$mainMod, X, togglesplit,"
-        "$mainMod, T, exec, toggle_oppacity"
+        "$mainMod, T, exec, toggle_opacity"
         "$mainMod, E, exec, nemo"
         "$mainMod SHIFT, B, exec, toggle_waybar"
         "$mainMod, C ,exec, hyprpicker -a"
