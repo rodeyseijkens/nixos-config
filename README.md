@@ -84,7 +84,6 @@ Hyprlock (EXPAND)
 | **Media Player**            |                                     [mpv][mpv]                                      |
 | **Screenshot Software**     |                               [grimblast][grimblast]                                |
 | **Screen Recording**        |                             [wf-recorder][wf-recorder]                              |
-| **Clipboard**               |                         [wl-clip-persist][wl-clip-persist]                          |
 | **Color Picker**            |                              [hyprpicker][hyprpicker]                               |
 
 ## 📝 Shell aliases
@@ -348,10 +347,6 @@ Keybindings
 - `,XF86MonBrightnessDown, exec, brightnessctl set 5%-`
 - `$mainMod, XF86MonBrightnessUp, exec, brightnessctl set 100%+`
 - `$mainMod, XF86MonBrightnessDown, exec, brightnessctl set 100%-`
-
-##### clipboard manager
-
-- `$mainMod, V, exec, cliphist list | rofi -dmenu -theme-str 'window {width: 50%;}' | cliphist decode | wl-copy`
 </details>
 
 # 🚀 Installation
@@ -510,7 +505,6 @@ Other dotfiles that I learned / copy from:
 [Nerd fonts]: https://github.com/ryanoasis/nerd-fonts
 [NetworkManager]: https://wiki.gnome.org/Projects/NetworkManager
 [network-manager-applet]: https://gitlab.gnome.org/GNOME/network-manager-applet/
-[wl-clip-persist]: https://github.com/Linus789/wl-clip-persist
 [wf-recorder]: https://github.com/ammen99/wf-recorder
 [hyprpicker]: https://github.com/hyprwm/hyprpicker
 [Gruvbox]: https://github.com/morhetz/gruvbox
