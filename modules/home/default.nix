@@ -21,14 +21,11 @@
     ./rofi.nix                        # launcher
     ./scripts/scripts.nix             # personal scripts
     ./spicetify.nix                   # spotify client
-    ./starship.nix                    # shell prompt
-    ./swaylock.nix                    # lock screen
     ./swaync/swaync.nix               # notification deamon
     ./swayosd.nix                     # brightness / volume wiget
     ./viewnior.nix                    # image viewer
     ./vscodium.nix                    # vscode fork
     ./waybar                          # status bar
-    ./wezterm.nix                     # terminal
     ./xdg-mimes.nix                   # xdg config
     ./zsh                             # shell
   ];

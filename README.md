@@ -485,8 +485,6 @@ Other dotfiles that I learned / copy from:
 
 [Hyprland]: https://github.com/hyprwm/Hyprland
 [Kitty]: https://sw.kovidgoyal.net/kitty/
-[Wezterm]: https://wezfurlong.org/wezterm/index.html
-[Starship]: https://github.com/starship/starship
 [Waybar]: https://github.com/Alexays/Waybar
 [rofi]: https://github.com/lbonn/rofi
 [Btop]: https://github.com/aristocratos/btop
@@ -494,7 +492,6 @@ Other dotfiles that I learned / copy from:
 [yazi]: https://github.com/sxyazi/yazi
 [zsh]: https://ohmyz.sh/
 [oh-my-zsh]: https://ohmyz.sh/
-[Swaylock-effects]: https://github.com/mortie/swaylock-effects
 [Hyprlock]: https://github.com/hyprwm/hyprlock
 [mpv]: https://github.com/mpv-player/mpv
 [VSCodium]: https://vscodium.com/

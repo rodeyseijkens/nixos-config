@@ -325,6 +325,7 @@
         "float,title:^(branchdialog)$"
         "float,title:^(Confirm to replace files)$"
         "float,title:^(File Operation Progress)$"
+        "center,floating:1,class:(Codium),title:(VSCodium)" # center floating windows of VSCodium
 
         "opacity 0.0 override,class:^(xwaylandvideobridge)$"
         "noanim,class:^(xwaylandvideobridge)$"
@@ -332,10 +333,11 @@
         "maxsize 1 1,class:^(xwaylandvideobridge)$"
         "noblur,class:^(xwaylandvideobridge)$"
       ];
-
     };
 
     extraConfig = "
+      monitor = DP-2, 2560x1440@165, -2560x0, 1
+      monitor = DP-3, 2560x1440@165, 0x0, 1
       monitor =,preferred,auto,auto
 
       xwayland {
