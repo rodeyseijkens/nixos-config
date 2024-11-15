@@ -138,7 +138,7 @@
         "$mainMod, F1, exec, show-keybinds"
 
         # keybindings
-        "$mainMod, Return, exec, [float; center; size 950 650] kitty"
+        "$mainMod, Return, exec, [float; center; size 50% 50%] kitty"
         "$mainMod SHIFT, Return, exec, kitty"
         "$mainMod ALT, Return, exec, [fullscreen] kitty"
         "$mainMod, B, exec, firefox"
@@ -343,6 +343,14 @@
       xwayland {
         force_zero_scaling = true
       }
+
+
+      # Special Keybind disabler
+      bind = $mainMod SHIFT CTRL, G, submap, clean
+      submap = clean
+      bind = $mainMod SHIFT CTRL, Q, killactive,
+      bind = $mainMod SHIFT CTRL, G, submap, reset
+      submap = reset
     ";
   };
 }
