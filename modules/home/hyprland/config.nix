@@ -299,7 +299,7 @@
         "workspace 1, class:^(firefox)$"
         "workspace 3, class:^(evince)$"
         "workspace 5, class:^(Spotify)$"
-        "workspace 8, class:^(com.obsproject.Studio)$"
+        "workspace 9, class:^(steam)$"
         "workspace 10, class:^(discord)$"
         "workspace 10, class:^(WebCord)$"
         "idleinhibit focus, class:^(mpv)$"
@@ -343,7 +343,6 @@
       xwayland {
         force_zero_scaling = true
       }
-
 
       # Special Keybind disabler
       bind = $mainMod SHIFT CTRL, G, submap, clean

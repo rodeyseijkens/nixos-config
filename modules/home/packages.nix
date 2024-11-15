@@ -5,6 +5,9 @@ in
 {
   home.packages = (with pkgs; [
     _2048
+    _2048-in-terminal
+    vitetris
+    nethack
 
     ## CLI utility
     ani-cli
