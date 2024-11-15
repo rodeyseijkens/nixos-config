@@ -6,10 +6,10 @@
 }:
 with lib;
 let
-  cfg = config.drivers.nvidia;
+  cfg = config.drivers.nvidiagpu;
 in
 {
-  options.drivers.nvidia = {
+  options.drivers.nvidiagpu = {
     enable = mkEnableOption "Enable Nvidia Drivers";
   };
 

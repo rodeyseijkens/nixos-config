@@ -1,15 +1,16 @@
-{ pkgs, ... }: 
-{
+{pkgs, ...}: {
   imports = [
     ./hardware-configuration.nix
     ./../../modules/core
-    ./../../modules/drivers/amd-drivers.nix
-    ./../../modules/drivers/nvidia-drivers.nix
+    ./../../modules/drivers
   ];
 
-  # Extra Module Options
-  drivers.amdgpu.enable = false;
-  drivers.nvidia.enable = true;
-
+  # Desktop Environment Power Management
   powerManagement.cpuFreqGovernor = "performance";
+
+  # Driver Options
+  drivers = {
+    amdgpu.enable = false;
+    nvidiagpu.enable = true;
+  };
 }
