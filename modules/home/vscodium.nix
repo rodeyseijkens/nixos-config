@@ -1,9 +1,11 @@
-{ inputs, pkgs, ... }: 
-let 
+{
+  inputs,
+  pkgs,
+  ...
+}: let
   marketplace = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace;
   marketplace-release = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace-release;
-in
-{
+in {
   programs.vscode = {
     enable = true;
     package = pkgs.vscodium;
@@ -11,10 +13,13 @@ in
       (with pkgs.vscode-extensions; [
         # nix language
         bbenoist.nix
+
+        # nix formatting
+        kamadorueda.alejandra
       ])
       ++ (with marketplace; [
         github.copilot
-        
+
         vivaxy.vscode-conventional-commits # commit message helper
         eamodio.gitlens
 
@@ -53,7 +58,7 @@ in
 
       "window.customTitleBarVisibility" = "auto";
       "window.menuBarVisibility" = "toggle";
-      
+
       "workbench.activityBar.location" = "top";
       "workbench.colorTheme" = "Gruvbox Dark Hard";
       "workbench.editor.limit.enabled" = true;
