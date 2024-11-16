@@ -1,6 +1,7 @@
-{ inputs, nixpkgs, self, username, host, ...}:
-{
+{...}: {
   imports = [
+    ./drivers/amd-drivers.nix
+    ./drivers/nvidia-drivers.nix
     ./bootloader.nix
     ./hardware.nix
     ./xserver.nix

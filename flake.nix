@@ -4,25 +4,25 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nur.url = "github:nix-community/NUR";
-  
+
     hypr-contrib.url = "github:hyprwm/contrib";
     hyprpicker.url = "github:hyprwm/hyprpicker";
-  
+
     alejandra.url = "github:kamadorueda/alejandra/3.0.0";
-  
+
     nix-gaming.url = "github:fufexan/nix-gaming";
-  
+
     hyprland = {
       type = "git";
       url = "https://github.com/hyprwm/Hyprland";
       submodules = true;
     };
-  
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     spicetify-nix = {
       url = "github:gerg-l/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,8 +43,12 @@
     };
   };
 
-  outputs = { nixpkgs, self, ...} @ inputs:
-  let
+  # All outputs for the system (configs)
+  outputs = {
+    nixpkgs,
+    self,
+    ...
+  } @ inputs: let
     username = "rodey";
     system = "x86_64-linux";
     pkgs = import nixpkgs {
@@ -52,24 +56,31 @@
       config.allowUnfree = true;
     };
     lib = nixpkgs.lib;
-  in
-  {
+
+    # This lets us reuse the code to "create" a system
+    # Credits go to sioodmy on this one!
+    # https://github.com/sioodmy/dotfiles/blob/main/flake.nix
+    mkSystem = pkgs: system: host:
+      pkgs.lib.nixosSystem {
+        system = system;
+        modules = [
+          # Hardware config (bootloader, kernel modules, filesystems, etc)
+          # DO NOT USE MY HARDWARE CONFIG!! USE YOUR OWN!!
+          ./hosts/${host}/hardware-configuration.nix
+          # General configuration (networking, sound, etc)
+          ./modules/core
+          # Host specific configuration and overrides
+          ./hosts/${host}
+        ];
+        specialArgs = {inherit inputs username host self;};
+      };
+  in {
     nixosConfigurations = {
-      desktop = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [ ./hosts/desktop ];
-        specialArgs = { host="desktop"; inherit self inputs username ; };
-      };
-      laptop = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [ ./hosts/laptop ];
-        specialArgs = { host="laptop"; inherit self inputs username ; };
-      };
-       vm = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [ ./hosts/vm ];
-        specialArgs = { host="vm"; inherit self inputs username ; };
-      };
+      # Now, defining a new system is can be done in one line
+      #                                Architecture   Hostname
+      desktop = mkSystem inputs.nixpkgs "x86_64-linux" "desktop";
+      laptop = mkSystem inputs.nixpkgs "x86_64-linux" "laptop";
+      vm = mkSystem inputs.nixpkgs "x86_64-linux" "vm";
     };
   };
 }
