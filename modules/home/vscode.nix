@@ -6,15 +6,14 @@
   ...
 }:
 with lib; let
-  cfg = config.modules.vscodium;
+  cfg = config.modules.vscode;
   marketplace = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace;
   marketplace-release = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace-release;
 in {
-  options.modules.vscodium = {enable = mkEnableOption "vscodium";};
+  options.modules.vscode = {enable = mkEnableOption "vscode";};
   config = mkIf cfg.enable {
     programs.vscode = {
       enable = true;
-      package = pkgs.vscodium;
       extensions =
         (with pkgs.vscode-extensions; [
           # nix language

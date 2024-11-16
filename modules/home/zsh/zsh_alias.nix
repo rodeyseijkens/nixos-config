@@ -1,5 +1,10 @@
-{ hostname, config, pkgs, host, ...}: 
 {
+  hostname,
+  config,
+  pkgs,
+  host,
+  ...
+}: {
   programs.zsh = {
     shellAliases = {
       # Utils
@@ -8,7 +13,10 @@
       tt = "gtrash put";
       cat = "bat";
       nano = "micro";
-      code = "codium";
+      code =
+        if (config.modules.vscodium.enable)
+        then "codium"
+        else "code";
       diff = "delta --diff-so-fancy --side-by-side";
       less = "bat";
       y = "yazi";
@@ -26,7 +34,10 @@
       tree = "eza --icons --tree --group-directories-first";
 
       # Nixos
-      cdnix = "cd ~/nixos-config && codium ~/nixos-config";
+      cdnix =
+        if (config.modules.vscodium.enable)
+        then "cd ~/nixos-config && codium ~/nixos-config"
+        else "cd ~/nixos-config && code ~/nixos-config";
       ns = "nom-shell --run zsh";
       nix-switch = "nh os switch";
       nix-update = "nh os switch --update";

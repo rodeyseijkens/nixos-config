@@ -21,6 +21,7 @@
     ./swaync/swaync.nix # notification deamon
     ./swayosd.nix # brightness / volume wiget
     ./viewnior.nix # image viewer
+    ./vscode.nix # vscode
     ./vscodium.nix # vscode fork
     ./waybar # status bar
     ./webcord # discord client with gruvbox

@@ -1,8 +1,6 @@
-{ ... }: 
-{
+{...}: {
   wayland.windowManager.hyprland = {
     settings = {
-
       # autostart
       exec-once = [
         "systemctl --user import-environment &"
@@ -25,12 +23,12 @@
 
       input = {
         kb_layout = "us";
-        kb_options ="grp:alt_caps_toggle"; 
+        kb_options = "grp:alt_caps_toggle";
         numlock_by_default = true;
         follow_mouse = 0;
         float_switch_override_focus = 0;
         mouse_refocus = 0;
-        accel_profile =  "flat";
+        accel_profile = "flat";
         sensitivity = 0.8; # -1.0 - 1.0, 0 means no modification.
         force_no_accel = 0;
         touchpad = {
@@ -92,7 +90,6 @@
           popups = true;
         };
 
-
         shadow = {
           enabled = true;
           range = 20;
@@ -115,17 +112,17 @@
 
         animation = [
           # name, enable, speed, curve, style
-        
+
           # Windows
           "windowsIn,   0, 4, easeOutCubic,  popin 20%" # window open
           "windowsOut,  0, 4, fluent_decel,  popin 80%" # window close.
-          "windowsMove, 1, 2, fluent_decel, slide"     # everything in between, moving, dragging, resizing.
+          "windowsMove, 1, 2, fluent_decel, slide" # everything in between, moving, dragging, resizing.
 
           # Fade
-          "fadeIn,      1, 3,   fade_curve"   # fade in (open) -> layers and windows
-          "fadeOut,     1, 3,   fade_curve"   # fade out (close) -> layers and windows
-          "fadeSwitch,  0, 1,   easeOutCirc"  # fade on changing activewindow and its opacity
-          "fadeShadow,  1, 10,  easeOutCirc"  # fade on changing activewindow for shadows
+          "fadeIn,      1, 3,   fade_curve" # fade in (open) -> layers and windows
+          "fadeOut,     1, 3,   fade_curve" # fade out (close) -> layers and windows
+          "fadeSwitch,  0, 1,   easeOutCirc" # fade on changing activewindow and its opacity
+          "fadeShadow,  1, 10,  easeOutCirc" # fade on changing activewindow for shadows
           "fadeDim,     1, 4,   fluent_decel" # the easing of the dimming of inactive windows
           # "border,      1, 2.7, easeOutCirc"  # for animating the border's color switch speed
           # "borderangle, 1, 30,  fluent_decel, once" # for animating the border's gradient angle - styles: once (default), loop
@@ -326,6 +323,7 @@
         "float,title:^(Confirm to replace files)$"
         "float,title:^(File Operation Progress)$"
         "center,floating:1,class:(Codium),title:(VSCodium)" # center floating windows of VSCodium
+        "center,floating:1,class:(Code),title:(Visual Studio Code)" # center floating windows of VSCode
 
         "opacity 0.0 override,class:^(xwaylandvideobridge)$"
         "noanim,class:^(xwaylandvideobridge)$"
