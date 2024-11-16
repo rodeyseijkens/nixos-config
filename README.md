@@ -208,17 +208,6 @@ toggle_opacity.sh
 
 <details>
 <summary>
-maxfetch.sh 
-</summary>
-
-**Description:** This script is a modified version of the [jobcmax/maxfetch][maxfetch] script.
-
-**Usage:** `maxfetch`
-
-</details>
-
-<details>
-<summary>
 runbg.sh 
 </summary>
 
@@ -489,7 +478,6 @@ Other dotfiles that I learned / copy from:
 [rofi]: https://github.com/lbonn/rofi
 [Btop]: https://github.com/aristocratos/btop
 [nemo]: https://github.com/linuxmint/nemo/
-[yazi]: https://github.com/sxyazi/yazi
 [zsh]: https://ohmyz.sh/
 [oh-my-zsh]: https://ohmyz.sh/
 [Hyprlock]: https://github.com/hyprwm/hyprlock
@@ -507,5 +495,4 @@ Other dotfiles that I learned / copy from:
 [Gruvbox]: https://github.com/morhetz/gruvbox
 [Papirus-Dark]: https://github.com/PapirusDevelopmentTeam/papirus-icon-theme
 [Bibata-Modern-Ice]: https://www.gnome-look.org/p/1197198
-[maxfetch]: https://github.com/jobcmax/maxfetch
 [Firefox]: https://www.mozilla.org

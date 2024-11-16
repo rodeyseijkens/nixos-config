@@ -70,7 +70,7 @@
           # General configuration (networking, sound, etc)
           ./modules/core
           # Host specific configuration and overrides
-          ./hosts/${host}
+          ./hosts/${host}/configuration.nix
         ];
         specialArgs = {inherit inputs username host self;};
       };

@@ -12,7 +12,10 @@
     useGlobalPkgs = true;
     extraSpecialArgs = {inherit inputs username host self;};
     users.${username} = {
-      imports = [./../home];
+      imports = [
+        ./../home
+        ./../../hosts/${host}/home-configuration.nix
+      ];
       home.username = "${username}";
       home.homeDirectory = "/home/${username}";
       home.stateVersion = "24.05";

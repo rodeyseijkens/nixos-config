@@ -1,10 +1,10 @@
-{ pkgs, ... }:
-{
-  home.packages = (with pkgs; [
-    evince                                        # pdf
-    file-roller                                   # archive
-    gnome-text-editor                             # gedit
-  ]);
+{pkgs, ...}: {
+  home.packages = with pkgs; [
+    evince # pdf
+    file-roller # archive
+    gnome-text-editor # gedit
+    baobab # disk usage analyzer
+  ];
 
   dconf.settings = {
     "org/gnome/TextEditor" = {

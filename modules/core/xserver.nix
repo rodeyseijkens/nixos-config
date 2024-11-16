@@ -1,9 +1,13 @@
-{ pkgs, username, ... }: 
 {
+  pkgs,
+  username,
+  ...
+}: {
   services = {
     xserver = {
       enable = true;
       xkb.layout = "us,nl";
+      excludePackages = [pkgs.xterm];
     };
 
     displayManager.autoLogin = {
