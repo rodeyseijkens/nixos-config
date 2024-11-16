@@ -1,6 +1,6 @@
 { host, ... }:
 let custom = {
-  font = "JetBrainsMono Nerd Font";
+  font = "Maple Mono";
   font_size = "18px";
   font_weight = "bold";
   text_color = "#FBF1C7";
@@ -12,7 +12,7 @@ let custom = {
   yellow = "#FABD2F";
   blue = "#458588";
   magenta = "#B16286";
-  cyant = "#689D6A";
+  cyan = "#689D6A";
   orange = "#D65D0E";
   opacity = "1";
   indicator_height = "2px";
@@ -89,8 +89,8 @@ in
         on-click-right = "hyprctl dispatch exec '[float; center; size 950 650] kitty --override font_size=14 --title float_kitty btop'";
     };
     memory= {
-        format= "<span foreground='${cyant}'>󰟜 </span>{}%";
-        format-alt= "<span foreground='${cyant}'>󰟜 </span>{used} GiB"; # 
+        format= "<span foreground='${cyan}'>󰟜 </span>{}%";
+        format-alt= "<span foreground='${cyan}'>󰟜 </span>{used} GiB"; # 
         interval= 2;
         on-click-right = "hyprctl dispatch exec '[float; center; size 950 650] kitty --override font_size=14 --title float_kitty btop'";
     };
