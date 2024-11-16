@@ -150,6 +150,7 @@
         "$mainMod, X, togglesplit,"
         "$mainMod, T, exec, toggle_opacity"
         "$mainMod, E, exec, nemo"
+        "$mainMod, E, exec, nautilus"
         "$mainMod SHIFT, B, exec, toggle_waybar"
         "$mainMod, C ,exec, hyprpicker -a"
         "$mainMod, W,exec, wallpaper-picker"
