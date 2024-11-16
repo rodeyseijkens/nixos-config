@@ -11,17 +11,20 @@
       size = if (host == "laptop") then 15 else 16;
     };
 
-    settings = {
-      font_features = "MapleMono-Regular +ss01 +ss02 +ss04";
-      font_features = "MapleMono-Bold +ss01 +ss02 +ss04";
-      font_features = "MapleMono-Italic +ss01 +ss02 +ss04";
-      font_features = "MapleMono-Light +ss01 +ss02 +ss04";
-      
+    extraConfig = ''
+      font_features MapleMono-Regular +ss01 +ss02 +ss04
+      font_features MapleMono-Bold +ss01 +ss02 +ss04
+      font_features MapleMono-Italic +ss01 +ss02 +ss04
+      font_features MapleMono-Light +ss01 +ss02 +ss04
+    '';
+
+    settings = {      
       confirm_os_window_close = 0;
       background_opacity = "0.55";
       scrollback_lines = 10000;
       enable_audio_bell = false;
       mouse_hide_wait = 60;
+      window_padding_width = if (host == "laptop") then 5 else 10;
       
       ## Tabs
       tab_title_template = "{index}";
