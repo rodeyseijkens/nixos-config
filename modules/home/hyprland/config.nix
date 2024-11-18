@@ -294,7 +294,6 @@
         "opacity 1.0 override 1.0 override, title:^(.*imv.*)$"
         "opacity 1.0 override 1.0 override, title:^(.*mpv.*)$"
         "opacity 1.0 override 1.0 override, class:(evince)"
-        "workspace 1, class:^(firefox)$"
         "workspace 3, class:^(evince)$"
         "workspace 5, class:^(Spotify)$"
         "workspace 9, class:^(steam)$"
