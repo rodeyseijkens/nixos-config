@@ -11,14 +11,10 @@
     fd # find replacement
     ffmpeg
     file # Show file information
-    gifsicle # gif utility
-    gtrash # rm replacement, put deleted files in system trash
     imv # image viewer
     killall
     lazygit
-    libnotify
     man-pages # extra man pages
-    mimeo
     mpv # video player
     ncdu # disk space
     nitch # systhem fetch util
@@ -26,15 +22,12 @@
     openssl
     pamixer # pulseaudio command line mixer
     playerctl # controller for media players
-    swappy # snapshot editing tool
     unzip
     wget
     wl-clipboard # clipboard utils for wayland (wl-copy, wl-paste)
     xdg-utils
-    xxd
     yazi # terminal file manager
     yt-dlp-light # audio/video downloader
-    zenity # simple dialog creator
 
     ## CLI fun
     cbonsai # terminal screensaver
@@ -47,11 +40,6 @@
     bleachbit # cache cleaner
     pavucontrol # pulseaudio volume controle (GUI)
     vlc
-
-    ## C / C++
-    gcc
-    gdb
-    gnumake
 
     # Python
     python3

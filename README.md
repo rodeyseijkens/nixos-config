@@ -70,11 +70,11 @@ Hyprlock (EXPAND)
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
 | **Terminal Emulator**       |                                 [Kitty][Kitty]                                      |
 | **Shell**                   |                       [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                           |
-| **Text Editor**             |                       [VSCodium][VSCodium] + [Neovim][Neovim]                       |
+| **Text Editor**             |           [VSCodium][VSCodium] + [VSCode][VSCode] + [Neovim][Neovim]                |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
 | **Browser**                 |                                 [Firefox][Firefox]                                  |
-| **File Manager**            |                             [nemo][nemo] + [yazi][yazi]                             |
+| **File Manager**            |                [nemo][nemo] +  [Nautilus][Nautilus] + [yazi][yazi]                  |
 | **Fonts**                   |    [CascadiaCode Nerd Font][Nerd fonts] + [JetBrainsMono Nerd Font][Nerd fonts]     |
 | **Color Scheme**            |                            [Gruvbox Dark Hard][Gruvbox]                             |
 | **Cursor**                  |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
@@ -95,7 +95,6 @@ Utils (EXPAND)
 
 - `c` $\rightarrow$ `clear`
 - `cd` $\rightarrow$ `z`
-- `tt` $\rightarrow$ `gtrash put`
 - `vim` $\rightarrow$ `nvim`
 - `cat` $\rightarrow$ `bat`
 - `nano` $\rightarrow$ `micro`
@@ -478,11 +477,13 @@ Other dotfiles that I learned / copy from:
 [rofi]: https://github.com/lbonn/rofi
 [Btop]: https://github.com/aristocratos/btop
 [nemo]: https://github.com/linuxmint/nemo/
+[Nautilus]: https://apps.gnome.org/Nautilus/
 [zsh]: https://ohmyz.sh/
 [oh-my-zsh]: https://ohmyz.sh/
 [Hyprlock]: https://github.com/hyprwm/hyprlock
 [mpv]: https://github.com/mpv-player/mpv
 [VSCodium]: https://vscodium.com/
+[VSCode]: https://code.visualstudio.com/
 [Neovim]: https://github.com/neovim/neovim
 [grimblast]: https://github.com/hyprwm/contrib
 [qview]: https://interversehq.com/qview/
