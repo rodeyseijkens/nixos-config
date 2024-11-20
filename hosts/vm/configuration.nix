@@ -17,4 +17,10 @@
       PermitRootLogin = "yes";
     };
   };
+
+  # Driver Options
+  drivers = {
+    amdgpu.enable = false;
+    nvidiagpu.enable = false;
+  };
 }
