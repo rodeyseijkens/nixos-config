@@ -299,6 +299,7 @@
         "workspace 9, class:^(steam)$"
         "workspace 10, class:^(discord)$"
         "workspace 10, class:^(WebCord)$"
+        "workspace 8,class:(dota2),title:(Dota 2)"
         "idleinhibit focus, class:^(mpv)$"
         "idleinhibit fullscreen, class:^(firefox)$"
         "float,class:^(zenity)$"
