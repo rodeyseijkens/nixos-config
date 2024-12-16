@@ -349,10 +349,10 @@
       }
 
       # Special Keybind disabler
-      bind = $mainMod SHIFT CTRL, G, submap, clean
+      bind = $mainMod SHIFT CTRL, HOME, submap, clean
       submap = clean
       bind = $mainMod SHIFT CTRL, Q, killactive,
-      bind = $mainMod SHIFT CTRL, G, submap, reset
+      bind = $mainMod SHIFT CTRL, HOME, submap, reset
       submap = reset
     ";
   };
