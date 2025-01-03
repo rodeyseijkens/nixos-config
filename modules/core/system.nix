@@ -17,6 +17,10 @@
   nixpkgs = {
     overlays = [
       inputs.nur.overlays.default
+      # TEMP: Electron build error workarounds
+      (self: super: {
+        electron_31 = self.electron;
+      })
     ];
   };
 
