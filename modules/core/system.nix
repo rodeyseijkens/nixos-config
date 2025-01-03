@@ -10,7 +10,6 @@
   nix = {
     settings = {
       allowed-users = ["${username}"];
-      auto-optimise-store = true;
       experimental-features = ["nix-command" "flakes"];
     };
   };
