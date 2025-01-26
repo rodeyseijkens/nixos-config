@@ -431,7 +431,7 @@ Now you will need to choose the host you want. It depend on whether you are usin
 
 #### 7. Build the system
 
-Lastly, it will build the system, which includes both the flake config and home-manager config.
+Lastly, it will build the system using [nh](https://github.com/viperML/nh), which includes both the flake config and home-manager config.
 
 # 👥 Credits
 
