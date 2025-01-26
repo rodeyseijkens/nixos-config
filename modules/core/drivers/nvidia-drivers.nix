@@ -4,21 +4,19 @@
   config,
   ...
 }:
-with lib;
-let
+with lib; let
   cfg = config.drivers.nvidiagpu;
-in
-{
+in {
   options.drivers.nvidiagpu = {
     enable = mkEnableOption "Enable Nvidia Drivers";
   };
 
   config = mkIf cfg.enable {
-    boot.kernelParams = [ "nvidia.NVreg_PreserveVideoMemoryAllocations=1" ];
+    boot.kernelParams = ["nvidia.NVreg_PreserveVideoMemoryAllocations=1"];
 
     nixpkgs.config.nvidia.acceptLicense = true;
-    
-    services.xserver.videoDrivers = [ "nvidia" ];
+
+    services.xserver.videoDrivers = ["nvidia"];
 
     environment.variables = {
       GBM_BACKEND = "nvidia-drm";
@@ -52,7 +50,7 @@ in
       # accessible via `nvidia-settings`.
       nvidiaSettings = true;
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package = config.boot.kernelPackages.nvidiaPackages.production;
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
 
       nvidiaPersistenced = false;
     };
@@ -63,11 +61,11 @@ in
       extraPackages = with pkgs; [
         vaapiVdpau
         libvdpau
-        libvdpau-va-gl 
+        libvdpau-va-gl
         nvidia-vaapi-driver
         vdpauinfo
         libva
-        libva-utils		
+        libva-utils
       ];
     };
   };
