@@ -342,7 +342,6 @@
     extraConfig = "
       monitor = DP-2, 2560x1440@165, -2560x0, 1
       monitor = DP-3, 2560x1440@165, 0x0, 1
-      monitor =,preferred,auto,auto
 
       xwayland {
         force_zero_scaling = true
