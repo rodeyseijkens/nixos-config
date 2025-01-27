@@ -37,7 +37,6 @@ in {
       font_family = Maple Mono Bold
       shadow_passes = 3
       position = 0, -150
-    }
       halign = center
       valign = top
     }
@@ -65,7 +64,6 @@ in {
       border_size = 0
       border_color = rgba(255, 255, 255, 0)
       rotate = 0
-
       position = 0, 270
       halign = center
       valign = bottom

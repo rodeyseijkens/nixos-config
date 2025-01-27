@@ -69,7 +69,6 @@ in {
         "workbench.editor.limit.enabled" = true;
         "workbench.editor.limit.perEditorGroup" = true;
         "workbench.editor.limit.value" = 10;
-        "workbench.editor.showTabs" = "single";
         "workbench.iconTheme" = "gruvbox-material-icon-theme";
         "workbench.layoutControl.enabled" = false;
         "workbench.layoutControl.type" = "menu";
