@@ -25,7 +25,7 @@
     ./vscode.nix # vscode
     ./vscodium.nix # vscode fork
     ./waybar # status bar
-    ./webcord # discord client with gruvbox
+    ./legcord # discord client with gruvbox
     ./xdg-mimes.nix # xdg config
     ./zsh # shell
   ];

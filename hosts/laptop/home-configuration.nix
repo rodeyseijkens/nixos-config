@@ -10,6 +10,6 @@
 
     # Misc
     spicetify.enable = true;
-    webcord.enable = true;
+    legcord.enable = true;
   };
 }
