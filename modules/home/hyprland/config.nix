@@ -44,7 +44,6 @@
         border_size = 2;
         "col.active_border" = "rgb(98971A)";
         "col.inactive_border" = "0x00000000";
-        border_part_of_window = false;
         no_border_on_floating = false;
       };
 
@@ -266,19 +265,19 @@
 
       # windowrule
       windowrule = [
-        "float,Viewnior"
-        "center,Viewnior"
-        "size 1200 800,Viewnior"
-        "float,imv"
-        "center,imv"
-        "size 1200 725,imv"
-        "float,mpv"
-        "center,mpv"
-        "size 1200 725,mpv"
-        "pin,rofi"
-        "tile, neovide"
-        "idleinhibit focus,mpv"
-        "float,udiskie"
+        "float,class:^(.*Viewnior.*)$"
+        "center,class:^(.*Viewnior.*)$"
+        "size 1200 800,class:^(.*Viewnior.*)$"
+        "float,class:^(.*imv.*)$"
+        "center,class:^(.*imv.*)$"
+        "size 1200 725,class:^(.*imv.*)$"
+        "float,class:^(.*mpv.*)$"
+        "center,class:^(.*mpv.*)$"
+        "size 1200 725,class:^(.*mpv.*)$"
+        "pin,class:^(.*rofi.*)$"
+        "tile,class:^(.*neovide.*)$"
+        "idleinhibit focus,class:^(.*mpv.*)$"
+        "float,class:^(.*udiskie.*)$"
         "float,title:^(Volume Control)$"
         "float,title:^(Firefox — Sharing Indicator)$"
         "move 0 0,title:^(Firefox — Sharing Indicator)$"
@@ -298,7 +297,7 @@
         "workspace 5, class:^(Spotify)$"
         "workspace 9, class:^(steam)$"
         "workspace 10, class:^(discord)$"
-        "workspace 10, class:^(Legcord)$"
+        "workspace 10, class:^(legcord)$"
         "workspace 8,class:(dota2),title:(Dota 2)"
         "idleinhibit focus, class:^(mpv)$"
         "idleinhibit fullscreen, class:^(firefox)$"
