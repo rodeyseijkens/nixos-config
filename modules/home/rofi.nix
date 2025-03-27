@@ -1,6 +1,5 @@
-{ pkgs, ... }: 
-{
-  home.packages = (with pkgs; [ rofi-wayland ]);
+{pkgs, ...}: {
+  home.packages = with pkgs; [rofi-wayland];
 
   xdg.configFile."rofi/theme.rasi".text = ''
     * {
@@ -21,7 +20,7 @@
       modi: "run,drun,window";
       lines: 5;
       cycle: false;
-      font: "JetBrainsMono NF Bold 15";
+      font: "Maple Mono Bold 16";
       show-icons: true;
       icon-theme: "Papirus-dark";
       terminal: "kitty";
@@ -45,9 +44,9 @@
     }
 
     window {
-      height: 480px;
+      height: 530px;
       width: 400px;
-      border: 3px;
+      border: 2px;
       border-color: @border-col;
       background-color: @bg-col;
     }
@@ -118,7 +117,7 @@
       padding: 10px;
       background-color: @bg-col-light;
       text-color: @grey;
-      vertical-align: 0.5; 
+      vertical-align: 0.5;
       horizontal-align: 0.5;
     }
 
@@ -126,5 +125,5 @@
       background-color: @bg-col;
       text-color: @green;
     }
-  '';  
+  '';
 }
