@@ -14,6 +14,7 @@
     imv # image viewer
     killall
     lazygit
+    libnotify # Notification library
     man-pages # extra man pages
     mpv # video player
     ncdu # disk space
