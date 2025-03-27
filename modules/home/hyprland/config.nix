@@ -42,12 +42,13 @@
         gaps_in = 5;
         gaps_out = 10;
         border_size = 2;
-        "col.active_border" = "rgb(98971A)";
-        "col.inactive_border" = "0x00000000";
+        "col.active_border" = "rgba(98971AFF)";
+        "col.inactive_border" = "rgba(98971A00)";
         no_border_on_floating = false;
       };
 
       misc = {
+        font_family = "Maple Mono";
         disable_autoreload = true;
         disable_hyprland_logo = true;
         always_follow_on_dnd = true;
@@ -94,7 +95,7 @@
           range = 20;
           render_power = 3;
           ignore_window = true;
-          color = "rgba(00000055)";
+          color = "0x00000055";
           offset = "0 2";
         };
       };
@@ -127,6 +128,13 @@
           # "borderangle, 1, 30,  fluent_decel, once" # for animating the border's gradient angle - styles: once (default), loop
           "workspaces,  1, 4,   easeOutCubic, fade" # styles: slide, slidevert, fade, slidefade, slidefadevert
         ];
+      };
+
+      group = {
+        groupbar = {
+          "col.active" = "rgba(98971AFF)";
+          "col.inactive" = "rgba(98971A55)";
+        };
       };
 
       bind = [
@@ -283,10 +291,6 @@
         "move 0 0,title:^(Firefox — Sharing Indicator)$"
         "size 700 450,title:^(Volume Control)$"
         "move 40 55%,title:^(Volume Control)$"
-      ];
-
-      # windowrulev2
-      windowrulev2 = [
         "float, title:^(Picture-in-Picture)$"
         "opacity 1.0 override 1.0 override, title:^(Picture-in-Picture)$"
         "pin, title:^(Picture-in-Picture)$"
