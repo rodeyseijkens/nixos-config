@@ -42,12 +42,13 @@
         gaps_in = 5;
         gaps_out = 10;
         border_size = 2;
-        "col.active_border" = "rgb(98971A)";
+        "col.active_border" = "0x98971AFF";
         "col.inactive_border" = "0x00000000";
         no_border_on_floating = false;
       };
 
       misc = {
+        font_family = "Maple Mono";
         disable_autoreload = true;
         disable_hyprland_logo = true;
         always_follow_on_dnd = true;
@@ -127,6 +128,13 @@
           # "borderangle, 1, 30,  fluent_decel, once" # for animating the border's gradient angle - styles: once (default), loop
           "workspaces,  1, 4,   easeOutCubic, fade" # styles: slide, slidevert, fade, slidefade, slidefadevert
         ];
+      };
+
+      group = {
+        groupbar = {
+          col.active = "0x98971A";
+          col.inactive = "0x98971A00";
+        };
       };
 
       bind = [
