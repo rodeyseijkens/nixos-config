@@ -12,11 +12,6 @@ in {
   options.modules.spicetify = {enable = mkEnableOption "spicetify";};
   imports = [inputs.spicetify-nix.homeManagerModules.default];
   config = mkIf cfg.enable {
-    nixpkgs.config.allowUnfreePredicate = pkg:
-      builtins.elem (lib.getName pkg) [
-        "spotify"
-      ];
-
     programs.spicetify = {
       enable = true;
       enabledExtensions = with spicePkgs.extensions; [
