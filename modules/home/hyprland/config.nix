@@ -308,7 +308,7 @@
         "center,class:^(org.gnome.FileRoller)$"
         "size 850 500,class:^(org.gnome.FileRoller)$"
         "size 850 500,title:^(File Upload)$"
-        "float,class:^(pavucontrol)$"
+        "float,class:^(org.pulseaudio.pavucontrol)$"
         "float,class:^(.sameboy-wrapped)$"
         "float,class:^(file_progress)$"
         "float,class:^(confirm)$"
