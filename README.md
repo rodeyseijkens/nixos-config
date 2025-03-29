@@ -68,13 +68,13 @@ Hyprlock (EXPAND)
 | **Bar**                     |                                  [Waybar][Waybar]                                   |
 | **Application Launcher**    |                                    [rofi][rofi]                                     |
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
-| **Terminal Emulator**       |                                 [Kitty][Kitty]                                      |
-| **Shell**                   |                       [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                           |
-| **Text Editor**             |           [VSCodium][VSCodium] + [VSCode][VSCode] + [Neovim][Neovim]                |
+| **Terminal Emulator**       |                                   [Kitty][Kitty]                                    |
+| **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
+| **Text Editor**             |             [VSCodium][VSCodium] + [VSCode][VSCode] + [Neovim][Neovim]              |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
 | **Browser**                 |                                 [Firefox][Firefox]                                  |
-| **File Manager**            |                [nemo][nemo] +  [Nautilus][Nautilus] + [yazi][yazi]                  |
+| **File Manager**            |                 [nemo][nemo] + [Nautilus][Nautilus] + [yazi][yazi]                  |
 | **Fonts**                   |    [CascadiaCode Nerd Font][Nerd fonts] + [JetBrainsMono Nerd Font][Nerd fonts]     |
 | **Color Scheme**            |                            [Gruvbox Dark Hard][Gruvbox]                             |
 | **Cursor**                  |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
@@ -141,6 +141,7 @@ Git (EXPAND)
 - `gpl` $\rightarrow$ `git pull`
 - `gplo` $\rightarrow$ `git pull origin`
 - `gps` $\rightarrow$ `git push`
+- `gpsf` $\rightarrow$ `git push --force`
 - `gpso` $\rightarrow$ `git push origin`
 - `gpst` $\rightarrow$ `git push --follow-tags`
 - `gcl` $\rightarrow$ `git clone`
@@ -307,13 +308,15 @@ Keybindings
 - `$mainMod ALT, down, moveactive, 0 80`
 
 #### window tabbed grouping
+
 - `$mainMod SHIFT, T, togglegroup # toggle tabbed group`
 - `$mainMod ALT, left, changegroupactive, b # change active tab back`
 - `$mainMod ALT, right, changegroupactive, f # change active tab forward`
-- `$mainMod ALT, j, changegroupactive, b # change active tab back` 
+- `$mainMod ALT, j, changegroupactive, b # change active tab back`
 - `$mainMod ALT, l, changegroupactive, f # change active tab forward`
 
 #### mouse bindings
+
 - `$mainMod, mouse:274, movewindoworgroup`
 - `$mainMod SHIFT, mouse:274, resizewindow`
 
