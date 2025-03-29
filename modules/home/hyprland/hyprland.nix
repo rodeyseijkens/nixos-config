@@ -7,6 +7,7 @@
     swww
     inputs.hypr-contrib.packages.${pkgs.system}.grimblast
     hyprpicker
+    hyprpolkitagent
     inputs.hyprmag.packages.${pkgs.system}.hyprmag
     grim
     slurp

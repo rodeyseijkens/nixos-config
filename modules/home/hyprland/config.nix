@@ -3,9 +3,10 @@
     settings = {
       # autostart
       exec-once = [
-        "systemctl --user import-environment &"
+        "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP &"
         "hash dbus-update-activation-environment 2>/dev/null &"
-        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP &"
+        "dbus-update-activation-environment --all --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP &"
+        "systemctl --user start hyprpolkitagent"
 
         "nm-applet &"
         "poweralertd &"
