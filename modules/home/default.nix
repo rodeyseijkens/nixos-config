@@ -12,7 +12,6 @@
     ./kitty.nix # terminal
     ./micro.nix # nano replacement
     ./nautilus.nix # file manager
-    ./nemo.nix # file manager
     ./nvim.nix # neovim editor
     ./p10k/p10k.nix # zsh theme
     ./packages.nix # other packages

@@ -10,7 +10,7 @@ with lib; let
     image = ["viewnior.desktop"];
     audio = ["mpv.desktop"];
     video = ["mpv.desktop"];
-    directory = ["nemo.desktop" "org.gnome.Nautilus.desktop"];
+    directory = ["org.gnome.Nautilus.desktop"];
     pdf = ["org.gnome.Evince.desktop"];
     terminal = ["kitty.desktop"];
     archive = ["org.gnome.FileRoller.desktop"];
