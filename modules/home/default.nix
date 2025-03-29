@@ -23,7 +23,6 @@
     ./swayosd.nix # brightness / volume wiget
     ./viewnior.nix # image viewer
     ./vscode.nix # vscode
-    ./vscodium.nix # vscode fork
     ./waybar # status bar
     ./legcord # discord client with gruvbox
     ./xdg-mimes.nix # xdg config

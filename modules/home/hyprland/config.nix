@@ -327,7 +327,6 @@
         "float,title:^(branchdialog)$"
         "float,title:^(Confirm to replace files)$"
         "float,title:^(File Operation Progress)$"
-        "center,floating:1,class:(Codium),title:(VSCodium)" # center floating windows of VSCodium
         "center,floating:1,class:(Code),title:(Visual Studio Code)" # center floating windows of VSCode
 
         "opacity 0.0 override,class:^(xwaylandvideobridge)$"

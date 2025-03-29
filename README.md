@@ -70,7 +70,7 @@ Hyprlock (EXPAND)
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
 | **Terminal Emulator**       |                                   [Kitty][Kitty]                                    |
 | **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
-| **Text Editor**             |             [VSCodium][VSCodium] + [VSCode][VSCode] + [Neovim][Neovim]              |
+| **Text Editor**             |                         [VSCode][VSCode] + [Neovim][Neovim]                         |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
 | **Browser**                 |                                 [Firefox][Firefox]                                  |
@@ -485,7 +485,6 @@ Other dotfiles that I learned / copy from:
 [oh-my-zsh]: https://ohmyz.sh/
 [Hyprlock]: https://github.com/hyprwm/hyprlock
 [mpv]: https://github.com/mpv-player/mpv
-[VSCodium]: https://vscodium.com/
 [VSCode]: https://code.visualstudio.com/
 [Neovim]: https://github.com/neovim/neovim
 [grimblast]: https://github.com/hyprwm/contrib

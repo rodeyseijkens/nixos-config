@@ -12,10 +12,7 @@
       cd = "z";
       cat = "bat";
       nano = "micro";
-      code =
-        if (config.modules.vscodium.enable)
-        then "codium"
-        else "code";
+      code = "code";
       diff = "delta --diff-so-fancy --side-by-side";
       less = "bat";
       y = "yazi";
@@ -33,10 +30,7 @@
       tree = "eza --icons --tree --group-directories-first";
 
       # Nixos
-      cdnix =
-        if (config.modules.vscodium.enable)
-        then "cd ~/nixos-config && codium ~/nixos-config"
-        else "cd ~/nixos-config && code ~/nixos-config";
+      cdnix = "cd ~/nixos-config && code ~/nixos-config";
       ns = "nom-shell --run zsh";
       nix-switch = "nh os switch";
       nix-update = "nh os switch --update";

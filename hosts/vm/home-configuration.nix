@@ -2,7 +2,6 @@
   modules = {
     # Code editors
     vscode.enable = true;
-    vscodium.enable = false;
 
     # File managers
     nautilus.enable = true;
