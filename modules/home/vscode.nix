@@ -88,6 +88,7 @@ in {
           # Extension settings
           "alejandra.program" = "alejandra";
           "material-icon-theme.folders.theme" = "classic";
+          "gitlens.rebaseEditor.ordering" = "asc";
           "[nix]" = {
             "editor.defaultFormatter" = "kamadorueda.alejandra";
             "editor.formatOnPaste" = true;
