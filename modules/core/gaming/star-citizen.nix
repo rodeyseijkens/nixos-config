@@ -4,8 +4,7 @@
   ...
 }: {
   environment.systemPackages = [
-    # or home.packages
-    inputs.nix-gaming.packages.${pkgs.system}.star-citizen # installs a package
+    inputs.nix-citizen.packages.${pkgs.system}.star-citizen
   ];
   boot.kernel.sysctl = {
     "fs.file-max" = 524288;
