@@ -1,5 +1,12 @@
-{ pkgs, lib, ... }: 
 {
+  pkgs,
+  lib,
+  inputs,
+  ...
+}: {
+  imports = [
+    inputs.nix-gaming.nixosModules.platformOptimizations
+  ];
   programs = {
     steam = {
       enable = true;
@@ -12,6 +19,8 @@
       extraCompatPackages = [
         pkgs.proton-ge-bin
       ];
+
+      platformOptimizations.enable = true;
     };
 
     gamescope = {
