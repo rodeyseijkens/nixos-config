@@ -39,7 +39,7 @@
 
     ## GUI Apps
     bleachbit # cache cleaner
-    pavucontrol # pulseaudio volume controle (GUI)
+    pwvucontrol # pipewire volume controle (GUI)
     vlc
 
     # Python

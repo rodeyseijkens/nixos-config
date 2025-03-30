@@ -1,6 +1,9 @@
-{ lib, pkgs, ...}:
 {
-  home.packages = with pkgs; [ swayosd ];
+  lib,
+  pkgs,
+  ...
+}: {
+  home.packages = with pkgs; [swayosd];
 
   wayland.windowManager.hyprland = {
     settings = {
@@ -19,8 +22,8 @@
         "$mainMod, XF86MonBrightnessDown, exec, brightnessctl set 0%"
       ];
       bindle = [
-        ",XF86AudioRaiseVolume, exec, swayosd-client --output-volume +2 --max-volume=100"
-        ",XF86AudioLowerVolume, exec, swayosd-client --output-volume -2"
+        ",XF86AudioRaiseVolume, exec, swayosd-client --output-volume raise --max-volume=100"
+        ",XF86AudioLowerVolume, exec, swayosd-client --output-volume lower"
 
         "$mainMod, f11, exec, swayosd-client --output-volume +2 --max-volume=100"
         "$mainMod, f12, exec, swayosd-client --output-volume -2"
