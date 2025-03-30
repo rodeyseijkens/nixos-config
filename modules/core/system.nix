@@ -35,6 +35,7 @@
   environment.systemPackages = with pkgs; [
     wget
     git
+    ntfs3g
   ];
 
   time.timeZone = "Europe/Amsterdam";
