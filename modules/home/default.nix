@@ -2,6 +2,7 @@
   imports = [
     ./bat.nix # better cat command
     ./btop.nix # resouces monitor
+    ./google-chrome.nix # browser
     ./fastfetch.nix # fetch tool
     ./firefox.nix # browser
     ./fzf.nix # fuzzy finder
