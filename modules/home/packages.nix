@@ -46,6 +46,9 @@
     python3
     python312Packages.ipython
 
+    # Node.js
+    volta
+
     ## Misc
     winetricks
     wineWowPackages.wayland
