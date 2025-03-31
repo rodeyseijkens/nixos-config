@@ -2,12 +2,12 @@
   imports = [
     ./bat.nix # better cat command
     ./btop.nix # resouces monitor
-    ./google-chrome.nix # browser
     ./fastfetch.nix # fetch tool
     ./firefox.nix # browser
     ./fzf.nix # fuzzy finder
     ./git.nix # version control
     ./gnome.nix # gnome apps
+    ./google-chrome.nix # browser
     ./gtk.nix # gtk theme
     ./hyprland # window manager
     ./kitty.nix # terminal
@@ -21,6 +21,7 @@
     ./spicetify.nix # spotify client
     ./swaync/swaync.nix # notification deamon
     ./swayosd.nix # brightness / volume wiget
+    ./tigervnc.nix # remote desktop
     ./viewnior.nix # image viewer
     ./vscode.nix # vscode
     ./waybar # status bar

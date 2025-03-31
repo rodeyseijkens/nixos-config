@@ -7,4 +7,8 @@
     amdgpu.enable = false;
     nvidiagpu.enable = true;
   };
+
+  services = {
+    tailscale.enable = true;
+  };
 }
