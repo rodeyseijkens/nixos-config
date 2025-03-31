@@ -6,5 +6,6 @@
     legcord.enable = true;
     google-chrome.enable = true;
     tailscale.enable = true;
+    tigervnc.enable = true;
   };
 }

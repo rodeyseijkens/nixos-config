@@ -22,6 +22,7 @@
     ./swaync/swaync.nix # notification deamon
     ./swayosd.nix # brightness / volume wiget
     ./tailscale.nix # tailscale
+    ./tigervnc.nix # remote desktop
     ./viewnior.nix # image viewer
     ./vscode.nix # vscode
     ./waybar # status bar
