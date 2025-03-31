@@ -16,10 +16,6 @@
         "swww-daemon &"
 
         "hyprlock"
-
-        ## App auto start
-        "[workspace 1 silent] firefox"
-        "[workspace 2 silent] kitty"
       ];
 
       input = {
