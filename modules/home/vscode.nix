@@ -46,7 +46,7 @@ in {
 
           "editor.fontFamily" = "'Maple Mono', 'SymbolsNerdFont', 'monospace', monospace";
           "editor.fontLigatures" = true;
-          "editor.fontSize" = 18;
+          "editor.fontSize" = 16;
 
           "editor.formatOnPaste" = true;
           "editor.formatOnSave" = true;
