@@ -9,5 +9,6 @@
     # Misc
     spicetify.enable = true;
     legcord.enable = true;
+    obs-studio.enable = true;
   };
 }

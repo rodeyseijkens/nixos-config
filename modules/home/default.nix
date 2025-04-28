@@ -11,9 +11,11 @@
     ./gtk.nix # gtk theme
     ./hyprland # window manager
     ./kitty.nix # terminal
+    ./legcord # discord client with gruvbox
     ./micro.nix # nano replacement
     ./nautilus.nix # file manager
     ./nvim.nix # neovim editor
+    ./obs-studio.nix # screen recorder
     ./p10k/p10k.nix # zsh theme
     ./packages.nix # other packages
     ./rofi.nix # launcher
@@ -25,7 +27,6 @@
     ./viewnior.nix # image viewer
     ./vscode.nix # vscode
     ./waybar # status bar
-    ./legcord # discord client with gruvbox
     ./xdg-mimes.nix # xdg config
     ./zsh # shell
   ];
