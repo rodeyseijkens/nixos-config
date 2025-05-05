@@ -41,6 +41,7 @@
     bleachbit # cache cleaner
     pwvucontrol # pipewire volume controle (GUI)
     vlc
+    mission-center
 
     # Python
     python3
