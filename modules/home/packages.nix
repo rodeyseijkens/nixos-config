@@ -29,6 +29,7 @@
     xdg-utils
     yazi # terminal file manager
     yt-dlp-light # audio/video downloader
+    onefetch
 
     ## CLI fun
     cbonsai # terminal screensaver

@@ -27,10 +27,12 @@
 
   programs.zsh.shellAliases = {
     g = "lazygit";
-    gf = "onefetch --number-of-file-churns 0 --no-color-palette";
+    gi = "onefetch --number-of-file-churns 0 --no-color-palette";
     ga = "git add";
     gaa = "git add --all";
     gs = "git status";
+    gf = "git fetch";
+    gfp = "git fetch --prune";
     gb = "git branch";
     gm = "git merge";
     gd = "git diff";
