@@ -30,6 +30,9 @@
     yazi # terminal file manager
     yt-dlp-light # audio/video downloader
     onefetch
+    gifsicle # gif utility - for record.sh
+    zenity # simple dialog creator - for record.sh
+    swappy # snapshot editing tool - for screenshot.sh
 
     ## CLI fun
     cbonsai # terminal screensaver
