@@ -57,9 +57,5 @@ in {
 
     rofi-power-menu
     power-menu
-
-    gifsicle # gif utility - for record.sh
-    zenity # simple dialog creator - for record.sh
-    swappy # snapshot editing tool - for screenshot.sh
   ];
 }
