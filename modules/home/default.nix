@@ -5,6 +5,7 @@
     ./fastfetch.nix # fetch tool
     ./firefox.nix # browser
     ./fzf.nix # fuzzy finder
+    ./ghostty.nix # terminal
     ./git.nix # version control
     ./gnome.nix # gnome apps
     ./google-chrome.nix # browser
@@ -28,6 +29,7 @@
     ./vscode.nix # vscode
     ./waybar # status bar
     ./xdg-mimes.nix # xdg config
+    ./zen-browser.nix # zen browser
     ./zsh # shell
   ];
 }
