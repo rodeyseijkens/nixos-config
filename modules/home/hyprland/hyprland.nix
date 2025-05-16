@@ -6,7 +6,7 @@
   home.packages = with pkgs; [
     swww
     inputs.hypr-contrib.packages.${pkgs.system}.grimblast
-    hyprpicker
+    inputs.hyprpicker.packages.${pkgs.system}.hyprpicker
     hyprpolkitagent
     inputs.hyprmag.packages.${pkgs.system}.hyprmag
     grim
