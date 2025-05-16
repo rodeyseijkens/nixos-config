@@ -68,14 +68,14 @@ Hyprlock (EXPAND)
 | **Bar**                     |                                  [Waybar][Waybar]                                   |
 | **Application Launcher**    |                                    [rofi][rofi]                                     |
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
-| **Terminal Emulator**       |                                   [Kitty][Kitty]                                    |
+| **Terminal Emulator**       |                         [Kitty][Kitty] + [Ghostty][Ghostty]                         |
 | **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
 | **Text Editor**             |                         [VSCode][VSCode] + [Neovim][Neovim]                         |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
-| **Browser**                 |                                 [Firefox][Firefox]                                  |
+| **Browser**                 |                   [Firefox][Firefox] + [Zen Browser][zen-browser]                   |
 | **File Manager**            |                         [Nautilus][Nautilus] + [yazi][yazi]                         |
-| **Fonts**                   |    [CascadiaCode Nerd Font][Nerd fonts] + [JetBrainsMono Nerd Font][Nerd fonts]     |
+| **Fonts**                   |                              [Maple Mono][Maple Mono]                               |
 | **Color Scheme**            |                            [Gruvbox Dark Hard][Gruvbox]                             |
 | **Cursor**                  |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
 | **Icons**                   |                            [Papirus-Dark][Papirus-Dark]                             |
@@ -475,10 +475,12 @@ Other dotfiles that I learned / copy from:
 
 [Hyprland]: https://github.com/hyprwm/Hyprland
 [Kitty]: https://sw.kovidgoyal.net/kitty/
+[Ghostty]: https://ghostty.org/
 [Waybar]: https://github.com/Alexays/Waybar
 [rofi]: https://github.com/lbonn/rofi
 [Btop]: https://github.com/aristocratos/btop
 [Nautilus]: https://apps.gnome.org/Nautilus/
+[yazi]: https://github.com/sxyazi/yazi
 [zsh]: https://ohmyz.sh/
 [oh-my-zsh]: https://ohmyz.sh/
 [Hyprlock]: https://github.com/hyprwm/hyprlock
@@ -488,7 +490,6 @@ Other dotfiles that I learned / copy from:
 [grimblast]: https://github.com/hyprwm/contrib
 [qview]: https://interversehq.com/qview/
 [swaync]: https://github.com/ErikReider/SwayNotificationCenter
-[Nerd fonts]: https://github.com/ryanoasis/nerd-fonts
 [NetworkManager]: https://wiki.gnome.org/Projects/NetworkManager
 [network-manager-applet]: https://gitlab.gnome.org/GNOME/network-manager-applet/
 [wf-recorder]: https://github.com/ammen99/wf-recorder
@@ -497,3 +498,5 @@ Other dotfiles that I learned / copy from:
 [Papirus-Dark]: https://github.com/PapirusDevelopmentTeam/papirus-icon-theme
 [Bibata-Modern-Ice]: https://www.gnome-look.org/p/1197198
 [Firefox]: https://www.mozilla.org
+[zen-browser]: https://github.com/zen-browser/desktop
+[Maple Mono]: https://github.com/subframe7536/maple-font
