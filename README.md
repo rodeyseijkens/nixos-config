@@ -186,23 +186,23 @@ compress.sh
 
 <details>
 <summary>
-toggle_blur.sh 
+toggle-blur.sh 
 </summary>
 
 **Description:** This script toggles the Hyprland blur effect. If the blur is currently enabled, it will be disabled, and if it's disabled, it will be turned on.
 
-**Usage:** `toggle_blur`
+**Usage:** `toggle-blur`
 
 </details>
 
 <details>
 <summary>
-toggle_opacity.sh 
+toggle-opacity.sh 
 </summary>
 
 **Description:** This script toggles the Hyperland oppacity effect. If the oppacity is currently set to 0.90, it will be set to 1, and if it's set to 1, it will be set to 0.90.
 
-**Usage:** `toggle_opacity`
+**Usage:** `toggle-opacity`
 
 </details>
 
@@ -239,14 +239,14 @@ Keybindings
 - `$mainMod, Q, killactive,`
 - `$mainMod, F, fullscreen, 0`
 - `$mainMod SHIFT, F, fullscreen, 1`
-- `$mainMod, G, toggle_float,`
+- `$mainMod, G, toggle-float,`
 - `$mainMod, Space, exec, rofi -show drun`
 - `$mainMod SHIFT, D, exec, hyprctl dispatch exec '[workspace 4 silent] discord --enable-features=UseOzonePlatform --ozone-platform=wayland'`
 - `$mainMod SHIFT, Escape, exec, power-menu`
 - `$mainMod, P, pseudo,`
 - `$mainMod, J, togglesplit,`
-- `$mainMod, T, exec, toggle_opacity`
-- `$mainMod SHIFT, B, exec, toggle_waybar`
+- `$mainMod, T, exec, toggle-opacity`
+- `$mainMod SHIFT, B, exec, toggle-waybar`
 - `$mainMod, C ,exec, hyprpicker -a`
 - `$mainMod, W,exec, wallpaper-picker`
 - `$mainMod, N, exec, swaync-client -t -sw`
