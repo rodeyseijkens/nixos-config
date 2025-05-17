@@ -95,6 +95,15 @@ in {
             "editor.formatOnSave" = true;
             "editor.formatOnType" = false;
           };
+          "[json]" = {
+            "editor.defaultFormatter" = "vscode.json-language-features";
+          };
+          "[typescript]" = {
+            "editor.defaultFormatter" = "esbenp.prettier-vscode";
+          };
+          "[javascript]" = {
+            "editor.defaultFormatter" = "esbenp.prettier-vscode";
+          };
         };
         # Keybindings
         keybindings = [
