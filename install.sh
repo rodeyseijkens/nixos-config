@@ -57,18 +57,20 @@ set_username() {
 }
 
 get_host() {
-    echo -en "Choose a ${GREEN}host${NORMAL} - [${YELLOW}D${NORMAL}]esktop, [${YELLOW}L${NORMAL}]aptop or [${YELLOW}V${NORMAL}]irtual machine: "
+    echo -en "Choose a ${GREEN}host${NORMAL} - [${YELLOW}D${NORMAL}]esktop, Desktop-[${YELLOW}W${NORMAL}]ork, [${YELLOW}L${NORMAL}]aptop or [${YELLOW}V${NORMAL}]irtual machine: "
     read -n 1 -r
     echo
 
     if [[ $REPLY =~ ^[Dd]$ ]]; then
         HOST='desktop'
+    elif [[ $REPLY =~ ^[Ww]$ ]]; then
+        HOST='desktop-work'
     elif [[ $REPLY =~ ^[Ll]$ ]]; then
         HOST='laptop'
      elif [[ $REPLY =~ ^[Vv]$ ]]; then
         HOST='vm'
     else
-        echo "Invalid choice. Please select 'D' for desktop, 'L' for laptop or 'V' for virtual machine."
+        echo "Invalid choice. Please select 'D' for desktop, 'W' for desktop-work, 'L' for laptop or 'V' for virtual machine."
         exit 1
     fi
     
@@ -106,7 +108,7 @@ install() {
     sleep 0.2
 
     # Last Confirmation
-    echo -en "You are about to start the system build, do you want to process ? "
+    echo -en "You are about to start the system build, do you want to proceed ? "
     confirm
 
     # Using nh (nixos helper) to Build the system (flakes + home manager)
