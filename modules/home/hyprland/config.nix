@@ -1,4 +1,7 @@
-{...}: {
+{...}: let
+  browser = "firefox";
+  terminal = "kitty";
+in {
   wayland.windowManager.hyprland = {
     settings = {
       # autostart
@@ -139,10 +142,10 @@
         "$mainMod, F1, exec, show-keybinds"
 
         # keybindings
-        "$mainMod, Return, exec, [float; center; size 50% 50%] kitty"
-        "$mainMod SHIFT, Return, exec, kitty"
-        "$mainMod ALT, Return, exec, [fullscreen] kitty"
-        "$mainMod, B, exec, firefox"
+        "$mainMod, Return, exec, [float; center; size 50% 50%] ${terminal}"
+        "$mainMod SHIFT, Return, exec, ${terminal}"
+        "$mainMod ALT, Return, exec, [fullscreen] ${terminal}"
+        "$mainMod, B, exec, ${browser}"
         "$mainMod, Q, killactive,"
         "$mainMod, F, fullscreen, 0"
         "$mainMod SHIFT, F, fullscreen, 1"
