@@ -23,7 +23,11 @@
     };
   };
 
-  home.packages = [pkgs.gh]; # pkgs.git-lfs
+  home.packages = [
+    pkgs.gh
+    pkgs.cz-cli # commitizen CLI tool
+    # pkgs.git-lfs # Git Large File Storage
+  ];
 
   programs.zsh.shellAliases = {
     g = "lazygit";
@@ -45,7 +49,11 @@
     gcl = "git clone";
     gc = "git commit";
     gcm = "git commit -m";
+    gcz = "git cz";
+    gcfu = "git commit --fixup HEAD";
     gcma = "git add --all && git commit -m";
+    gcza = "git add --all && git cz";
+    gcfua = "git add --all && git commit --fixup HEAD";
     gtag = "git tag -ma";
     gch = "git checkout";
     gchb = "git checkout -b";
