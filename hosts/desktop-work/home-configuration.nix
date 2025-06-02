@@ -1,5 +1,6 @@
 {...}: {
   modules = {
+    zen-browser.enable = true;
     vscode.enable = true;
     nautilus.enable = true;
     spicetify.enable = true;

@@ -1,5 +1,8 @@
 {...}: {
   modules = {
+    # Browser
+    zen-browser.enable = true;
+
     # Code editors
     vscode.enable = true;
 
