@@ -26,7 +26,7 @@
         force = true;
         default = "ddg";
         engines = {
-          "T3 Chat" = {
+          "t3-chat" = {
             name = "T3 Chat";
             urls = [
               {
@@ -43,11 +43,11 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://www.t3.chat/favicon.ico";
+            icon = "https://www.t3.chat/favicon.ico";
             definedAliases = ["@t3"];
           };
 
-          "YouTube" = {
+          "youtube" = {
             name = "YouTube";
             urls = [
               {
@@ -60,11 +60,11 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://www.youtube.com/favicon.ico";
+            icon = "https://www.youtube.com/favicon.ico";
             definedAliases = ["@yt"];
           };
 
-          "GitHub" = {
+          "github" = {
             name = "GitHub";
             urls = [
               {
@@ -77,11 +77,11 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://github.com/favicon.ico";
+            icon = "https://github.com/favicon.ico";
             definedAliases = ["@gh"];
           };
 
-          "Reddit" = {
+          "reddit" = {
             name = "Reddit";
             urls = [
               {
@@ -94,11 +94,11 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://www.reddit.com/favicon.ico";
+            icon = "https://www.reddit.com/favicon.ico";
             definedAliases = ["@r"];
           };
 
-          "DuckDuckGo Maps" = {
+          "ddg-maps" = {
             name = "DuckDuckGo Maps";
             urls = [
               {
@@ -115,11 +115,11 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://duckduckgo.com/favicon.ico";
+            icon = "https://duckduckgo.com/favicon.ico";
             definedAliases = ["@dmap"];
           };
 
-          "Google Maps" = {
+          "g-maps" = {
             name = "Google Maps";
             urls = [
               {
@@ -132,12 +132,12 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://www.google.com/favicon.ico";
+            icon = "https://www.google.com/favicon.ico";
             definedAliases = ["@gmap"];
           };
 
-          "Home Manager Options" = {
-            name = "Home Manager Options";
+          "nhm-options" = {
+            name = "Home Manager NixOS Options";
             urls = [
               {
                 template = "https://home-manager-options.extranix.com/";
@@ -153,11 +153,11 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://home-manager-options.extranix.com/favicon.ico";
+            icon = "https://home-manager-options.extranix.com/favicon.ico";
             definedAliases = ["@nhm"];
           };
 
-          "NixOS Packages" = {
+          "nixos-packages" = {
             name = "NixOS Packages";
             urls = [
               {
@@ -190,17 +190,17 @@
                 ];
               }
             ];
-            iconUpdateURL = "https://nixos.org/favicon.png";
+            icon = "https://nixos.org/favicon.png";
             definedAliases = ["@nix"];
           };
 
           # Hide unwanted default engines
-          "Bing".metaData.hidden = true;
-          "Amazon.com".metaData.hidden = true;
-          "eBay".metaData.hidden = true;
-          "Wikipedia (en)".metaData.hidden = true;
-          "Qwant".metaData.hidden = true;
-          "Ecosia".metaData.hidden = true;
+          bing.metaData.hidden = true;
+          amazondotcom-us.metaData.hidden = true;
+          ebay.metaData.hidden = true;
+          wikipedia.metaData.hidden = true;
+          qwant.metaData.hidden = true;
+          ecosia.metaData.hidden = true;
         };
       };
       userChrome = ''
