@@ -14,7 +14,7 @@
          <a href="https://github.com/rodeyseijkens/nixos-config/">
             <img src="https://img.shields.io/github/repo-size/rodeyseijkens/nixos-config?color=B16286&labelColor=282828&style=for-the-badge&logo=github&logoColor=B16286">
          </a>
-         <a = href="https://nixos.org">
+         <a href="https://nixos.org">
             <img src="https://img.shields.io/badge/NixOS-unstable-blue.svg?style=for-the-badge&labelColor=282828&logo=NixOS&logoColor=458588&color=458588">
          </a>
          <a href="https://github.com/rodeyseijkens/nixos-config/blob/main/LICENSE">
@@ -52,12 +52,12 @@ Hyprlock (EXPAND)
 - [flake.nix](flake.nix) base of the configuration
 - [hosts](hosts) 🌳 per-host configurations that contain machine specific configurations
   - [desktop](hosts/desktop/) 🖥️ Desktop specific configuration
+  - [desktop-work](hosts/desktop-work/) 🖥️ Work desktop specific configuration
   - [laptop](hosts/laptop/) 💻 Laptop specific configuration
   - [vm](hosts/vm/) 🗄️ VM specific configuration
 - [modules](modules) 🍱 modularized NixOS configurations
   - [core](modules/core/) ⚙️ Core NixOS configuration
-  - [homes](modules/home/) 🏠 my [Home-Manager](https://github.com/nix-community/home-manager) config
-- [pkgs](flake/pkgs) 📦 Packages Build from source
+  - [home](modules/home/) 🏠 my [Home-Manager](https://github.com/nix-community/home-manager) config
 - [wallpapers](wallpapers/) 🌄 wallpapers collection
 
 ## 📓 Components
@@ -70,7 +70,7 @@ Hyprlock (EXPAND)
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
 | **Terminal Emulator**       |                         [Kitty][Kitty] + [Ghostty][Ghostty]                         |
 | **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
-| **Text Editor**             |                         [VSCode][VSCode] + [Neovim][Neovim]                         |
+| **Text Editor**             |                [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro]                 |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
 | **Browser**                 |                   [Firefox][Firefox] + [Zen Browser][zen-browser]                   |
@@ -80,7 +80,7 @@ Hyprlock (EXPAND)
 | **Cursor**                  |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
 | **Icons**                   |                            [Papirus-Dark][Papirus-Dark]                             |
 | **Lockscreen**              |                                [Hyprlock][Hyprlock]                                 |
-| **Image Viewer**            |                                   [qview][qview]                                    |
+| **Image Viewer**            |                                [viewnior][viewnior]                                 |
 | **Media Player**            |                                     [mpv][mpv]                                      |
 | **Screenshot Software**     |                               [grimblast][grimblast]                                |
 | **Screen Recording**        |                             [wf-recorder][wf-recorder]                              |
@@ -167,7 +167,7 @@ All the scripts are in `modules/home/scripts/scripts/` and are exported as packa
 extract.sh 
 </summary>
 
-**Description:** This script extract `tar.gz` archives in the current directory.
+**Description:** This script extracts `tar.gz` archives in the current directory.
 
 **Usage:** `extract <archive_file>`
 
@@ -178,7 +178,7 @@ extract.sh
 compress.sh 
 </summary>
 
-**Description:** This script compress a file or a folder into a `tar.gz` archives which is created in the current directory with the name of the chosen file or folder.
+**Description:** This script compresses a file or a folder into a `tar.gz` archive which is created in the current directory with the name of the chosen file or folder.
 
 **Usage:** `compress <file>` or `compress <folder>`
 
@@ -200,7 +200,7 @@ toggle-blur.sh
 toggle-opacity.sh 
 </summary>
 
-**Description:** This script toggles the Hyperland oppacity effect. If the oppacity is currently set to 0.90, it will be set to 1, and if it's set to 1, it will be set to 0.90.
+**Description:** This script toggles the Hyprland opacity effect. If the opacity is currently set to 0.90, it will be set to 1, and if it's set to 1, it will be set to 0.90.
 
 **Usage:** `toggle-opacity`
 
@@ -232,16 +232,16 @@ Keybindings
 
 ##### keybindings
 
-- `$mainMod, Return, exec, [float; center] kitty start --always-new-process`
-- `$mainMod SHIFT, Return, exec, kitty start --always-new-process`
-- `$mainMod ALT, Return, exec, [fullscreen] kitty start --always-new-process`
+- `$mainMod, Return, exec, [float; center; size 50% 50%] kitty`
+- `$mainMod SHIFT, Return, exec, kitty`
+- `$mainMod ALT, Return, exec, [fullscreen] kitty`
 - `$mainMod, B, exec, firefox`
 - `$mainMod, Q, killactive,`
 - `$mainMod, F, fullscreen, 0`
 - `$mainMod SHIFT, F, fullscreen, 1`
-- `$mainMod, G, toggle-float,`
-- `$mainMod, Space, exec, rofi -show drun`
-- `$mainMod SHIFT, D, exec, hyprctl dispatch exec '[workspace 4 silent] discord --enable-features=UseOzonePlatform --ozone-platform=wayland'`
+- `$mainMod, G, exec, toggle-float`
+- `$mainMod, Space, exec, rofi-launcher`
+- `$mainMod SHIFT, D, exec, legcord --enable-features=UseOzonePlatform --ozone-platform=wayland`
 - `$mainMod SHIFT, Escape, exec, power-menu`
 - `$mainMod, P, pseudo,`
 - `$mainMod, J, togglesplit,`
@@ -289,7 +289,7 @@ Keybindings
 - `$mainMod SHIFT, 8, movetoworkspacesilent, 8`
 - `$mainMod SHIFT, 9, movetoworkspacesilent, 9`
 - `$mainMod SHIFT, 0, movetoworkspacesilent, 10`
-- `$mainMod CTRL, c, movetoworkspace, empty"`
+- `$mainMod CTRL, c, movetoworkspace, empty`
 
 ##### window control
 
@@ -353,7 +353,7 @@ Keybindings
 First install nixos using any [graphical ISO image](https://nixos.org/download.html#nixos-iso).
 
 > [!NOTE]
-> Only been tested using the Gnome graphical installer and choosing the `No desktop` option durring instalation.
+> Only been tested using the Gnome graphical installer and choosing the `No desktop` option during installation.
 
 #### 2. **Clone the repo**
 
@@ -408,7 +408,7 @@ You will receive a prompt to enter your username, with a confirmation check.
 
 #### 2. **Set username**
 
-The script will replace all occurancies of the default usename `CURRENT_USERNAME` by the given one stored in `$username`
+The script will replace all occurrences of the default username `CURRENT_USERNAME` by the given one stored in `$username`
 
 #### 3. Create basic directories
 
@@ -427,9 +427,9 @@ Then the wallpapers will be copied into `~/Pictures/wallpapers/others` which is 
 
 It will also automatically copy the hardware configuration from `/etc/nixos/hardware-configuration.nix` to `./hosts/${host}/hardware-configuration.nix` so that the hardware configuration used is yours and not the default one.
 
-#### 6. Choose a host (desktop / laptop)
+#### 6. Choose a host (desktop / desktop-work / laptop / vm)
 
-Now you will need to choose the host you want. It depend on whether you are using a desktop or laptop (or a VM altho it can be realy buggy).
+Now you will need to choose the host you want. It depends on whether you are using a desktop, work desktop, laptop, or VM (although VM can be really buggy).
 
 #### 7. Build the system
 
@@ -462,8 +462,6 @@ Other dotfiles that I learned / copy from:
 <!-- # ✨ Stars History -->
 
 <!-- <p align="center"><img src="https://api.star-history.com/svg?repos=rodeyseijkens/nixos-config&type=Timeline&theme=dark" /></p> -->
-
-<p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
 
 <!-- end of page, send back to the top -->
 
@@ -500,3 +498,5 @@ Other dotfiles that I learned / copy from:
 [Firefox]: https://www.mozilla.org
 [zen-browser]: https://github.com/zen-browser/desktop
 [Maple Mono]: https://github.com/subframe7536/maple-font
+[micro]: https://micro-editor.github.io/
+[viewnior]: https://siyanpanayotov.com/project/viewnior
