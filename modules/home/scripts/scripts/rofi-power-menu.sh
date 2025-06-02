@@ -5,23 +5,29 @@ dir="$HOME/.config/rofi/"
 theme='power-menu'
 
 # CMDs
-uptime="`uptime | sed 's/.*up *\([^,]*\).*/\1/'`"
-host=`hostname`
+uptime=$(uptime | sed 's/.*up *\([^,]*\).*/\1/')
+host=$(hostname)
 
-# Options
-shutdown='\Uf0425 Shutdown'
-reboot='\Uf0709 Reboot'
-lock='\Uf033e Lock'
-suspend='\Uf04b2 Suspend'
-logout='\Uf0343 Logout'
-yes='\Uf012c Yes'
-no='\Uf0156 No'
+# Options - Display Strings (what Rofi shows)
+shutdown_display='\Uf0425 Shutdown'
+reboot_display='\Uf0709 Reboot'
+lock_display='\Uf033e Lock'
+yes_display='\Uf012c Yes'
+no_display='\Uf0156 No'
+
+# Internal Action Strings (what we match against)
+# These should be simple strings without the Unicode escapes
+shutdown_action="Shutdown"
+reboot_action="Reboot"
+lock_action="Lock"
+yes_action="Yes"
+no_action="No"
 
 # Rofi CMD
 rofi_cmd() {
 	rofi -dmenu \
 		-mesg "󱎫 Uptime: $uptime" \
-		-theme ${dir}/${theme}.rasi
+		-theme "${dir}/${theme}.rasi"
 }
 
 # Confirmation CMD
@@ -34,35 +40,33 @@ confirm_cmd() {
 		-dmenu \
 		-p 'Confirmation' \
 		-mesg 'Are you Sure?' \
-		-theme ${dir}/${theme}.rasi
+		-theme "${dir}/${theme}.rasi"
 }
 
 # Ask for confirmation
 confirm_exit() {
-	echo -e "$yes\n$no" | confirm_cmd
+	# Here we echo the display strings, but capture the plain "Yes" or "No"
+	echo -e "${yes_display}\n${no_display}" | confirm_cmd | sed 's/^\S* *//'
 }
 
 # Pass variables to rofi dmenu
 run_rofi() {
-	echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
+	# We echo the display strings, but process the output to get just the action string
+	echo -e "${lock_display}\n${reboot_display}\n${shutdown_display}" | \
+		rofi_cmd | \
+		sed 's/^\S* *//' # This sed command removes the first word (the icon) and any leading spaces
 }
 
 # Execute Command
 run_cmd() {
 	selected="$(confirm_exit)"
-	if [[ "$selected" == "$yes" ]]; then
-		if [[ $1 == '--shutdown' ]]; then
+	if [[ "$selected" == "$yes_action" ]]; then # Match against the plain "Yes" action string
+		if [[ "$1" == '--shutdown' ]]; then
 			systemctl poweroff
-		elif [[ $1 == '--reboot' ]]; then
+		elif [[ "$1" == '--reboot' ]]; then
 			systemctl reboot
-		elif [[ $1 == '--lock' ]]; then
+		elif [[ "$1" == '--lock' ]]; then
 			hyprlock
-		elif [[ $1 == '--suspend' ]]; then
-			mpc -q pause
-			amixer set Master mute
-			systemctl suspend
-		elif [[ $1 == '--logout' ]]; then
-			sway exit
 		fi
 	else
 		exit 0
@@ -71,20 +75,14 @@ run_cmd() {
 
 # Actions
 chosen="$(run_rofi)"
-case ${chosen} in
-    $shutdown)
-		run_cmd --shutdown
-        ;;
-    $reboot)
-		run_cmd --reboot
-        ;;
-    $lock)
-		run_cmd --lockscreen
-        ;;
-    $suspend)
-		run_cmd --suspend
-        ;;
-    $logout)
-		run_cmd --logout
-        ;;
+case "$chosen" in
+"$shutdown_action")
+	run_cmd --shutdown
+	;;
+"$reboot_action")
+	run_cmd --reboot
+	;;
+"$lock_action")
+	run_cmd --lock
+	;;
 esac
