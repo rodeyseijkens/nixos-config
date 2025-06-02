@@ -20,6 +20,7 @@ configuration {
     show-icons: true;
     icon-theme: "Papirus-dark";
     disable-history: true;
+    sorting-method: "fzf";
 }
 
 /*****----- Global Properties -----*****/
