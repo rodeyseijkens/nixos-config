@@ -15,7 +15,7 @@ configuration {
     display-run: "";
     display-filebrowser: "";
     display-window: "";
-    drun-display-format: "{icon} {name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+    drun-display-format: "{icon} {name}";
     window-format: "{w} · {c} · {t}";
     show-icons: true;
     icon-theme: "Papirus-dark";
