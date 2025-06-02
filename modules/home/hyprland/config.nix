@@ -325,7 +325,7 @@ in {
         "float,title:^(branchdialog)$"
         "float,title:^(Confirm to replace files)$"
         "float,title:^(File Operation Progress)$"
-        "center,floating:1,class:(Code),title:(Visual Studio Code)" # center floating windows of VSCode
+        "center,floating:1,class:(Code)" # center floating windows of VSCode
 
         "opacity 0.0 override,class:^(xwaylandvideobridge)$"
         "noanim,class:^(xwaylandvideobridge)$"
