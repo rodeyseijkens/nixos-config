@@ -284,60 +284,6 @@ label {
     font-weight: 400;
 }
 
-/* Menubar */
-.widget-menubar {
-    background: inherit;
-    /* background: @theme_bg_color; */
-    /* border: 1px solid @surface1; */
-    border-top: none;
-    border-bottom: none;
-}
-
-.widget-menubar>box>box {
-    margin: 5px 10px 5px 10px;
-    min-height: 40px;
-    border-radius: 4px;
-    background: transparent;
-}
-
-.widget-menubar>box>box>button {
-    background: @mantle;
-    /* background: alpha(currentColor, 0.05); */
-    min-width: 85px;
-    min-height: 50px;
-    margin-right: 13px;
-    font-size: 17px;
-    padding: 0px;
-}
-
-.widget-menubar>box>box>button:nth-child(4) {
-    margin-right: 0px;
-}
-
-.widget-menubar button:focus {
-    box-shadow: none;
-}
-
-.widget-menubar button:focus:hover {
-    background: @base;
-    /* background: alpha(currentColor,0.1); */
-    box-shadow: none;
-}
-
-.widget-menubar>box>revealer>box {
-    margin: 5px 10px 5px 10px;
-    background: @mantle;
-    /* background: alpha(currentColor, 0.05); */
-    border-radius: 4px;
-}
-
-.widget-menubar>box>revealer>box>button {
-    background: transparent;
-    min-height: 50px;
-    padding: 0px;
-    margin: 5px;
-}
-
 /* Buttons grid */
 .widget-buttons-grid {
     /* background-color: @theme_bg_color; */

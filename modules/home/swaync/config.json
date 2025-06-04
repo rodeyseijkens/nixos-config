@@ -26,7 +26,6 @@
   "script-fail-notify": true,
   "widgets": [
     "title",
-    "menubar#desktop",
     "volume",
     "backlight#mobile",
     "mpris",
@@ -38,80 +37,6 @@
       "text": "Notifications",
       "clear-all-button": true,
       "button-text": " Clear All "
-    },
-    "menubar#desktop": {
-      "menu#powermode-buttons": {
-        "label": " 󰌪 ",
-        "position": "left",
-        "actions": [
-          {
-            "label": "Performance",
-            "command": "powerprofilesctl set performance"
-          },
-          {
-            "label": "Balanced",
-            "command": "powerprofilesctl set balanced"
-          },
-          {
-            "label": "Power-saver",
-            "command": "powerprofilesctl set power-saver"
-          }
-        ]
-      },
-      "menu#screenshot": {
-        "label": "  ",
-        "position": "left",
-        "actions": [
-          {
-            "label": "󰹑  Whole screen",
-            "command": "grimblast --notify --cursor --freeze copy output"
-          },
-          {
-            "label": "󰩭  Window / Region",
-            "command": "grimblast --notify --freeze copy area"
-          }
-        ]
-      },
-      "menu#record": {
-        "label": " 󰕧 ",
-        "position": "left",
-        "actions": [
-          {
-            "label": "  Record screen",
-            "command": "record screen & ; swaync-client -t"
-          },
-          {
-            "label": "  Record selection",
-            "command": "record area & ; swaync-client -t"
-          },
-          {
-            "label": "  Record GIF",
-            "command": "record gif & ; swaync-client -t"
-          },
-          {
-            "label": "󰻃  Stop",
-            "command": "record stop"
-          }
-        ]
-      },
-      "menu#power-buttons": {
-        "label": "  ",
-        "position": "left",
-        "actions": [
-          {
-            "label": "  Lock",
-            "command": "hyprlock"
-          },
-          {
-            "label": "  Reboot",
-            "command": "systemctl reboot"
-          },
-          {
-            "label": "  Shut down",
-            "command": "systemctl poweroff"
-          }
-        ]
-      }
     },
     "backlight#mobile": {
       "label": " 󰃠 ",
