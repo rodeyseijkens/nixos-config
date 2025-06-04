@@ -164,7 +164,7 @@ in {
         "$mainMod SHIFT, W, exec, vm-start"
 
         # screenshot
-        ",Print, exec, screenshot --copy"
+        ",Print, exec, rofi-screenshot-menu"
         "$mainMod, Print, exec, screenshot --save"
         "$mainMod SHIFT, Print, exec, screenshot --swappy"
 
