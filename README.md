@@ -73,7 +73,7 @@ Hyprlock (EXPAND)
 | **Text Editor**             |                [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro]                 |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
-| **Browser**                 |                   [Firefox][Firefox] + [Zen Browser][zen-browser]                   |
+| **Browser**                 |                   [Zen Browser][zen-browser] + [Firefox][Firefox]                   |
 | **File Manager**            |                         [Nautilus][Nautilus] + [yazi][yazi]                         |
 | **Fonts**                   |                              [Maple Mono][Maple Mono]                               |
 | **Color Scheme**            |                            [Gruvbox Dark Hard][Gruvbox]                             |
@@ -197,12 +197,86 @@ toggle-blur.sh
 
 <details>
 <summary>
+rofi-screenshot-menu.sh 
+</summary>
+
+**Description:** This script provides a rofi-based menu for taking screenshots with multiple options including area selection, fullscreen capture, active window capture, editing with Swappy, and copying directly to clipboard.
+
+**Usage:** `rofi-screenshot-menu`
+
+**Options:**
+
+- 📷 Capture Area - Select an area to screenshot
+- 🖥️ Capture Fullscreen - Capture the entire screen
+- 🪟 Capture Window - Capture the active window
+- ✏️ Edit with Swappy - Capture area and open in image editor
+- 📋 Copy to Clipboard - Capture area and copy directly to clipboard
+
+</details>
+
+<details>
+<summary>
 toggle-opacity.sh 
 </summary>
 
 **Description:** This script toggles the Hyprland opacity effect. If the opacity is currently set to 0.90, it will be set to 1, and if it's set to 1, it will be set to 0.90.
 
 **Usage:** `toggle-opacity`
+
+</details>
+
+<details>
+<summary>
+toggle-float.sh 
+</summary>
+
+**Description:** This script toggles the floating state of the current window in Hyprland. If the window is currently tiled, it will be floated, and if it's floating, it will be tiled.
+
+**Usage:** `toggle-float`
+
+</details>
+
+<details>
+<summary>
+toggle-waybar.sh 
+</summary>
+
+**Description:** This script toggles the visibility of the Waybar status bar. If Waybar is currently visible, it will be hidden, and if it's hidden, it will be shown.
+
+**Usage:** `toggle-waybar`
+
+</details>
+
+<details>
+<summary>
+wallpaper-picker.sh 
+</summary>
+
+**Description:** This script provides a rofi-based wallpaper picker that allows you to browse and select wallpapers from your wallpaper directories. It supports both the main wallpaper folder and subdirectories.
+
+**Usage:** `wallpaper-picker`
+
+</details>
+
+<details>
+<summary>
+rofi-launcher.sh 
+</summary>
+
+**Description:** This script launches a rofi application launcher with a custom theme for quickly finding and launching applications.
+
+**Usage:** `rofi-launcher`
+
+</details>
+
+<details>
+<summary>
+rofi-power-menu.sh 
+</summary>
+
+**Description:** This script provides a rofi-based power menu with options to shutdown, reboot, or lock the system with confirmation dialogs.
+
+**Usage:** `rofi-power-menu`
 
 </details>
 
@@ -235,7 +309,7 @@ Keybindings
 - `$mainMod, Return, exec, [float; center; size 50% 50%] kitty`
 - `$mainMod SHIFT, Return, exec, kitty`
 - `$mainMod ALT, Return, exec, [fullscreen] kitty`
-- `$mainMod, B, exec, firefox`
+- `$mainMod, B, exec, zen-beta`
 - `$mainMod, Q, killactive,`
 - `$mainMod, F, fullscreen, 0`
 - `$mainMod SHIFT, F, fullscreen, 1`
@@ -254,7 +328,7 @@ Keybindings
 
 ##### screenshot
 
-- `,Print, exec, screenshot --copy`
+- `,Print, exec, rofi-screenshot-menu`
 - `$mainMod, Print, exec, screenshot --save`
 - `$mainMod SHIFT, Print, exec, screenshot --swappy`
 
