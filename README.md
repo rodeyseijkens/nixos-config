@@ -31,7 +31,7 @@
    <img src="./.github/assets/screenshots/1.png" style="margin-bottom: 10px;"/> <br>
    <img src="./.github/assets/screenshots/2.png" style="margin-bottom: 10px;"/> <br>
    <img src="./.github/assets/screenshots/3.png" style="margin-bottom: 10px;"/> <br>
-   Screenshots last updated <b>2024-08-24</b>
+   Screenshots last updated <b>2025-06-05</b>
 </p>
 
 <details>
