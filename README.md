@@ -316,10 +316,11 @@ Keybindings
 - `$mainMod, G, exec, toggle-float`
 - `$mainMod, Space, exec, rofi-launcher`
 - `$mainMod SHIFT, D, exec, legcord --enable-features=UseOzonePlatform --ozone-platform=wayland`
-- `$mainMod SHIFT, Escape, exec, power-menu`
+- `$mainMod SHIFT, Escape, exec, rofi-power-menu`
 - `$mainMod, P, pseudo,`
-- `$mainMod, J, togglesplit,`
+- `$mainMod, X, togglesplit,`
 - `$mainMod, T, exec, toggle-opacity`
+- `$mainMod, E, exec, nautilus`
 - `$mainMod SHIFT, B, exec, toggle-waybar`
 - `$mainMod, C ,exec, hyprpicker -a`
 - `$mainMod, W,exec, wallpaper-picker`
@@ -338,6 +339,10 @@ Keybindings
 - `$mainMod, right, movefocus, r`
 - `$mainMod, up, movefocus, u`
 - `$mainMod, down, movefocus, d`
+- `$mainMod, h, movefocus, l`
+- `$mainMod, j, movefocus, d`
+- `$mainMod, k, movefocus, u`
+- `$mainMod, l, movefocus, r`
 
 ##### switch workspace
 
@@ -372,14 +377,28 @@ Keybindings
 - `$mainMod SHIFT, right, movewindoworgroup, r`
 - `$mainMod SHIFT, up, movewindoworgroup, u`
 - `$mainMod SHIFT, down, movewindoworgroup, d`
+- `$mainMod SHIFT, h, movewindoworgroup, l`
+- `$mainMod SHIFT, j, movewindoworgroup, d`
+- `$mainMod SHIFT, k, movewindoworgroup, u`
+- `$mainMod SHIFT, l, movewindoworgroup, r`
+
 - `$mainMod CTRL, left, resizeactive, -80 0`
 - `$mainMod CTRL, right, resizeactive, 80 0`
 - `$mainMod CTRL, up, resizeactive, 0 -80`
 - `$mainMod CTRL, down, resizeactive, 0 80`
+- `$mainMod CTRL, h, resizeactive, -80 0`
+- `$mainMod CTRL, j, resizeactive, 0 80`
+- `$mainMod CTRL, k, resizeactive, 0 -80`
+- `$mainMod CTRL, l, resizeactive, 80 0`
+
 - `$mainMod ALT, left, moveactive,  -80 0`
 - `$mainMod ALT, right, moveactive, 80 0`
 - `$mainMod ALT, up, moveactive, 0 -80`
 - `$mainMod ALT, down, moveactive, 0 80`
+- `$mainMod ALT, h, moveactive,  -80 0`
+- `$mainMod ALT, j, moveactive, 0 80`
+- `$mainMod ALT, k, moveactive, 0 -80`
+- `$mainMod ALT, l, moveactive, 80 0`
 
 #### window tabbed grouping
 
@@ -391,27 +410,17 @@ Keybindings
 
 #### mouse bindings
 
-- `$mainMod, mouse:274, movewindoworgroup`
+- `$mainMod, mouse:274, movewindow`
 - `$mainMod SHIFT, mouse:274, resizewindow`
 
 ##### media and volume controls
 
-- `,XF86AudioRaiseVolume,exec, pamixer -i 2`
-- `,XF86AudioLowerVolume,exec, pamixer -d 2`
-- `,XF86AudioMute,exec, pamixer -t`
 - `,XF86AudioPlay,exec, playerctl play-pause`
 - `,XF86AudioNext,exec, playerctl next`
 - `,XF86AudioPrev,exec, playerctl previous`
 - `,XF86AudioStop, exec, playerctl stop`
 - `$mainMod, mouse_down, workspace, e-1`
 - `$mainMod, mouse_up, workspace, e+1`
-
-##### laptop brigthness
-
-- `,XF86MonBrightnessUp, exec, brightnessctl set 5%+`
-- `,XF86MonBrightnessDown, exec, brightnessctl set 5%-`
-- `$mainMod, XF86MonBrightnessUp, exec, brightnessctl set 100%+`
-- `$mainMod, XF86MonBrightnessDown, exec, brightnessctl set 100%-`
 </details>
 
 # 🚀 Installation
