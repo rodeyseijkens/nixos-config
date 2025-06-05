@@ -5,7 +5,7 @@
 }:
 with lib; let
   defaultApps = {
-    browser = ["firefox.desktop"];
+    browser = ["zen-beta.desktop"];
     text = ["org.gnome.TextEditor.desktop"];
     image = ["viewnior.desktop"];
     audio = ["mpv.desktop"];
@@ -81,6 +81,7 @@ in {
   home.packages = with pkgs; [junction];
 
   home.sessionVariables = {
+    BROWSER = "zen-beta";
     # prevent wine from creating file associations
     WINEDLLOVERRIDES = "winemenubuilder.exe=d";
   };
