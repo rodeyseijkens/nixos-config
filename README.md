@@ -200,17 +200,17 @@ toggle-blur.sh
 rofi-screenshot-menu.sh 
 </summary>
 
-**Description:** This script provides a rofi-based menu for taking screenshots with multiple options including area selection, fullscreen capture, active window capture, editing with Swappy, and copying directly to clipboard.
+**Description:** This script provides a rofi-based menu for taking screenshots with multiple capture modes and clipboard functionality. All capture modes automatically copy screenshots to the clipboard for immediate use.
 
 **Usage:** `rofi-screenshot-menu`
 
 **Options:**
 
-- 📷 Capture Area - Select an area to screenshot
-- 🖥️ Capture Fullscreen - Capture the entire screen
-- 🪟 Capture Window - Capture the active window
-- ✏️ Edit with Swappy - Capture area and open in image editor
-- 📋 Copy to Clipboard - Capture area and copy directly to clipboard
+- 📷 **Area** - Select an area and copy directly to clipboard
+- 🖥️ **Fullscreen** - Capture entire screen and copy to clipboard
+- 💾 **Save to File** - Choose between area or fullscreen capture and save to `~/Pictures/Screenshots/`
+- ✏️ **Edit with Swappy** - Capture and save, then open in Swappy image editor
+- ⏰ **Timer** - Delayed fullscreen capture (5s or 10s countdown) and save to file
 
 </details>
 
