@@ -141,7 +141,7 @@ in {
 
       bind = [
         # show keybinds list
-        "$mainMod, F1, exec, show-keybinds"
+        "$mainMod, F1, exec, keybinds"
 
         # keybindings
         "$mainMod, Return, exec, [float; center; size 50% 50%] ${terminal}"
@@ -160,8 +160,8 @@ in {
         "$mainMod, T, exec, toggle-opacity"
         "$mainMod, E, exec, nautilus"
         "$mainMod SHIFT, B, exec, toggle-waybar"
-        "$mainMod, C ,exec, hyprpicker -a"
-        "$mainMod, W,exec, wallpaper-picker"
+        "$mainMod, C, exec, hyprpicker -a"
+        "$mainMod, W, exec, wallpaper-picker"
         "$mainMod, N, exec, swaync-client -t -sw"
         "$mainMod SHIFT, W, exec, vm-start"
 
