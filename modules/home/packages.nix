@@ -11,7 +11,6 @@
     fd # find replacement
     ffmpeg # multimedia framework
     file # Show file information
-    imv # image viewer
     killall
     lazygit # terminal git UI
     libnotify # Notification library
@@ -44,7 +43,6 @@
     ## GUI Apps
     bleachbit # cache cleaner
     pwvucontrol # pipewire volume controle (GUI)
-    vlc # video player
     mission-center # system monitor
 
     # Python
