@@ -1,9 +1,9 @@
 <h1 align="center">
-   <img src="./.github/assets/logo/nixos-logo.png  " width="100px" /> 
+   <img src="./.github/assets/logo/nixos-logo.png" width="100px" /> 
    <br>
       Rodey's Flakes 
    <br>
-      <img src="./.github/assets/pallet/pallet-0.png" width="600px" /> <br>
+      <img src="./.github/assets/palette/palette-0.png" width="600px" /> <br>
 
    <div align="center">
       <p></p>
@@ -98,7 +98,6 @@ Utils (EXPAND)
 - `vim` $\rightarrow$ `nvim`
 - `cat` $\rightarrow$ `bat`
 - `nano` $\rightarrow$ `micro`
-- `code` $\rightarrow$ `codium`
 - `py` $\rightarrow$ `python`
 - `icat` $\rightarrow$ `kitten icat`
 - `dsize` $\rightarrow$ `du -hs`
@@ -302,7 +301,7 @@ Keybindings
 
 ##### show keybinds list
 
-- `$mainMod, F1, exec, show-keybinds`
+- `$mainMod, F1, exec, keybinds`
 
 ##### keybindings
 
@@ -322,8 +321,8 @@ Keybindings
 - `$mainMod, T, exec, toggle-opacity`
 - `$mainMod, E, exec, nautilus`
 - `$mainMod SHIFT, B, exec, toggle-waybar`
-- `$mainMod, C ,exec, hyprpicker -a`
-- `$mainMod, W,exec, wallpaper-picker`
+- `$mainMod, C, exec, hyprpicker -a`
+- `$mainMod, W, exec, wallpaper-picker`
 - `$mainMod, N, exec, swaync-client -t -sw`
 - `$mainMod SHIFT, W, exec, vm-start`
 
@@ -453,7 +452,7 @@ cd nixos-config
 > For some computers, the default rebuild command might get stuck due to CPU cores running out of RAM. To fix that modify the install script line: `sudo nixos-rebuild switch --flake .#${HOST}` to `sudo nixos-rebuild switch --cores <less than your max number of cores> --flake .#${HOST}`
 
 > [!TIP]
-> As it is better to know what a script does before running it, you are advised to read it or at least see the [Install script walkthrough](#Install-script-walkthrough) section before execution.
+> As it is better to know what a script does before running it, you are advised to read it or at least see the [Install script walkthrough](#install-script-walkthrough) section before execution.
 
 Execute and follow the installation script :
 
@@ -563,14 +562,13 @@ Other dotfiles that I learned / copy from:
 [Btop]: https://github.com/aristocratos/btop
 [Nautilus]: https://apps.gnome.org/Nautilus/
 [yazi]: https://github.com/sxyazi/yazi
-[zsh]: https://ohmyz.sh/
+[zsh]: https://www.zsh.org/
 [oh-my-zsh]: https://ohmyz.sh/
 [Hyprlock]: https://github.com/hyprwm/hyprlock
 [mpv]: https://github.com/mpv-player/mpv
 [VSCode]: https://code.visualstudio.com/
 [Neovim]: https://github.com/neovim/neovim
 [grimblast]: https://github.com/hyprwm/contrib
-[qview]: https://interversehq.com/qview/
 [swaync]: https://github.com/ErikReider/SwayNotificationCenter
 [NetworkManager]: https://wiki.gnome.org/Projects/NetworkManager
 [network-manager-applet]: https://gitlab.gnome.org/GNOME/network-manager-applet/
