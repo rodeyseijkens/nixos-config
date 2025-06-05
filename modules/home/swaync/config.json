@@ -25,12 +25,12 @@
   "hide-on-action": true,
   "script-fail-notify": true,
   "widgets": [
-    "title",
     "volume",
     "backlight#mobile",
     "mpris",
-    "dnd",
-    "notifications"
+    "title",
+    "notifications",
+    "dnd"
   ],
   "widget-config": {
     "title": {
