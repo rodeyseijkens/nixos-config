@@ -11,7 +11,6 @@
     fd # find replacement
     ffmpeg # multimedia framework
     file # Show file information
-    killall
     lazygit # terminal git UI
     libnotify # Notification library
     man-pages # extra man pages
@@ -44,10 +43,6 @@
     bleachbit # cache cleaner
     pwvucontrol # pipewire volume controle (GUI)
     mission-center # system monitor
-
-    # Python
-    python3
-    python312Packages.ipython
 
     # Node.js
     volta
