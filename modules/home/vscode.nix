@@ -111,6 +111,11 @@ in {
             key = "ctrl+s";
             command = "workbench.action.files.saveFiles";
           }
+          {
+            "key" = "ctrl+alt+meta+delete";
+            "command" = "workbench.action.terminal.killAll";
+            "when" = "terminalHasBeenCreated || terminalIsOpen || terminalProcessSupported";
+          }
         ];
       };
     };
