@@ -115,7 +115,7 @@ Utils (EXPAND)
 Nixos (EXPAND)
 </summary>
 
-- `cdnix` $\rightarrow$ `cd ~/nixos-config && codium ~/nixos-config`
+- `cdnix` $\rightarrow$ `cd ~/nixos-config && code ~/nixos-config`
 - `ns` $\rightarrow$ `nom-shell --run zsh`
 - `nix-test` $\rightarrow$ `nh os test`
 - `nix-switch` $\rightarrow$ `nh os switch`
