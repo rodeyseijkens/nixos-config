@@ -30,7 +30,7 @@
       tree = "eza --icons --tree --group-directories-first";
 
       # Nixos
-      cdnix = "cd ~/nixos-config && code ~/nixos-config";
+      cdnix = "cd ~/nixos-config && code ~/nixos-config && clear";
       ns = "nom-shell --run zsh";
       nix-switch = "nh os switch";
       nix-update = "nh os switch --update";
