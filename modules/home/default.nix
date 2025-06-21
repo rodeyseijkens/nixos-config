@@ -1,14 +1,13 @@
 {...}: {
   imports = [
     ./bat.nix # better cat command
+    ./browsers # firefox, zen browser, and google chrome
     ./btop.nix # resouces monitor
     ./fastfetch.nix # fetch tool
-    ./firefox.nix # browser
     ./fzf.nix # fuzzy finder
     ./ghostty.nix # terminal
     ./git.nix # version control
     ./gnome.nix # gnome apps
-    ./google-chrome.nix # browser
     ./gtk.nix # gtk theme
     ./hyprland # window manager
     ./kitty.nix # terminal
@@ -29,7 +28,6 @@
     ./vscode.nix # vscode
     ./waybar # status bar
     ./xdg-mimes.nix # xdg config
-    ./zen-browser.nix # zen browser
     ./zsh # shell
   ];
 }
