@@ -272,6 +272,16 @@ in {
         "$mainMod SHIFT, mouse:274, resizewindow"
       ];
 
+      # workspace
+      workspace = [
+        "1, monitor:DP-3"
+        "2, monitor:DP-3"
+        "3, monitor:DP-3"
+        "8, monitor:DP-3"
+        "9, monitor:DP-2"
+        "10, monitor:DP-2"
+      ];
+
       # windowrule
       windowrule = [
         "float,class:^(.*Viewnior.*)$"
@@ -285,8 +295,8 @@ in {
         "idleinhibit focus,class:^(.*mpv.*)$"
         "float,class:^(.*udiskie.*)$"
         "float,title:^(Volume Control)$"
-        "float,title:^(Firefox — Sharing Indicator)$"
-        "move 0 0,title:^(Firefox — Sharing Indicator)$"
+        "float,title:^(.* — Sharing Indicator)$"
+        "move 0 0,title:^(.* — Sharing Indicator)$"
         "size 700 450,title:^(Volume Control)$"
         "move 40 55%,title:^(Volume Control)$"
         "float, title:^(Picture-in-Picture)$"
@@ -297,11 +307,10 @@ in {
         "workspace 3, class:^(evince)$"
         "workspace 5, class:^(Spotify)$"
         "workspace 9, class:^(steam)$"
-        "workspace 10, class:^(discord)$"
-        "workspace 10, class:^(legcord)$"
+        "workspace 10, class:^(discord|legcord)$"
         "workspace 8,class:(dota2),title:(Dota 2)"
         "idleinhibit focus, class:^(mpv)$"
-        "idleinhibit fullscreen, class:^(firefox)$"
+        "idleinhibit fullscreen, class:^(firefox|zen-beta)$"
         "float,class:^(zenity)$"
         "center,class:^(zenity)$"
         "size 850 500,class:^(zenity)$"
@@ -310,7 +319,6 @@ in {
         "size 850 500,class:^(org.gnome.FileRoller)$"
         "size 850 500,title:^(File Upload)$"
         "float,class:^(com.saivert.pwvucontrol)$"
-        "float,class:^(.sameboy-wrapped)$"
         "float,class:^(file_progress)$"
         "float,class:^(confirm)$"
         "float,class:^(dialog)$"
