@@ -2,6 +2,8 @@
   browser = "zen-beta";
   terminal = "kitty";
 in {
+  imports = [./windowrules];
+
   wayland.windowManager.hyprland = {
     settings = {
       # autostart
@@ -277,72 +279,18 @@ in {
         "1, monitor:DP-3"
         "2, monitor:DP-3"
         "3, monitor:DP-3"
-        "8, monitor:DP-3"
+        "4, monitor:DP-3"
+        "5, monitor:DP-3"
         "9, monitor:DP-2"
         "10, monitor:DP-2"
       ];
 
-      # windowrule
+      # workspace window rules
       windowrule = [
-        "float,class:^(.*Viewnior.*)$"
-        "center,class:^(.*Viewnior.*)$"
-        "size 1200 800,class:^(.*Viewnior.*)$"
-        "float,class:^(.*mpv.*)$"
-        "center,class:^(.*mpv.*)$"
-        "size 1200 725,class:^(.*mpv.*)$"
-        "pin,class:^(.*rofi.*)$"
-        "tile,class:^(.*neovide.*)$"
-        "idleinhibit focus,class:^(.*mpv.*)$"
-        "float,class:^(.*udiskie.*)$"
-        "float,title:^(Volume Control)$"
-        "float,title:^(.* — Sharing Indicator)$"
-        "move 0 0,title:^(.* — Sharing Indicator)$"
-        "size 700 450,title:^(Volume Control)$"
-        "move 40 55%,title:^(Volume Control)$"
-        "float, title:^(Picture-in-Picture)$"
-        "opacity 1.0 override 1.0 override, title:^(Picture-in-Picture)$"
-        "pin, title:^(Picture-in-Picture)$"
-        "opacity 1.0 override 1.0 override, title:^(.*mpv.*)$"
-        "opacity 1.0 override 1.0 override, class:(evince)"
-        "workspace 3, class:^(evince)$"
-        "workspace 5, class:^(Spotify)$"
+        "workspace 5,class:(dota2),title:(Dota 2)"
+        "workspace 9, class:^(spotify)$"
         "workspace 9, class:^(steam)$"
         "workspace 10, class:^(discord|legcord)$"
-        "workspace 8,class:(dota2),title:(Dota 2)"
-        "idleinhibit focus, class:^(mpv)$"
-        "idleinhibit fullscreen, class:^(firefox|zen-beta)$"
-        "float,class:^(zenity)$"
-        "center,class:^(zenity)$"
-        "size 850 500,class:^(zenity)$"
-        "float,class:^(org.gnome.FileRoller)$"
-        "center,class:^(org.gnome.FileRoller)$"
-        "size 850 500,class:^(org.gnome.FileRoller)$"
-        "size 850 500,title:^(File Upload)$"
-        "float,class:^(com.saivert.pwvucontrol)$"
-        "float,class:^(file_progress)$"
-        "float,class:^(confirm)$"
-        "float,class:^(dialog)$"
-        "float,class:^(download)$"
-        "float,class:^(notification)$"
-        "float,class:^(error)$"
-        "float,class:^(confirmreset)$"
-        "float,title:^(Open File)$"
-        "float,title:^(File Upload)$"
-        "float,title:^(branchdialog)$"
-        "float,title:^(Confirm to replace files)$"
-        "float,title:^(File Operation Progress)$"
-        "center,floating:1,class:(Code)" # center floating windows of VSCode
-
-        "opacity 0.0 override,class:^(xwaylandvideobridge)$"
-        "noanim,class:^(xwaylandvideobridge)$"
-        "noinitialfocus,class:^(xwaylandvideobridge)$"
-        "maxsize 1 1,class:^(xwaylandvideobridge)$"
-        "noblur,class:^(xwaylandvideobridge)$"
-
-        # Remove context menu transparency in chromium based apps
-        "opaque,class:^()$,title:^()$"
-        "noshadow,class:^()$,title:^()$"
-        "noblur,class:^()$,title:^()$"
       ];
     };
 
