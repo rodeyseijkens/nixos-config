@@ -84,6 +84,7 @@ in {
           "workbench.layoutControl.type" = "menu";
           "workbench.startupEditor" = "none";
           "workbench.statusBar.visible" = true;
+          "workbench.panel.showLabels" = false;
 
           # Extension settings
           "alejandra.program" = "alejandra";
