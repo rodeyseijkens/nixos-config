@@ -92,25 +92,25 @@ countdown () {
 
 # Screenshot functions
 area_select() {
-	notify "Copied to clipboard" 3000
     grimblast copy area
+	notify "Copied to clipboard" 3000
 }
 
 area_select_save() {
-	notify "Saved \n$file_name" 3000
     grimblast save area "$file"
+	notify "Saved \n$file_name" 3000
 }
 
 fullscreen() {
-    sleep 0.3
-	notify "Copied to clipboard" 3000
+    sleep 0.7
     grimblast copy output
+	notify "Copied to clipboard" 3000
 }
 
 fullscreen_save() {
-    sleep 0.3
-	notify "Saved \n$file_name" 3000
+    sleep 0.7
     grimblast save output "$file"
+	notify "Saved \n$file_name" 3000
 }
 
 save_file() {
