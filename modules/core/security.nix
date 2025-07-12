@@ -1,7 +1,14 @@
 {...}: {
   security = {
     rtkit.enable = true;
-    sudo.enable = true;
+    sudo = {
+      enable = true;
+      extraConfig = ''
+        Defaults pwfeedback
+        Defaults timestamp_timeout=60
+        Defaults timestamp_type=global
+      '';
+    };
     pam.services.hyprlock = {};
     polkit = {
       enable = true;
