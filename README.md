@@ -146,6 +146,8 @@ Git (EXPAND)
 - `gcl` $\rightarrow$ `git clone`
 - `gc` $\rightarrow$ `git commit`
 - `gcm` $\rightarrow$ `git commit -m`
+- `gca` $\rightarrow$ `git commit --amend`
+- `gcaa` $\rightarrow$ `git add --all && git commit --amend --no-edit`
 - `gcma` $\rightarrow$ `git add --all && git commit -m`
 - `gtag` $\rightarrow$ `git tag -ma`
 - `gch` $\rightarrow$ `git checkout`

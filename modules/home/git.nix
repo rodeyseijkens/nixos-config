@@ -50,6 +50,8 @@
     gcl = "git clone";
     gc = "git commit";
     gcm = "git commit -m";
+    gca = "git commit --amend";
+    gcaa = "git add --all && git commit --amend --no-edit";
     gcz = "git cz";
     gcfu = "git commit --fixup HEAD";
     gcma = "git add --all && git commit -m";
