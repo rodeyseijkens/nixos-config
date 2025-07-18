@@ -50,7 +50,7 @@ in {
 
           "editor.formatOnPaste" = true;
           "editor.formatOnSave" = true;
-          "editor.formatOnType" = true;
+          "editor.formatOnType" = false;
 
           "editor.codeActionsOnSave" = {
             "source.fixAll.eslint" = "explicit";
@@ -90,6 +90,7 @@ in {
           "alejandra.program" = "alejandra";
           "material-icon-theme.folders.theme" = "classic";
           "gitlens.rebaseEditor.ordering" = "asc";
+          "github.copilot.nextEditSuggestions.enabled" = true;
           "[nix]" = {
             "editor.defaultFormatter" = "kamadorueda.alejandra";
             "editor.formatOnPaste" = true;
