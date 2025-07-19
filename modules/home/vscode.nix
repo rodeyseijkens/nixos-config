@@ -44,9 +44,7 @@ in {
         userSettings = {
           "update.mode" = "none";
 
-          "editor.fontFamily" = "'Maple Mono', 'SymbolsNerdFont', 'monospace', monospace";
           "editor.fontLigatures" = true;
-          "editor.fontSize" = 16;
 
           "editor.formatOnPaste" = true;
           "editor.formatOnSave" = true;
@@ -75,7 +73,7 @@ in {
           "window.menuBarVisibility" = "toggle";
 
           "workbench.activityBar.location" = "top";
-          "workbench.colorTheme" = "Gruvbox Dark Hard";
+          "workbench.colorTheme" = mkForce "Gruvbox Dark Hard";
           "workbench.editor.limit.enabled" = true;
           "workbench.editor.limit.perEditorGroup" = true;
           "workbench.editor.limit.value" = 10;

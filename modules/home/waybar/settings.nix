@@ -1,21 +1,11 @@
-{host, ...}: let
+{config, ...}: let
   custom = {
-    font = "Maple Mono";
-    font_size = "18px";
-    font_weight = "bold";
-    text_color = "#FBF1C7";
-    background_0 = "#1D2021";
-    background_1 = "#282828";
-    border_color = "#928374";
-    red = "#CC241D";
-    green = "#98971A";
-    yellow = "#FABD2F";
-    blue = "#458588";
-    magenta = "#B16286";
-    cyan = "#689D6A";
-    orange = "#D65D0E";
-    opacity = "1";
-    indicator_height = "2px";
+    green = config.lib.stylix.colors.withHashtag.base0B;
+    yellow = config.lib.stylix.colors.withHashtag.base0B;
+    blue = config.lib.stylix.colors.withHashtag.base0D;
+    cyan = config.lib.stylix.colors.withHashtag.base0C;
+    magenta = config.lib.stylix.colors.withHashtag.base0E;
+    orange = config.lib.stylix.colors.withHashtag.base0F;
   };
 in {
   programs.waybar.settings.mainBar = with custom; {
@@ -37,11 +27,7 @@ in {
     modules-right = [
       "cpu"
       "memory"
-      (
-        if (host == "desktop")
-        then "disk"
-        else ""
-      )
+      "disk"
       "pulseaudio"
       "network"
       "battery"

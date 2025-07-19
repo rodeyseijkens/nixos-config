@@ -16,6 +16,7 @@
     ./user.nix
     ./wayland.nix
     ./virtualization.nix
+    ./stylix.nix
 
     # gaming
     ./gaming/steam.nix

@@ -1,20 +1,10 @@
 {
   pkgs,
-  host,
+  lib,
   ...
 }: {
   programs.kitty = {
     enable = true;
-
-    themeFile = "gruvbox-dark-hard";
-
-    font = {
-      name = "Maple Mono";
-      size =
-        if (host == "laptop")
-        then 12
-        else 14;
-    };
 
     extraConfig = ''
       font_features MapleMono-Regular +ss01 +ss02 +ss04
@@ -25,14 +15,10 @@
 
     settings = {
       confirm_os_window_close = 0;
-      background_opacity = "0.55";
       scrollback_lines = 10000;
       enable_audio_bell = false;
       mouse_hide_wait = 60;
-      window_padding_width =
-        if (host == "laptop")
-        then 5
-        else 10;
+      window_padding_width = 10;
 
       ## Tabs
       tab_title_template = "{index}";

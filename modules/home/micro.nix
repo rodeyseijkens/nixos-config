@@ -1,13 +1,16 @@
-{ pkgs, ... }: 
 {
+  pkgs,
+  lib,
+  ...
+}: {
   programs.micro = {
     enable = true;
-    
+
     settings = {
-      "colorscheme" = "gruvbox";
+      "colorscheme" = lib.mkForce "gruvbox";
       "*.nix" = {"tabsize" = 2;};
-      "*.ml"  = {"tabsize" = 2;};
-      "*.sh"  = {"tabsize" = 2;};
+      "*.ml" = {"tabsize" = 2;};
+      "*.sh" = {"tabsize" = 2;};
       "makefile" = {"tabstospaces" = false;};
       "tabstospaces" = true;
       "tabsize" = 4;

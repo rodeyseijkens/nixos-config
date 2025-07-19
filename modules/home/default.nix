@@ -22,6 +22,7 @@
     ./rofi # launcher
     ./scripts/scripts.nix # personal scripts
     ./spicetify.nix # spotify client
+    ./stylix.nix # stylix theme
     ./swaync/swaync.nix # notification deamon
     ./swayosd.nix # brightness / volume wiget
     ./tigervnc.nix # remote desktop

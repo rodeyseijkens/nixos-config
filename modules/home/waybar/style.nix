@@ -1,78 +1,58 @@
-{ ... }:
-let custom = {
-  font = "Maple Mono";
-  font_size = "18px";
-  font_weight = "bold";
-  text_color = "#FBF1C7";
-  background_0 = "#1D2021";
-  background_1 = "#282828";
-  border_color = "#928374";
-  red = "#CC241D";
-  green = "#98971A";
-  yellow = "#FABD2F";
-  blue = "#458588";
-  magenta = "#B16286";
-  cyant = "#689D6A";
-  orange = "#D65D0E";
-  orange_bright = "#FE8019";
-  opacity = "1";
-  indicator_height = "2px";
-};
-in 
 {
-  programs.waybar.style = with custom; ''
+  lib,
+  stylix,
+  ...
+}: {
+  programs.waybar.style = lib.mkAfter ''
     * {
       border: none;
       border-radius: 0px;
       padding: 0;
       margin: 0;
-      font-family: ${font};
-      font-weight: ${font_weight};
-      opacity: ${opacity};
-      font-size: ${font_size};
+      opacity: 1;
+      font-weight: bold;
     }
 
     window#waybar {
-      background: #282828;
-      border-top: 1px solid #928374;
+      background: @base01;
+      border-top: 1px solid @base04;
     }
 
     tooltip {
-      background: ${background_1};
-      border: 1px solid ${border_color};
+      background: @base01;
+      border: 1px solid @base04;
     }
     tooltip label {
       margin: 5px;
-      color: ${text_color};
+      color: @base07;
     }
 
     #workspaces {
       padding-left: 15px;
     }
     #workspaces button {
-      color: ${yellow};
+      color: @base0A;
+      background: @base01;
       padding-left:  5px;
       padding-right: 5px;
       margin-right: 10px;
+      border-top: 1px solid @base04;
     }
     #workspaces button.empty {
-      color: ${text_color};
+      color: @base07;
     }
+    #workspaces button.focused,
     #workspaces button.active {
-      color: ${orange_bright};
-    }
-
-    #clock {
-      color: ${text_color};
+      color: @base09;
     }
 
     #tray {
       margin-left: 10px;
-      color: ${text_color};
+      color: @base07;
     }
     #tray menu {
-      background: ${background_1};
-      border: 1px solid ${border_color};
+      background: @base01;
+      border: 1px solid @base04;
       padding: 8px;
     }
     #tray menuitem {
@@ -80,16 +60,9 @@ in
     }
 
     #pulseaudio, #network, #cpu, #memory, #disk, #battery, #custom-notification {
-      padding-left: 5px;
-      padding-right: 5px;
       margin-right: 10px;
-      color: ${text_color};
     }
-    
-    #pulseaudio {
-      margin-left: 15px;
-    }
-    
+
     #custom-notification {
       margin-left: 15px;
       padding-right: 2px;
@@ -98,10 +71,24 @@ in
 
     #custom-launcher {
       font-size: 20px;
-      color: ${text_color};
+      color: @base07;
       font-weight: bold;
       margin-left: 15px;
       padding-right: 10px;
+    }
+
+    .modules-left #workspaces button,
+    .modules-center #workspaces button,
+    .modules-right #workspaces button {
+      border-bottom: 0px solid transparent;
+    }
+    .modules-left #workspaces button.focused,
+    .modules-left #workspaces button.active,
+    .modules-center #workspaces button.focused,
+    .modules-center #workspaces button.active,
+    .modules-right #workspaces button.focused,
+    .modules-right #workspaces button.active {
+      border-bottom: 0px solid @base05;
     }
   '';
 }

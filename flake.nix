@@ -48,6 +48,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-flatpak.url = "github:gmodena/nix-flatpak";
 
     nix-vscode-extensions = {
@@ -72,6 +77,7 @@
   outputs = {
     nixpkgs,
     self,
+    stylix,
     ...
   } @ inputs: let
     username = "rodey";
@@ -92,6 +98,8 @@
           # Hardware config (bootloader, kernel modules, filesystems, etc)
           # DO NOT USE MY HARDWARE CONFIG!! USE YOUR OWN!!
           ./hosts/${host}/hardware-configuration.nix
+          # Stylix module
+          stylix.nixosModules.stylix
           # General configuration (networking, sound, etc)
           ./modules/core
           # Host specific configuration and overrides

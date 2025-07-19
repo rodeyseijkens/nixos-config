@@ -1,6 +1,14 @@
-{...}: let
+{
+  lib,
+  config,
+  ...
+}: let
   browser = "zen-beta";
   terminal = "kitty";
+
+  # Color helper functions
+  rgb = color: "rgb(${color})";
+  rgba = color: alpha: "rgba(${color}${alpha})";
 in {
   imports = [./windowrules];
 
@@ -19,7 +27,6 @@ in {
         "wl-paste --watch cliphist store &"
         "waybar &"
         "swaync &"
-        "hyprctl setcursor Bibata-Modern-Ice 24 &"
         "swww-daemon &"
 
         "hyprlock"
@@ -40,15 +47,15 @@ in {
         };
       };
 
-      general = {
+      general = lib.mkForce {
         "$mainMod" = "SUPER";
         layout = "dwindle";
         gaps_in = 5;
         gaps_out = 10;
         border_size = 2;
-        "col.active_border" = "rgba(98971AFF)";
-        "col.inactive_border" = "rgba(98971A00)";
         no_border_on_floating = false;
+        "col.active_border" = rgba config.lib.stylix.colors.base0B "FF";
+        "col.inactive_border" = rgba config.lib.stylix.colors.base0B "00";
       };
 
       misc = {
@@ -94,13 +101,13 @@ in {
           popups = true;
         };
 
-        shadow = {
+        shadow = lib.mkForce {
           enabled = true;
           range = 20;
           render_power = 3;
           ignore_window = true;
-          color = "0x00000055";
           offset = "0 2";
+          color = rgba config.lib.stylix.colors.base00 "55";
         };
       };
 
@@ -108,18 +115,18 @@ in {
         enabled = true;
 
         bezier = [
-          "fluent_decel, 0, 0.2, 0.4, 1"
-          "easeOutCirc, 0, 0.55, 0.45, 1"
-          "easeOutCubic, 0.33, 1, 0.68, 1"
-          "fade_curve, 0, 0.55, 0.45, 1"
+          "fluent_decel,  0,    0.2,  0.4,  1"
+          "easeOutCirc,   0,    0.55, 0.45, 1"
+          "easeOutCubic,  0.33, 1,    0.68, 1"
+          "fade_curve,    0,    0.55, 0.45, 1"
         ];
 
         animation = [
           # name, enable, speed, curve, style
 
           # Windows
-          "windowsIn,   0, 4, easeOutCubic,  popin 20%" # window open
-          "windowsOut,  0, 4, fluent_decel,  popin 80%" # window close.
+          "windowsIn,   0, 4, easeOutCubic, popin 20%" # window open
+          "windowsOut,  0, 4, fluent_decel, popin 80%" # window close.
           "windowsMove, 1, 2, fluent_decel, slide" # everything in between, moving, dragging, resizing.
 
           # Fade
@@ -128,129 +135,127 @@ in {
           "fadeSwitch,  0, 1,   easeOutCirc" # fade on changing activewindow and its opacity
           "fadeShadow,  1, 10,  easeOutCirc" # fade on changing activewindow for shadows
           "fadeDim,     1, 4,   fluent_decel" # the easing of the dimming of inactive windows
-          # "border,      1, 2.7, easeOutCirc"  # for animating the border's color switch speed
-          # "borderangle, 1, 30,  fluent_decel, once" # for animating the border's gradient angle - styles: once (default), loop
           "workspaces,  1, 4,   easeOutCubic, fade" # styles: slide, slidevert, fade, slidefade, slidefadevert
         ];
       };
 
       group = {
-        groupbar = {
-          "col.active" = "rgba(98971AFF)";
-          "col.inactive" = "rgba(98971A55)";
+        groupbar = lib.mkForce {
+          "col.active" = rgba config.lib.stylix.colors.base00 "FF";
+          "col.inactive" = rgba config.lib.stylix.colors.base00 "55";
         };
       };
 
       bind = [
         # show keybinds list
-        "$mainMod, F1, exec, keybinds"
+        "$mainMod,  F1, exec, keybinds"
 
         # keybindings
-        "$mainMod, Return, exec, [float; center; size 50% 50%] ${terminal}"
-        "$mainMod SHIFT, Return, exec, ${terminal}"
-        "$mainMod ALT, Return, exec, [fullscreen] ${terminal}"
-        "$mainMod, B, exec, ${browser}"
-        "$mainMod, Q, killactive,"
-        "$mainMod, F, fullscreen, 0"
-        "$mainMod SHIFT, F, fullscreen, 1"
-        "$mainMod, G, exec, toggle-float"
-        "$mainMod, Space, exec, rofi-launcher"
-        "$mainMod SHIFT, D, exec, legcord --enable-features=UseOzonePlatform --ozone-platform=wayland"
-        "$mainMod SHIFT, Escape, exec, rofi-power-menu"
-        "$mainMod, P, pseudo,"
-        "$mainMod, X, togglesplit,"
-        "$mainMod, T, exec, toggle-opacity"
-        "$mainMod, E, exec, nautilus"
-        "$mainMod SHIFT, B, exec, toggle-waybar"
-        "$mainMod, C, exec, hyprpicker -a"
-        "$mainMod, W, exec, wallpaper-picker"
-        "$mainMod, N, exec, swaync-client -t -sw"
-        "$mainMod SHIFT, W, exec, vm-start"
+        "$mainMod,        Return, exec,       [float; center; size 50% 50%] ${terminal}"
+        "$mainMod SHIFT,  Return, exec,       ${terminal}"
+        "$mainMod ALT,    Return, exec,       [fullscreen] ${terminal}"
+        "$mainMod,        B,      exec,       ${browser}"
+        "$mainMod,        Q,      killactive,"
+        "$mainMod,        F,      fullscreen, 0"
+        "$mainMod SHIFT,  F,      fullscreen, 1"
+        "$mainMod,        G,      exec,       toggle-float"
+        "$mainMod,        Space,  exec,       rofi-launcher"
+        "$mainMod SHIFT,  D,      exec,       legcord --enable-features=UseOzonePlatform --ozone-platform=wayland"
+        "$mainMod SHIFT,  Escape, exec,       rofi-power-menu"
+        "$mainMod,        P,      pseudo,"
+        "$mainMod,        X,      togglesplit,"
+        "$mainMod,        T,      exec,       toggle-opacity"
+        "$mainMod,        E,      exec,       nautilus"
+        "$mainMod SHIFT,  B,      exec,       toggle-waybar"
+        "$mainMod,        C,      exec,       hyprpicker -a"
+        "$mainMod,        W,      exec,       wallpaper-picker"
+        "$mainMod,        N,      exec,       swaync-client -t -sw"
+        "$mainMod SHIFT,  W,      exec,       vm-start"
 
         # screenshot
-        ",Print, exec, rofi-screenshot-menu"
-        "$mainMod, Print, exec, screenshot --save"
-        "$mainMod SHIFT, Print, exec, screenshot --swappy"
+        ",                Print,  exec, rofi-screenshot-menu"
+        "$mainMod,        Print,  exec, screenshot --save"
+        "$mainMod SHIFT,  Print,  exec, screenshot --swappy"
 
         # switch focus
-        "$mainMod, left, movefocus, l"
-        "$mainMod, right, movefocus, r"
-        "$mainMod, up, movefocus, u"
-        "$mainMod, down, movefocus, d"
-        "$mainMod, h, movefocus, l"
-        "$mainMod, j, movefocus, d"
-        "$mainMod, k, movefocus, u"
-        "$mainMod, l, movefocus, r"
+        "$mainMod,  left,   movefocus,  l"
+        "$mainMod,  right,  movefocus,  r"
+        "$mainMod,  up,     movefocus,  u"
+        "$mainMod,  down,   movefocus,  d"
+        "$mainMod,  h,      movefocus,  l"
+        "$mainMod,  j,      movefocus,  d"
+        "$mainMod,  k,      movefocus,  u"
+        "$mainMod,  l,      movefocus,  r"
 
         # switch workspace
-        "$mainMod, 1, workspace, 1"
-        "$mainMod, 2, workspace, 2"
-        "$mainMod, 3, workspace, 3"
-        "$mainMod, 4, workspace, 4"
-        "$mainMod, 5, workspace, 5"
-        "$mainMod, 6, workspace, 6"
-        "$mainMod, 7, workspace, 7"
-        "$mainMod, 8, workspace, 8"
-        "$mainMod, 9, workspace, 9"
-        "$mainMod, 0, workspace, 10"
+        "$mainMod,  1,  workspace,  1"
+        "$mainMod,  2,  workspace,  2"
+        "$mainMod,  3,  workspace,  3"
+        "$mainMod,  4,  workspace,  4"
+        "$mainMod,  5,  workspace,  5"
+        "$mainMod,  6,  workspace,  6"
+        "$mainMod,  7,  workspace,  7"
+        "$mainMod,  8,  workspace,  8"
+        "$mainMod,  9,  workspace,  9"
+        "$mainMod,  0,  workspace,  10"
 
         # same as above, but move to the workspace
-        "$mainMod SHIFT, 1, movetoworkspacesilent, 1" # movetoworkspacesilent
-        "$mainMod SHIFT, 2, movetoworkspacesilent, 2"
-        "$mainMod SHIFT, 3, movetoworkspacesilent, 3"
-        "$mainMod SHIFT, 4, movetoworkspacesilent, 4"
-        "$mainMod SHIFT, 5, movetoworkspacesilent, 5"
-        "$mainMod SHIFT, 6, movetoworkspacesilent, 6"
-        "$mainMod SHIFT, 7, movetoworkspacesilent, 7"
-        "$mainMod SHIFT, 8, movetoworkspacesilent, 8"
-        "$mainMod SHIFT, 9, movetoworkspacesilent, 9"
-        "$mainMod SHIFT, 0, movetoworkspacesilent, 10"
-        "$mainMod CTRL, c, movetoworkspace, empty"
+        "$mainMod SHIFT,  1,  movetoworkspacesilent,  1" # movetoworkspacesilent
+        "$mainMod SHIFT,  2,  movetoworkspacesilent,  2"
+        "$mainMod SHIFT,  3,  movetoworkspacesilent,  3"
+        "$mainMod SHIFT,  4,  movetoworkspacesilent,  4"
+        "$mainMod SHIFT,  5,  movetoworkspacesilent,  5"
+        "$mainMod SHIFT,  6,  movetoworkspacesilent,  6"
+        "$mainMod SHIFT,  7,  movetoworkspacesilent,  7"
+        "$mainMod SHIFT,  8,  movetoworkspacesilent,  8"
+        "$mainMod SHIFT,  9,  movetoworkspacesilent,  9"
+        "$mainMod SHIFT,  0,  movetoworkspacesilent,  10"
+        "$mainMod CTRL,   c,  movetoworkspace,        empty"
 
         # window control
-        "$mainMod SHIFT, left, movewindoworgroup, l"
-        "$mainMod SHIFT, right, movewindoworgroup, r"
-        "$mainMod SHIFT, up, movewindoworgroup, u"
-        "$mainMod SHIFT, down, movewindoworgroup, d"
-        "$mainMod SHIFT, h, movewindoworgroup, l"
-        "$mainMod SHIFT, j, movewindoworgroup, d"
-        "$mainMod SHIFT, k, movewindoworgroup, u"
-        "$mainMod SHIFT, l, movewindoworgroup, r"
+        "$mainMod SHIFT,  left,   movewindoworgroup,  l"
+        "$mainMod SHIFT,  right,  movewindoworgroup,  r"
+        "$mainMod SHIFT,  up,     movewindoworgroup,  u"
+        "$mainMod SHIFT,  down,   movewindoworgroup,  d"
+        "$mainMod SHIFT,  h,      movewindoworgroup,  l"
+        "$mainMod SHIFT,  j,      movewindoworgroup,  d"
+        "$mainMod SHIFT,  k,      movewindoworgroup,  u"
+        "$mainMod SHIFT,  l,      movewindoworgroup,  r"
 
-        "$mainMod CTRL, left, resizeactive, -80 0"
-        "$mainMod CTRL, right, resizeactive, 80 0"
-        "$mainMod CTRL, up, resizeactive, 0 -80"
-        "$mainMod CTRL, down, resizeactive, 0 80"
-        "$mainMod CTRL, h, resizeactive, -80 0"
-        "$mainMod CTRL, j, resizeactive, 0 80"
-        "$mainMod CTRL, k, resizeactive, 0 -80"
-        "$mainMod CTRL, l, resizeactive, 80 0"
+        "$mainMod CTRL, left,   resizeactive, -80 0"
+        "$mainMod CTRL, right,  resizeactive, 80 0"
+        "$mainMod CTRL, up,     resizeactive, 0 -80"
+        "$mainMod CTRL, down,   resizeactive, 0 80"
+        "$mainMod CTRL, h,      resizeactive, -80 0"
+        "$mainMod CTRL, j,      resizeactive, 0 80"
+        "$mainMod CTRL, k,      resizeactive, 0 -80"
+        "$mainMod CTRL, l,      resizeactive, 80 0"
 
-        "$mainMod ALT, left, moveactive,  -80 0"
-        "$mainMod ALT, right, moveactive, 80 0"
-        "$mainMod ALT, up, moveactive, 0 -80"
-        "$mainMod ALT, down, moveactive, 0 80"
-        "$mainMod ALT, h, moveactive,  -80 0"
-        "$mainMod ALT, j, moveactive, 0 80"
-        "$mainMod ALT, k, moveactive, 0 -80"
-        "$mainMod ALT, l, moveactive, 80 0"
+        "$mainMod ALT,  left,   moveactive, -80 0"
+        "$mainMod ALT,  right,  moveactive, 80 0"
+        "$mainMod ALT,  up,     moveactive, 0 -80"
+        "$mainMod ALT,  down,   moveactive, 0 80"
+        "$mainMod ALT,  h,      moveactive, -80 0"
+        "$mainMod ALT,  j,      moveactive, 0 80"
+        "$mainMod ALT,  k,      moveactive, 0 -80"
+        "$mainMod ALT,  l,      moveactive, 80 0"
 
         # window tabbed grouping
-        "$mainMod SHIFT, T, togglegroup" # toggle tabbed group
-        "$mainMod ALT, left, changegroupactive, b" # change active tab back
-        "$mainMod ALT, right, changegroupactive, f" # change active tab forward
-        "$mainMod ALT, j, changegroupactive, b" # change active tab back
-        "$mainMod ALT, l, changegroupactive, f" # change active tab forward
+        "$mainMod SHIFT,  T,      togglegroup" # toggle tabbed group
+        "$mainMod ALT,    left,   changegroupactive,  b" # change active tab back
+        "$mainMod ALT,    right,  changegroupactive,  f" # change active tab forward
+        "$mainMod ALT,    j,      changegroupactive,  b" # change active tab back
+        "$mainMod ALT,    l,      changegroupactive,  f" # change active tab forward
 
         # media and volume controls
         # ",XF86AudioMute,exec, pamixer -t"
-        ",XF86AudioPlay,exec, playerctl play-pause"
-        ",XF86AudioNext,exec, playerctl next"
-        ",XF86AudioPrev,exec, playerctl previous"
-        ",XF86AudioStop,exec, playerctl stop"
+        ",XF86AudioPlay,  exec, playerctl play-pause"
+        ",XF86AudioNext,  exec, playerctl next"
+        ",XF86AudioPrev,  exec, playerctl previous"
+        ",XF86AudioStop,  exec, playerctl stop"
 
-        "$mainMod, mouse_down, workspace, e-1"
-        "$mainMod, mouse_up, workspace, e+1"
+        "$mainMod,  mouse_down, workspace, e-1"
+        "$mainMod,  mouse_up, workspace, e+1"
       ];
 
       # # binds active in lockscreen
@@ -270,27 +275,27 @@ in {
 
       # mouse binding
       bindm = [
-        "$mainMod, mouse:274, movewindow"
-        "$mainMod SHIFT, mouse:274, resizewindow"
+        "$mainMod,        mouse:274,  movewindow"
+        "$mainMod SHIFT,  mouse:274,  resizewindow"
       ];
 
       # workspace
       workspace = [
-        "1, monitor:DP-3"
-        "2, monitor:DP-3"
-        "3, monitor:DP-3"
-        "4, monitor:DP-3"
-        "5, monitor:DP-3"
-        "9, monitor:DP-2"
-        "10, monitor:DP-2"
+        "1,   monitor:DP-3"
+        "2,   monitor:DP-3"
+        "3,   monitor:DP-3"
+        "4,   monitor:DP-3"
+        "5,   monitor:DP-3"
+        "9,   monitor:DP-2"
+        "10,  monitor:DP-2"
       ];
 
       # workspace window rules
       windowrule = [
-        "workspace 5,class:(dota2),title:(Dota 2)"
-        "workspace 9, class:^(spotify)$"
-        "workspace 9, class:^(steam)$"
-        "workspace 10, class:^(discord|legcord)$"
+        "workspace 5,   class:(dota2),title:(Dota 2)"
+        "workspace 9,   class:^(spotify)$"
+        "workspace 9,   class:^(steam)$"
+        "workspace 10,  class:^(discord|legcord)$"
       ];
     };
 
