@@ -1,5 +1,6 @@
 {...}: {
   imports = [
+    ./cura.nix
     ./evince.nix
     ./file-roller.nix
     ./firefox.nix
