@@ -85,6 +85,7 @@ Hyprlock (EXPAND)
 | **Screenshot Software**     |                               [grimblast][grimblast]                                |
 | **Screen Recording**        |                             [wf-recorder][wf-recorder]                              |
 | **Color Picker**            |                              [hyprpicker][hyprpicker]                               |
+| **Theme Manager**           |                                  [Stylix][Stylix]                                   |
 
 ## 📝 Shell aliases
 
@@ -95,10 +96,14 @@ Utils (EXPAND)
 
 - `c` $\rightarrow$ `clear`
 - `cd` $\rightarrow$ `z`
-- `vim` $\rightarrow$ `nvim`
 - `cat` $\rightarrow$ `bat`
 - `nano` $\rightarrow$ `micro`
+- `code` $\rightarrow$ `code`
+- `diff` $\rightarrow$ `delta --diff-so-fancy --side-by-side`
+- `less` $\rightarrow$ `bat`
+- `y` $\rightarrow$ `yazi`
 - `py` $\rightarrow$ `python`
+- `ipy` $\rightarrow$ `ipython`
 - `icat` $\rightarrow$ `kitten icat`
 - `dsize` $\rightarrow$ `du -hs`
 - `pdf` $\rightarrow$ `tdf`
@@ -130,10 +135,12 @@ Git (EXPAND)
 </summary>
 
 - `g` $\rightarrow$ `lazygit`
-- `gf` $\rightarrow$ `onefetch --number-of-file-churns 0 --no-color-palette`
+- `gi` $\rightarrow$ `onefetch --number-of-file-churns 0 --no-color-palette`
 - `ga` $\rightarrow$ `git add`
 - `gaa` $\rightarrow$ `git add --all`
 - `gs` $\rightarrow$ `git status`
+- `gf` $\rightarrow$ `git fetch`
+- `gfp` $\rightarrow$ `git fetch --prune`
 - `gb` $\rightarrow$ `git branch`
 - `gm` $\rightarrow$ `git merge`
 - `gd` $\rightarrow$ `git diff`
@@ -148,7 +155,11 @@ Git (EXPAND)
 - `gcm` $\rightarrow$ `git commit -m`
 - `gca` $\rightarrow$ `git commit --amend`
 - `gcaa` $\rightarrow$ `git add --all && git commit --amend --no-edit`
+- `gcz` $\rightarrow$ `git cz`
+- `gcfu` $\rightarrow$ `git commit --fixup HEAD`
 - `gcma` $\rightarrow$ `git add --all && git commit -m`
+- `gcza` $\rightarrow$ `git add --all && git cz`
+- `gcfua` $\rightarrow$ `git add --all && git commit --fixup HEAD`
 - `gtag` $\rightarrow$ `git tag -ma`
 - `gch` $\rightarrow$ `git checkout`
 - `gchb` $\rightarrow$ `git checkout -b`
@@ -468,10 +479,10 @@ After rebooting, the config should be applied, you'll be greeted by hyprlock pro
 
 #### 5. **Manual config**
 
-Even though I use home manager, there is still a little bit of manual configuration to do:
+Even though I use home manager and Stylix for automated theming, there is still a little bit of manual configuration to do:
 
 - Enable Discord theme (in Discord settings under VENCORD > Themes).
-- Configure the browser (for now, all browser configuration is done manually).
+- Configure the browser (some browser configuration is done automatically for firefox & zen).
 - Change the git account information in `./modules/home/git.nix`
 
 ```nix
@@ -482,6 +493,8 @@ programs.git = {
    ...
 };
 ```
+
+**Note:** With the addition of Stylix, most theming is handled automatically across the system, including colors, fonts, and icons. The system will consistently apply the theme to supported applications.
 
 ## Install script walkthrough
 
@@ -584,3 +597,4 @@ Other dotfiles that I learned / copy from:
 [Maple Mono]: https://github.com/subframe7536/maple-font
 [micro]: https://micro-editor.github.io/
 [viewnior]: https://siyanpanayotov.com/project/viewnior
+[Stylix]: https://github.com/danth/stylix
