@@ -533,6 +533,27 @@ Now you will need to choose the host you want. It depends on whether you are usi
 
 Lastly, it will build the system using [nh](https://github.com/viperML/nh), which includes both the flake config and home-manager config.
 
+# 🔧 Troubleshooting & Extra Info
+
+### Volta
+
+**Description:** Volta is a JavaScript tool manager that allows you to easily install and switch between different versions of Node.js, npm, and other JavaScript command-line tools.
+
+**Issue:** Tool installed via Volta but not available in PATH
+
+**Solution:**
+
+1. Remove the Volta directory from your home folder:
+   ```bash
+   rm -rf ~/.volta
+   ```
+2. Reinstall the tool using Volta:
+   ```bash
+   volta install <tool-name>
+   ```
+
+This will reset Volta's local configuration and properly reinstall the tool with correct PATH integration.
+
 # 👥 Credits
 
 Special thanks to **Frost-Phoenix**
