@@ -111,13 +111,16 @@ in {
         # Keybindings
         keybindings = [
           {
-            key = "ctrl+s";
-            command = "workbench.action.files.saveFiles";
+            "command" = "workbench.action.files.saveFiles";
+            "key" = "ctrl+s";
           }
           {
-            "key" = "ctrl+alt+meta+delete";
             "command" = "workbench.action.terminal.killAll";
-            "when" = "terminalHasBeenCreated || terminalIsOpen || terminalProcessSupported";
+            "key" = "ctrl+alt+meta+delete";
+          }
+          {
+            "command" = "workbench.action.chat.openInNewWindow";
+            "key" = "ctrl+alt+i";
           }
         ];
       };
