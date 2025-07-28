@@ -10,6 +10,7 @@
     ./pwvucontrol.nix
     ./rofi.nix
     ./steam.nix
+    ./tigervnc.nix
     ./udiskie.nix
     ./viewnior.nix
     ./vscode.nix
