@@ -2,7 +2,9 @@
   # Desktop Environment Power Management
   powerManagement.cpuFreqGovernor = "performance";
 
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "/dev/nvme0n1p1";
+  boot.loader.grub.useOSProber = true;
 
   # Driver Options
   drivers = {
@@ -10,8 +12,7 @@
     nvidiagpu.enable = true;
   };
 
-  core = {
-    steam.enable = true;
-    star-citizen.enable = true;
+  services = {
+    tailscale.enable = true;
   };
 }

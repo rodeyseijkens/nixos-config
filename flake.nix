@@ -113,6 +113,7 @@
       #                                Architecture   Hostname
       desktop = mkSystem inputs.nixpkgs "x86_64-linux" "desktop";
       desktop-work = mkSystem inputs.nixpkgs "x86_64-linux" "desktop-work";
+      desktop-office = mkSystem inputs.nixpkgs "x86_64-linux" "desktop-office";
       laptop = mkSystem inputs.nixpkgs "x86_64-linux" "laptop";
       vm = mkSystem inputs.nixpkgs "x86_64-linux" "vm";
     };

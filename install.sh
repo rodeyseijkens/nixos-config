@@ -65,12 +65,14 @@ get_host() {
         HOST='desktop'
     elif [[ $REPLY =~ ^[Ww]$ ]]; then
         HOST='desktop-work'
+    elif [[ $REPLY =~ ^[Oo]$ ]]; then
+        HOST='desktop-office'
     elif [[ $REPLY =~ ^[Ll]$ ]]; then
         HOST='laptop'
      elif [[ $REPLY =~ ^[Vv]$ ]]; then
         HOST='vm'
     else
-        echo "Invalid choice. Please select 'D' for desktop, 'W' for desktop-work, 'L' for laptop or 'V' for virtual machine."
+        echo "Invalid choice. Please select 'D' for desktop, 'W' for desktop-work, 'O' for desktop-office, 'L' for laptop or 'V' for virtual machine."
         exit 1
     fi
     
