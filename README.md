@@ -232,6 +232,17 @@ keybinds.sh
 
 <details>
 <summary>
+list-audio-devices.sh 
+</summary>
+
+**Description:** This script lists all available audio devices including cards, output devices (sinks), and input devices (sources) with clear categorization and device information.
+
+**Usage:** `list-audio-devices`
+
+</details>
+
+<details>
+<summary>
 lofi.sh 
 </summary>
 
