@@ -177,12 +177,12 @@ All the scripts are in `modules/home/scripts/scripts/` and are exported as packa
 
 <details>
 <summary>
-extract.sh 
+ascii.sh 
 </summary>
 
-**Description:** This script extracts `tar.gz` archives in the current directory.
+**Description:** This script displays a comprehensive ASCII character table showing decimal, hexadecimal, and character representations in a formatted table layout.
 
-**Usage:** `extract <archive_file>`
+**Usage:** `ascii`
 
 </details>
 
@@ -199,75 +199,67 @@ compress.sh
 
 <details>
 <summary>
-toggle-blur.sh 
+extract.sh 
 </summary>
 
-**Description:** This script toggles the Hyprland blur effect. If the blur is currently enabled, it will be disabled, and if it's disabled, it will be turned on.
+**Description:** This script extracts `tar.gz` archives in the current directory.
 
-**Usage:** `toggle-blur`
+**Usage:** `extract <archive_file>`
 
 </details>
 
 <details>
 <summary>
-rofi-screenshot-menu.sh 
+google-chrome-profile.sh 
 </summary>
 
-**Description:** This script provides a rofi-based menu for taking screenshots with multiple capture modes and clipboard functionality. All capture modes automatically copy screenshots to the clipboard for immediate use.
+**Description:** This script launches Google Chrome with a specific profile by name, automatically finding the correct profile directory.
 
-**Usage:** `rofi-screenshot-menu`
-
-**Options:**
-
-- 📷 **Area** - Select an area and copy directly to clipboard
-- 🖥️ **Fullscreen** - Capture entire screen and copy to clipboard
-- 💾 **Save to File** - Choose between area or fullscreen capture and save to `~/Pictures/Screenshots/`
-- ✏️ **Edit with Swappy** - Capture and save, then open in Swappy image editor
-- ⏰ **Timer** - Delayed fullscreen capture (5s or 10s countdown) and save to file
+**Usage:** `google-chrome-profile <profile_name> [additional_args]`
 
 </details>
 
 <details>
 <summary>
-toggle-opacity.sh 
+keybinds.sh 
 </summary>
 
-**Description:** This script toggles the Hyprland opacity effect. If the opacity is currently set to 0.90, it will be set to 1, and if it's set to 1, it will be set to 0.90.
+**Description:** This script displays all Hyprland keybindings in a rofi menu by parsing the Hyprland configuration file.
 
-**Usage:** `toggle-opacity`
+**Usage:** `keybinds`
 
 </details>
 
 <details>
 <summary>
-toggle-float.sh 
+lofi.sh 
 </summary>
 
-**Description:** This script toggles the floating state of the current window in Hyprland. If the window is currently tiled, it will be floated, and if it's floating, it will be tiled.
+**Description:** This script toggles a lo-fi music stream. If mpv is already playing, it kills the process; otherwise, it starts playing a lo-fi YouTube stream in the background.
 
-**Usage:** `toggle-float`
+**Usage:** `lofi`
 
 </details>
 
 <details>
 <summary>
-toggle-waybar.sh 
+poolsuite.sh 
 </summary>
 
-**Description:** This script toggles the visibility of the Waybar status bar. If Waybar is currently visible, it will be hidden, and if it's hidden, it will be shown.
+**Description:** This script toggles a poolsuite music playlist. If mpv is already playing, it kills the process; otherwise, it starts playing a poolsuite YouTube playlist in shuffle mode.
 
-**Usage:** `toggle-waybar`
+**Usage:** `poolsuite`
 
 </details>
 
 <details>
 <summary>
-wallpaper-picker.sh 
+record.sh 
 </summary>
 
-**Description:** This script provides a rofi-based wallpaper picker that allows you to browse and select wallpapers from your wallpaper directories. It supports both the main wallpaper folder and subdirectories.
+**Description:** This script provides screen recording functionality with options to record as MP4 or GIF format, with the ability to select recording area and output optimization.
 
-**Usage:** `wallpaper-picker`
+**Usage:** `record`
 
 </details>
 
@@ -295,12 +287,130 @@ rofi-power-menu.sh
 
 <details>
 <summary>
+rofi-screenshot-menu.sh 
+</summary>
+
+**Description:** This script provides a rofi-based menu for taking screenshots with multiple capture modes and clipboard functionality. All capture modes automatically copy screenshots to the clipboard for immediate use.
+
+**Usage:** `rofi-screenshot-menu`
+
+**Options:**
+
+- 📷 **Area** - Select an area and copy directly to clipboard
+- 🖥️ **Fullscreen** - Capture entire screen and copy to clipboard
+- 💾 **Save to File** - Choose between area or fullscreen capture and save to `~/Pictures/Screenshots/`
+- ✏️ **Edit with Swappy** - Capture and save, then open in Swappy image editor
+- ⏰ **Timer** - Delayed fullscreen capture (5s or 10s countdown) and save to file
+
+</details>
+
+<details>
+<summary>
 runbg.sh 
 </summary>
 
 **Description:** This script runs a provided command along with its arguments and detaches it from the terminal. Handy for launching apps from the command line without blocking it.
 
 **Usage:** `runbg <command> <arg1> <arg2> <...>`
+
+</details>
+
+<details>
+<summary>
+screenshot.sh 
+</summary>
+
+**Description:** This script provides basic screenshot functionality with options to copy to clipboard, save to file, or edit with Swappy. Screenshots are saved to `~/Pictures/Screenshots/`.
+
+**Usage:** `screenshot --copy` or `screenshot --save` or `screenshot --swappy`
+
+</details>
+
+<details>
+<summary>
+shutdown-script.sh 
+</summary>
+
+**Description:** This script provides a simple rofi-based power menu with options to shutdown, restart, or cancel the operation.
+
+**Usage:** `shutdown-script`
+
+</details>
+
+<details>
+<summary>
+toggle-blur.sh 
+</summary>
+
+**Description:** This script toggles the Hyprland blur effect. If the blur is currently enabled, it will be disabled, and if it's disabled, it will be turned on.
+
+**Usage:** `toggle-blur`
+
+</details>
+
+<details>
+<summary>
+toggle-float.sh 
+</summary>
+
+**Description:** This script toggles the floating state of the current window in Hyprland. If the window is currently tiled, it will be floated, and if it's floating, it will be tiled.
+
+**Usage:** `toggle-float`
+
+</details>
+
+<details>
+<summary>
+toggle-opacity.sh 
+</summary>
+
+**Description:** This script toggles the Hyprland opacity effect. If the opacity is currently set to 0.90, it will be set to 1, and if it's set to 1, it will be set to 0.90.
+
+**Usage:** `toggle-opacity`
+
+</details>
+
+<details>
+<summary>
+toggle-waybar.sh 
+</summary>
+
+**Description:** This script toggles the visibility of the Waybar status bar. If Waybar is currently visible, it will be hidden, and if it's hidden, it will be shown.
+
+**Usage:** `toggle-waybar`
+
+</details>
+
+<details>
+<summary>
+vm-start.sh 
+</summary>
+
+**Description:** This script starts a Windows 10 virtual machine using libvirt and switches to workspace 6. It then opens the VM in fullscreen mode using virt-viewer.
+
+**Usage:** `vm-start`
+
+</details>
+
+<details>
+<summary>
+wall-change.sh 
+</summary>
+
+**Description:** This script changes the wallpaper using swww with random transition effects (either any transition type or a wipe transition with 135-degree angle).
+
+**Usage:** `wall-change <wallpaper_path>`
+
+</details>
+
+<details>
+<summary>
+wallpaper-picker.sh 
+</summary>
+
+**Description:** This script provides a rofi-based wallpaper picker that allows you to browse and select wallpapers from your wallpaper directories. It supports both the main wallpaper folder and subdirectories.
+
+**Usage:** `wallpaper-picker`
 
 </details>
 
