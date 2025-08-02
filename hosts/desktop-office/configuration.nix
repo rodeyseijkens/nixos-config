@@ -15,4 +15,8 @@
   services = {
     tailscale.enable = true;
   };
+
+  flatpaks = [
+    "io.beekeeperstudio.Studio"
+  ];
 }
