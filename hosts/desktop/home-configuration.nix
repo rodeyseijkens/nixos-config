@@ -16,6 +16,36 @@
     ];
   };
 
+  # Audio configuration for desktop-work
+  audio.pipewire = {
+    enable = true;
+    cards = {
+      # GA102 High Definition Audio Controller - Off
+      "alsa_card.pci-0000_09_00.1" = {
+        profile = "off";
+      };
+      # SMSL AD-18 Amplifier - Pro Audio
+      "alsa_card.usb-SMSL_AUDIO_SMSL_AD-18_Amplifier-00" = {
+        profile = "pro-audio";
+      };
+      # HD Pro Webcam C920 - Off
+      "alsa_card.usb-046d_HD_Pro_Webcam_C920_09E4D43F-02" = {
+        profile = "off";
+      };
+      # RODE NT-USB - Analog Stereo Input
+      "alsa_card.usb-RODE_Microphones_RODE_NT-USB-00" = {
+        profile = "input:analog-stereo";
+      };
+      # Starship/Matisse HD Audio Controller - Off
+      "alsa_card.pci-0000_0b_00.4" = {
+        profile = "off";
+      };
+    };
+    # Set default devices based on your setup
+    defaultSink = "alsa_output.usb-SMSL_AUDIO_SMSL_AD-18_Amplifier-00.pro-output-0";
+    defaultSource = "alsa_input.usb-RODE_Microphones_RODE_NT-USB-00.analog-stereo";
+  };
+
   modules = {
     # Browser
     zen-browser.enable = true;
