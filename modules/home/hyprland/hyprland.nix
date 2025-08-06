@@ -9,7 +9,6 @@
     inputs.hyprpicker.packages.${pkgs.system}.hyprpicker
     hyprpolkitagent
     inputs.hyprmag.packages.${pkgs.system}.hyprmag
-    grim
     slurp
     wl-clip-persist
     cliphist

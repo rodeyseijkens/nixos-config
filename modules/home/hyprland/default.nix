@@ -1,10 +1,11 @@
-{ inputs, ... }: 
-{
+{inputs, ...}: {
   imports = [
     ./hyprland.nix
     ./config.nix
     ./hyprlock.nix
-    ./variables.nix
+    ./env.nix
+    ./exec-once.nix
+    ./binds.nix
     inputs.hyprland.homeManagerModules.default
   ];
 }
