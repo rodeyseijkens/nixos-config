@@ -29,6 +29,10 @@
       # hidpi = true;
     };
 
-    systemd.enable = true;
+    systemd = {
+      enable = true;
+      enableXdgAutostart = true;
+      variables = ["--all"];
+    };
   };
 }

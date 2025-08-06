@@ -68,18 +68,19 @@ in {
       settings = {
         # autostart
         exec-once = [
-          "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP &"
-          "hash dbus-update-activation-environment 2>/dev/null &"
-          "dbus-update-activation-environment --all --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP &"
+          "wl-paste --type text --watch cliphist store" # Saves text
+          "wl-paste --type image --watch cliphist store" # Saves images
+          "dbus-update-activation-environment --all --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+"
+          "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
           "systemctl --user start hyprpolkitagent"
 
-          "nm-applet &"
-          "poweralertd &"
-          "wl-clip-persist --clipboard both &"
-          "wl-paste --watch cliphist store &"
-          "waybar &"
-          "swaync &"
-          "swww-daemon &"
+          "killall -q swww;sleep .5 && swww-daemon"
+          "killall -q waybar;sleep .5 && waybar"
+          "killall -q swaync;sleep .5 && swaync"
+
+          "nm-applet --indicator"
+          "poweralertd"
 
           "hyprlock"
         ];
