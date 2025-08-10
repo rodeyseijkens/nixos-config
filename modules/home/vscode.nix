@@ -30,9 +30,18 @@ in {
             # github.copilot
 
             vivaxy.vscode-conventional-commits # commit message helper
-            eamodio.gitlens
-            dbaeumer.vscode-eslint
-            esbenp.prettier-vscode
+            eamodio.gitlens # git helper
+            dbaeumer.vscode-eslint # eslint
+            esbenp.prettier-vscode # prettier
+            editorconfig.editorconfig # editorconfig
+            tamasfe.even-better-toml # toml
+            yoavbls.pretty-ts-errors # pretty ts errors
+            wallabyjs.quokka-vscode # quokka dev tool
+            mechatroner.rainbow-csv # rainbow csv
+            bradlc.vscode-tailwindcss # tailwindcss
+            gruntfuggly.todo-tree # todo helper
+            pflannery.vscode-versionlens # version lens
+            vscodevim.vim # vim
 
             # Color theme
             jdinhlife.gruvbox
@@ -89,11 +98,9 @@ in {
           "material-icon-theme.folders.theme" = "classic";
           "gitlens.rebaseEditor.ordering" = "asc";
           "github.copilot.nextEditSuggestions.enabled" = true;
+          "vim.disableExtension" = true;
           "[nix]" = {
             "editor.defaultFormatter" = "kamadorueda.alejandra";
-            "editor.formatOnPaste" = true;
-            "editor.formatOnSave" = true;
-            "editor.formatOnType" = false;
           };
           "[json]" = {
             "editor.defaultFormatter" = "vscode.json-language-features";
