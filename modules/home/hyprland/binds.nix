@@ -18,6 +18,7 @@ in {
         "$mainMod SHIFT,  F,      fullscreen, 1"
         "$mainMod,        G,      exec,       toggle-float"
         "$mainMod,        Space,  exec,       rofi-launcher"
+        "CTRL,            Space,  exec,       walker"
         "$mainMod SHIFT,  D,      exec,       legcord --enable-features=UseOzonePlatform --ozone-platform=wayland"
         "$mainMod SHIFT,  Escape, exec,       rofi-power-menu"
         "$mainMod,        P,      pseudo,"
