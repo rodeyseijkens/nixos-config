@@ -41,6 +41,23 @@
         definedAliases = ["@yt"];
       };
 
+      "gitlab" = {
+        name = "GitLab";
+        urls = [
+          {
+            template = "https://gitlab.com/search";
+            params = [
+              {
+                name = "search";
+                value = "{searchTerms}";
+              }
+            ];
+          }
+        ];
+        icon = "https://gitlab.com/favicon.ico";
+        definedAliases = ["@gl"];
+      };
+
       "github" = {
         name = "GitHub";
         urls = [
