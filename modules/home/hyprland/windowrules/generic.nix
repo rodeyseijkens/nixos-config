@@ -8,14 +8,17 @@
     "float,class:^(notification)$"
     "float,class:^(error)$"
     "float,class:^(confirmreset)$"
-    "float,title:^(Open File)$"
-    "float,title:^(File Upload)$"
+    "float,title:^(Open Files?)$"
+    "float,title:^(File Uploads?)$"
+    "float,title:^(All Files)$"
     "float,title:^(branchdialog)$"
     "float,title:^(Confirm to replace files)$"
     "float,title:^(File Operation Progress)$"
 
     # File upload specific rules
-    "size 850 500,title:^(File Upload)$"
+    "size 850 500,title:^(Open Files?)$"
+    "size 850 500,title:^(File Uploads?)$"
+    "size 850 500,title:^(All Files)$"
 
     # Volume control rules
     "float,title:^(Volume Control)$"
