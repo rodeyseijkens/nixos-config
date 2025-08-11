@@ -71,6 +71,10 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    walker = {
+      url = "github:abenz1267/walker";
+    };
   };
 
   # All outputs for the system (configs)

@@ -29,6 +29,7 @@
     ./tigervnc.nix # remote desktop
     ./viewnior.nix # image viewer
     ./vscode.nix # vscode
+    ./walker # walker launcher
     ./waybar # status bar
     ./xdg-mimes.nix # xdg config
     ./zsh # shell

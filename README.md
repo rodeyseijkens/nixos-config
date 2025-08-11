@@ -67,7 +67,7 @@ Hyprlock (EXPAND)
 | --------------------------- | :---------------------------------------------------------------------------------: |
 | **Window Manager**          |                                [Hyprland][Hyprland]                                 |
 | **Bar**                     |                                  [Waybar][Waybar]                                   |
-| **Application Launcher**    |                                    [rofi][rofi]                                     |
+| **Application Launcher**    |                           [rofi][rofi] + [Walker][Walker]                           |
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
 | **Terminal Emulator**       |                         [Kitty][Kitty] + [Ghostty][Ghostty]                         |
 | **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
@@ -741,3 +741,4 @@ Other dotfiles that I learned / copy from:
 [micro]: https://micro-editor.github.io/
 [viewnior]: https://siyanpanayotov.com/project/viewnior
 [Stylix]: https://github.com/danth/stylix
+[Walker]: https://github.com/abenz1267/walker

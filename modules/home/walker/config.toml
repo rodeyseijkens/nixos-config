@@ -1,0 +1,293 @@
+close_when_open = true
+theme = "gruvbox"
+monitor = ""
+hotreload_theme = true
+as_window = false
+timeout = 0
+disable_click_to_close = false
+force_keyboard_focus = true
+theme_location = ["~/nixos-config/modules/home/walker"]
+plugin_location = []
+js_runtime = "node"
+
+[keys]
+accept_typeahead = ["tab"]
+trigger_labels = "lalt"
+next = ["down"]
+prev = ["up"]
+close = ["esc"]
+remove_from_history = ["shift backspace"]
+resume_query = ["ctrl r"]
+toggle_exact_search = ["ctrl m"]
+
+[keys.activation_modifiers]
+keep_open = "shift"
+alternate = "alt"
+
+[keys.ai]
+clear_session = ["ctrl x"]
+copy_last_response = ["ctrl c"]
+resume_session = ["ctrl r"]
+run_last_response = ["ctrl e"]
+
+[events]
+on_activate = ""
+on_selection = ""
+on_exit = ""
+on_launch = ""
+on_query_change = ""
+
+[list]
+dynamic_sub = true
+keyboard_scroll_style = "vim"
+max_entries = 50
+show_initial_entries = true
+single_click = true
+visibility_threshold = 20
+placeholder = "No Results"
+
+[search]
+argument_delimiter = "#"
+placeholder = " Search..."
+delay = 0
+resume_last_query = false
+
+[builtins.hyprland_keybinds]
+icon = "keyboard"
+show_sub_when_single = true
+weight = 5
+name = "hyprland keybinds"
+placeholder = "Hyprland Keybinds"
+switcher_only = true
+
+[builtins.applications]
+weight = 5
+name = "applications"
+placeholder = " Search..."
+prioritize_new = false
+hide_actions_with_empty_query = true
+context_aware = false
+refresh = true
+show_sub_when_single = false
+show_icon_when_single = true
+show_generic = true
+history = false
+icon = ""
+hidden = true
+
+[builtins.applications.actions]
+enabled = false
+hide_category = true
+hide_without_query = false
+
+[builtins.xdph_picker]
+hidden = true
+weight = 5
+placeholder = "Screen/Window Picker"
+show_sub_when_single = true
+name = "xdphpicker"
+switcher_only = true
+
+[builtins.ai]
+weight = 5
+placeholder = "AI"
+name = "ai"
+icon = "help-browser"
+switcher_only = true
+show_sub_when_single = true
+
+[[builtins.ai.anthropic.prompts]]
+model = "claude-3-7-sonnet-20250219"
+temperature = 1
+max_tokens = 1000
+label = "General Assistant"
+prompt = "You are a helpful general assistant. Keep your answers short and precise."
+
+[builtins.calc]
+require_number = true
+weight = 5
+name = "calculator"
+icon = "accessories-calculator"
+placeholder = "Calculator"
+min_chars = 3
+prefix = "="
+
+[builtins.clipboard]
+weight = 5
+enabled = true
+always_put_new_on_top = true
+exec = "wl-copy"
+name = "clipboard"
+avoid_line_breaks = true
+placeholder = "Clipboard"
+image_height = 300
+max_entries = 10
+switcher_only = true
+hidden = false
+
+[builtins.emojis]
+exec = "wl-copy"
+weight = 5
+icon = "face-smile"
+name = "emojis"
+placeholder = "Emojis"
+switcher_only = true
+history = true
+typeahead = true
+show_unqualified = false
+prefix = ":"
+
+[builtins.finder]
+use_fd = false
+fd_flags = "--ignore-vcs --type file --type directory"
+cmd_alt = "xdg-open \"$(dirname \"$HOME/%RESULT%\")\""
+weight = 5
+icon = "folder"
+name = "finder"
+placeholder = "Finder"
+switcher_only = true
+ignore_gitignore = true
+refresh = true
+concurrency = 8
+show_icon_when_single = true
+preview_images = true
+hidden = false
+prefix = "."
+
+[builtins.ssh]
+weight = 5
+icon = "preferences-system-network"
+name = "ssh"
+placeholder = "SSH"
+switcher_only = true
+history = true
+refresh = true
+hidden = false
+
+[builtins.switcher]
+weight = 5
+name = "switcher"
+placeholder = "Switcher"
+hidden = true
+prefix = "/"
+
+[builtins.websearch]
+keep_selection = true
+weight = 5
+icon = "applications-internet"
+name = "websearch"
+placeholder = "Websearch"
+
+[[builtins.websearch.entries]]
+name = "T3 Chat"
+url = "https://www.t3.chat/new?model=gemini-2.5-flash&q=%TERM%"
+prefix = "@t3"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "YouTube"
+url = "https://www.youtube.com/results?search_query=%TERM%"
+prefix = "@yt"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "GitLab"
+url = "https://gitlab.com/search?search=%TERM%"
+prefix = "@gl"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "GitHub"
+url = "https://github.com/search?q=%TERM%"
+prefix = "@gh"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "Reddit"
+url = "https://www.reddit.com/search?q=%TERM%"
+prefix = "@r"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "DuckDuckGo Maps"
+url = "https://duckduckgo.com/?iaxm=maps&q=%TERM%"
+prefix = "@dmap"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "Google Maps"
+url = "https://www.google.com/maps?q=%TERM%"
+prefix = "@gmap"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "NixOS Packages"
+url = "https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=%TERM%"
+prefix = "@nix"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "Home Manager NixOS Options"
+url = "https://home-manager-options.extranix.com/?query=%TERM%&release=master"
+prefix = "@nhm"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "Home Manager NixOS Options"
+url = "https://home-manager-options.extranix.com/?query=%TERM%&release=master"
+prefix = "@nhm"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "Google"
+url = "https://www.google.com/search?q=%TERM%"
+prefix = "@g"
+switcher_only = true
+
+[[builtins.websearch.entries]]
+name = "DuckDuckGo"
+url = "https://duckduckgo.com/?q=%TERM%"
+prefix = "@"
+
+[builtins.translation]
+delay = 1000
+weight = 5
+name = "translation"
+icon = "accessories-dictionary"
+placeholder = "Translation"
+switcher_only = true
+provider = "googlefree"
+hidden = true
+
+[builtins.dmenu]
+hidden = true
+weight = 5
+name = "dmenu"
+placeholder = "Dmenu"
+switcher_only = true
+show_icon_when_single = true
+
+[builtins.bookmarks]
+name = "bookmarks"
+enabled = false
+hidden = true
+
+[builtins.commands]
+name = "commands"
+enabled = false
+hidden = true
+
+[builtins.custom_commands]
+name = "custom_commands"
+enabled = false
+hidden = true
+
+[builtins.symbols]
+name = "symbols"
+enabled = false
+hidden = true
+
+[builtins.runner]
+name = "runner"
+enabled = false
+hidden = true

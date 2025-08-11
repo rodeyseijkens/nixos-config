@@ -1,0 +1,216 @@
+/* Define Gruvbox dark color scheme variables */
+@define-color bg_h #1d2021; /* hard dark background */
+@define-color bg #282828; /* dark background */
+@define-color bg_s #32302f; /* soft dark background */
+@define-color bg1 #3c3836; /* dark bg1 */
+@define-color bg2 #504945; /* dark bg2 */
+@define-color bg3 #665c54; /* dark bg3 */
+@define-color bg4 #7c6f64; /* dark bg4 */
+@define-color fg #ebdbb2; /* dark fg */
+@define-color fg0 #fbf1c7; /* dark fg0 */
+@define-color fg1 #ebdbb2; /* dark fg1 */
+@define-color fg2 #d5c4a1; /* dark fg2 */
+@define-color fg3 #bdae93; /* dark fg3 */
+@define-color fg4 #a89984; /* dark fg4 */
+
+/* Gruvbox accent colors */
+@define-color red #cc241d;
+@define-color green #98971a;
+@define-color yellow #d79921;
+@define-color blue #458588;
+@define-color purple #b16286;
+@define-color aqua #689d6a;
+@define-color orange #d65d0e;
+
+/* Bright Gruvbox accent colors */
+@define-color bright_red #fb4934;
+@define-color bright_green #b8bb26;
+@define-color bright_yellow #fabd2f;
+@define-color bright_blue #83a598;
+@define-color bright_purple #d3869b;
+@define-color bright_aqua #8ec07c;
+@define-color bright_orange #fe8019;
+
+/* General theme variables */
+@define-color primary-color @green;
+@define-color text @fg;
+@define-color base @bg_h;
+@define-color border @green;
+@define-color foreground @fg;
+@define-color background @bg;
+
+/* Global styles */
+* {
+  font-family: "Maple Mono";
+  font-size: 14px;
+  background-clip: border-box;
+}
+
+/* Reset all elements */
+#window,
+#box,
+#search,
+#password,
+#input,
+#prompt,
+#clear,
+#typeahead,
+#list,
+child,
+scrollbar,
+slider,
+#item,
+#text,
+#label,
+#sub,
+#activationlabel {
+  all: unset;
+}
+
+* {
+  font-family: "Maple Mono", monospace;
+  font-size: 18px;
+}
+
+/* Window */
+#window {
+  background: transparent;
+  color: @text;
+}
+
+/* Main box container */
+#box {
+  background: alpha(@base, 0.95);
+  padding: 10px;
+  border: 2px solid @border;
+  border-radius: 0px;
+}
+
+/* Search container */
+#search {
+  background: @base;
+  padding: 10px;
+  margin: 0px;
+}
+
+/* Hide prompt icon */
+#prompt {
+  opacity: 0;
+  min-width: 0;
+  margin: 0;
+}
+
+/* Hide clear button */
+#clear {
+  opacity: 0;
+  min-width: 0;
+}
+
+/* Input field */
+#input {
+  background: none;
+  color: @text;
+  padding: 0;
+}
+
+#input placeholder {
+  opacity: 0.5;
+  color: @text;
+}
+
+/* Hide typeahead */
+#typeahead {
+  opacity: 0;
+  color: @primary-color;
+}
+
+/* List */
+#list {
+  background: transparent;
+}
+
+/* List items */
+child {
+  padding: 0px 12px;
+  background: transparent;
+  border-radius: 0;
+}
+
+/* Selected state */
+child:selected,
+child:hover {
+  background: @primary-color;
+}
+
+child:selected #text,
+child:selected #label,
+child:hover #text,
+child:hover #label {
+  color: @base;
+}
+
+/* Item layout */
+#item {
+  padding: 0;
+}
+
+#item.active {
+  font-style: italic;
+}
+
+/* Icon */
+#icon {
+  margin-right: 10px;
+  -gtk-icon-transform: scale(0.7);
+}
+
+/* Text */
+#text {
+  color: @text;
+  padding: 14px 0;
+}
+
+#label {
+  font-weight: normal;
+}
+
+/* Hide sub text */
+#sub {
+  opacity: 0;
+  font-size: 0;
+  min-height: 0;
+}
+
+/* Hide activation label */
+#activationlabel {
+  opacity: 0;
+  min-width: 0;
+}
+
+/* Scrollbar styling */
+scrollbar {
+  opacity: 0;
+}
+
+/* Hide spinner */
+#spinner {
+  opacity: 0;
+}
+
+/* Hide AI elements */
+#aiScroll,
+#aiList,
+.aiItem {
+  opacity: 0;
+  min-height: 0;
+}
+
+/* Bar entry (switcher) */
+#bar {
+  opacity: 0;
+  min-height: 0;
+}
+
+.barentry {
+  opacity: 0;
+}
