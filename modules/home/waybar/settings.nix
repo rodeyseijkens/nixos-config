@@ -126,7 +126,7 @@ in {
     };
     "custom/launcher" = {
       format = "";
-      on-click = "rofi -show drun";
+      on-click = "walker";
       on-click-right = "wallpaper-picker";
       tooltip = "false";
     };

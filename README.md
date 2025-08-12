@@ -67,7 +67,7 @@ Hyprlock (EXPAND)
 | --------------------------- | :---------------------------------------------------------------------------------: |
 | **Window Manager**          |                                [Hyprland][Hyprland]                                 |
 | **Bar**                     |                                  [Waybar][Waybar]                                   |
-| **Application Launcher**    |                           [rofi][rofi] + [Walker][Walker]                           |
+| **Application Launcher**    |                                  [Walker][Walker]                                   |
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
 | **Terminal Emulator**       |                         [Kitty][Kitty] + [Ghostty][Ghostty]                         |
 | **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
@@ -221,17 +221,6 @@ google-chrome-profile.sh
 
 <details>
 <summary>
-keybinds.sh 
-</summary>
-
-**Description:** This script displays all Hyprland keybindings in a rofi menu by parsing the Hyprland configuration file.
-
-**Usage:** `keybinds`
-
-</details>
-
-<details>
-<summary>
 list-audio-devices.sh 
 </summary>
 
@@ -276,34 +265,23 @@ record.sh
 
 <details>
 <summary>
-rofi-launcher.sh 
+power-menu.sh 
 </summary>
 
-**Description:** This script launches a rofi application launcher with a custom theme for quickly finding and launching applications.
+**Description:** This script provides a Walker-based power menu with options to shutdown, reboot, or lock the system with confirmation dialogs.
 
-**Usage:** `rofi-launcher`
+**Usage:** `power-menu`
 
 </details>
 
 <details>
 <summary>
-rofi-power-menu.sh 
+screenshot-menu.sh 
 </summary>
 
-**Description:** This script provides a rofi-based power menu with options to shutdown, reboot, or lock the system with confirmation dialogs.
+**Description:** This script provides a Walker-based menu for taking screenshots with multiple capture modes and clipboard functionality. All capture modes automatically copy screenshots to the clipboard for immediate use.
 
-**Usage:** `rofi-power-menu`
-
-</details>
-
-<details>
-<summary>
-rofi-screenshot-menu.sh 
-</summary>
-
-**Description:** This script provides a rofi-based menu for taking screenshots with multiple capture modes and clipboard functionality. All capture modes automatically copy screenshots to the clipboard for immediate use.
-
-**Usage:** `rofi-screenshot-menu`
+**Usage:** `screenshot-menu`
 
 **Options:**
 
@@ -334,17 +312,6 @@ screenshot.sh
 **Description:** This script provides basic screenshot functionality with options to copy to clipboard, save to file, or edit with Swappy. Screenshots are saved to `~/Pictures/Screenshots/`.
 
 **Usage:** `screenshot --copy` or `screenshot --save` or `screenshot --swappy`
-
-</details>
-
-<details>
-<summary>
-shutdown-script.sh 
-</summary>
-
-**Description:** This script provides a simple rofi-based power menu with options to shutdown, restart, or cancel the operation.
-
-**Usage:** `shutdown-script`
 
 </details>
 
@@ -419,7 +386,7 @@ wall-change.sh
 wallpaper-picker.sh 
 </summary>
 
-**Description:** This script provides a rofi-based wallpaper picker that allows you to browse and select wallpapers from your wallpaper directories. It supports both the main wallpaper folder and subdirectories.
+**Description:** This script provides a Walker-based wallpaper picker that allows you to browse and select wallpapers from your wallpaper directories. It supports both the main wallpaper folder and subdirectories.
 
 **Usage:** `wallpaper-picker`
 
@@ -427,16 +394,12 @@ wallpaper-picker.sh
 
 ## ⌨️ Keybinds
 
-View all keybinds by pressing `$mainMod F1` and wallpaper picker by pressing `$mainMod w`. By default `$mainMod` is the `SUPER` key.
+By default `$mainMod` is the `SUPER` key.
 
 <details>
 <summary>
 Keybindings 
 </summary>
-
-##### show keybinds list
-
-- `$mainMod, F1, exec, keybinds`
 
 ##### keybindings
 
@@ -448,10 +411,10 @@ Keybindings
 - `$mainMod, F, fullscreen, 0`
 - `$mainMod SHIFT, F, fullscreen, 1`
 - `$mainMod, G, exec, toggle-float`
-- `$mainMod, Space, exec, rofi-launcher`
+- `$mainMod, Space, exec, walker`
 - `CTRL, Space, exec, walker`
 - `$mainMod SHIFT, D, exec, legcord --enable-features=UseOzonePlatform --ozone-platform=wayland`
-- `$mainMod SHIFT, Escape, exec, rofi-power-menu`
+- `$mainMod SHIFT, Escape, exec, walker-menu power`
 - `$mainMod, P, pseudo,`
 - `$mainMod, X, togglesplit,`
 - `$mainMod, T, exec, toggle-opacity`
@@ -464,7 +427,7 @@ Keybindings
 
 ##### screenshot
 
-- `,Print, exec, rofi-screenshot-menu`
+- `,Print, exec, walker-menu screenshot`
 - `$mainMod, Print, exec, screenshot --save`
 - `$mainMod SHIFT, Print, exec, screenshot --swappy`
 
@@ -692,7 +655,6 @@ Other dotfiles that I learned / copy from:
   - [justinlime/dotfiles](https://github.com/justinlime/dotfiles): Mainly waybar (old design)
   - [skiletro/nixfiles](https://github.com/skiletro/nixfiles): Vscodium config (that prevent it to crash)
   - [fufexan/dotfiles](https://github.com/fufexan/dotfiles)
-  - [tluijken/.dotfiles](https://github.com/tluijken/.dotfiles): base rofi config
   - [mrh/dotfiles](https://codeberg.org/mrh/dotfiles): base waybar config
 
 - README
@@ -717,7 +679,6 @@ Other dotfiles that I learned / copy from:
 [Kitty]: https://sw.kovidgoyal.net/kitty/
 [Ghostty]: https://ghostty.org/
 [Waybar]: https://github.com/Alexays/Waybar
-[rofi]: https://github.com/lbonn/rofi
 [Btop]: https://github.com/aristocratos/btop
 [Nautilus]: https://apps.gnome.org/Nautilus/
 [yazi]: https://github.com/sxyazi/yazi

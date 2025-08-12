@@ -61,8 +61,5 @@
     legcord.enable = true;
     obs-studio.enable = true;
     cura.enable = true;
-
-    # Application launcher
-    walker.enable = true;
   };
 }

@@ -5,9 +5,6 @@ in {
   wayland.windowManager.hyprland = {
     settings = {
       bind = [
-        # show keybinds list
-        "$mainMod,  F1, exec, keybinds"
-
         # keybindings
         "$mainMod,        Return, exec,       [float; center; size 50% 50%] ${terminal}"
         "$mainMod SHIFT,  Return, exec,       ${terminal}"
@@ -17,10 +14,9 @@ in {
         "$mainMod,        F,      fullscreen, 0"
         "$mainMod SHIFT,  F,      fullscreen, 1"
         "$mainMod,        G,      exec,       toggle-float"
-        "$mainMod,        Space,  exec,       rofi-launcher"
-        "CTRL,            Space,  exec,       walker"
+        "$mainMod,        Space,  exec,       walker"
         "$mainMod SHIFT,  D,      exec,       legcord --enable-features=UseOzonePlatform --ozone-platform=wayland"
-        "$mainMod SHIFT,  Escape, exec,       rofi-power-menu"
+        "$mainMod SHIFT,  Escape, exec,       walker-menu power"
         "$mainMod,        P,      pseudo,"
         "$mainMod,        X,      togglesplit,"
         "$mainMod,        T,      exec,       toggle-opacity"
@@ -32,7 +28,7 @@ in {
         "$mainMod SHIFT,  W,      exec,       vm-start"
 
         # screenshot
-        ",                Print,  exec, rofi-screenshot-menu"
+        ",                Print,  exec, walker-menu screenshot"
         "$mainMod,        Print,  exec, screenshot --save"
         "$mainMod SHIFT,  Print,  exec, screenshot --swappy"
 

@@ -8,7 +8,6 @@
     ./mpv.nix
     ./neovide.nix
     ./pwvucontrol.nix
-    ./rofi.nix
     ./steam.nix
     ./tigervnc.nix
     ./udiskie.nix

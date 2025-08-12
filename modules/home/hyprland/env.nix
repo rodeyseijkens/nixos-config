@@ -41,7 +41,7 @@
         "DIRENV_LOG_FORMAT, "
         "EDITOR,nvim"
         # Set terminal and xdg_terminal_emulator to kitty
-        # To provent yazi from starting xterm when run from rofi menu
+        # To prevent yazi from starting xterm when run from walker menu
         # You can set to your preferred terminal if you you like
         # TODO: Pull default terminal from config
         "TERMINAL,kitty"
