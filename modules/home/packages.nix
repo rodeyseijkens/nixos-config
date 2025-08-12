@@ -12,6 +12,7 @@
     ffmpeg # multimedia framework
     file # Show file information
     jq # command-line JSON processor
+    killall # For Killing All Instances Of Programs
     lazygit # terminal git UI
     libnotify # Notification library
     man-pages # extra man pages
