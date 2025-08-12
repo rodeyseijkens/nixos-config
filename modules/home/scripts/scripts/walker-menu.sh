@@ -40,7 +40,7 @@ notify() {
 
 # System Info Menu
 show_system_info() {
-    local info="󱩛 Host: $HOST\n󱎫 Uptime: $UPTIME\n󰆦 OS: NixOS $OS\n󰒔 Kernel: $(uname -r)"
+    local info="󱩛 Host: $HOST\n󱎫 Uptime: $UPTIME\n󰆦 OS: NixOS $OS\n󰒔 Kernel: $(uname -r)"
     case $(menu " System Info" "$info" "" "") in
         *)
             exit 0

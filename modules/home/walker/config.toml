@@ -17,14 +17,14 @@ run_last_response = ["ctrl e"]
 max_entries = 200
 
 [search]
-placeholder = " Search..."
+placeholder = " Search..."
 
 [builtins.hyprland_keybinds]
 path = "~/.config/hypr/hyprland.conf"
 hidden = true
 
 [builtins.applications]
-placeholder = " Search..."
+placeholder = " Search..."
 prioritize_new = false
 context_aware = false
 show_sub_when_single = false
@@ -41,8 +41,8 @@ enabled = false
 hidden = true
 
 [builtins.calc]
-name = "Calculator"
-icon = "󰪚"
+name = "󰪚 Calculator"
+icon = ""
 min_chars = 3
 prefix = "="
 
@@ -61,8 +61,8 @@ hidden = true
 
 [builtins.emojis]
 exec = "wl-copy"
-icon = "face-smile"
-name = "Emojis"
+icon = ""
+name = "󰞅 Emojis"
 placeholder = "Emojis"
 switcher_only = true
 history = true
@@ -77,8 +77,8 @@ hidden = true
 [builtins.finder]
 use_fd = true
 cmd_alt = "xdg-open $(dirname ~/%RESULT%)"
-icon = "folder"
-name = "Finder"
+icon = ""
+name = "󰉋 Finder"
 preview_images = true
 hidden = false
 prefix = "."
@@ -98,73 +98,67 @@ name = "Websearch"
 placeholder = "Websearch"
 
 [[builtins.websearch.entries]]
-name = "T3 Chat"
+name = "󰭹 T3 Chat"
 url = "https://www.t3.chat/new?model=gemini-2.5-flash&q=%TERM%"
 prefix = "@t3"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "YouTube"
+name = "󰗃 YouTube"
 url = "https://www.youtube.com/results?search_query=%TERM%"
 prefix = "@yt"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "GitLab"
+name = "󰮠 GitLab"
 url = "https://gitlab.com/search?search=%TERM%"
 prefix = "@gl"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "GitHub"
+name = "󰊤 GitHub"
 url = "https://github.com/search?q=%TERM%"
 prefix = "@gh"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "Reddit"
+name = "󰑍 Reddit"
 url = "https://www.reddit.com/search?q=%TERM%"
 prefix = "@r"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "DuckDuckGo Maps"
+name = "󰍎 DuckDuckGo Maps"
 url = "https://duckduckgo.com/?iaxm=maps&q=%TERM%"
 prefix = "@dmap"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "Google Maps"
+name = "󰗵 Google Maps"
 url = "https://www.google.com/maps?q=%TERM%"
 prefix = "@gmap"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "NixOS Packages"
+name = "󱄅 NixOS Packages"
 url = "https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=%TERM%"
 prefix = "@nix"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "Home Manager NixOS Options"
+name = "󱄅 Home Manager NixOS Options"
 url = "https://home-manager-options.extranix.com/?query=%TERM%&release=master"
 prefix = "@nhm"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "Home Manager NixOS Options"
-url = "https://home-manager-options.extranix.com/?query=%TERM%&release=master"
-prefix = "@nhm"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "Google"
+name = "󰊭 Google"
 url = "https://www.google.com/search?q=%TERM%"
 prefix = "@g"
 switcher_only = true
 
 [[builtins.websearch.entries]]
-name = "DuckDuckGo"
+name = "󰇥 DuckDuckGo"
 url = "https://duckduckgo.com/?q=%TERM%"
 prefix = "?"
 switcher_only = true

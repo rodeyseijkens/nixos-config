@@ -17,16 +17,16 @@ mkdir -p "$SCREENSHOTS_DIR"
 
 # Titles
 main_title="Screenshot"
-header_title='  Take screenshot'
+header_title=' Take screenshot'
 
 # Display Strings
-area_display='󰩬  Area'
-fullscreen_display='󰹑  Fullscreen'
-save_display='  Save to File'
-swappy_display='󱇣  Edit with Swappy'
-timer_display='󰄉  Timer'
-timer5_display='󰔛  5s'
-timer10_display='󱑎  10s'
+area_display='󰩬 Area'
+fullscreen_display='󰹑 Fullscreen'
+save_display=' Save to File'
+swappy_display='󱇣 Edit with Swappy'
+timer_display='󰄉 Timer'
+timer5_display='󰔛 5s'
+timer10_display='󱑎 10s'
 
 # Generic selection function for area/fullscreen choices
 generic_area_fullscreen_selection() {

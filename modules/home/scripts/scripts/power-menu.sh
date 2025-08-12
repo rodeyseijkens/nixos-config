@@ -10,14 +10,14 @@ source "$SCRIPT_DIR/walker-menu"
 
 # Titles
 UPTIME=$(uptime | sed 's/.*up *\([^,]*\).*/\1/')
-header_title="󱎫 Uptime: $UPTIME"
+header_title="󱎫 Uptime: $UPTIME"
 
 # Display Strings
-shutdown_display='󰐥 Shutdown'
-reboot_display='󰜉 Reboot'
-lock_display='󰌾 Lock'
-yes_display='󰄬 Yes'
-no_display='󰅖 No'
+shutdown_display='󰐥 Shutdown'
+reboot_display='󰜉 Reboot'
+lock_display='󰌾 Lock'
+yes_display='󰄬 Yes'
+no_display='󰅖 No'
 
 # Power Menu Functions
 show_power_menu() {

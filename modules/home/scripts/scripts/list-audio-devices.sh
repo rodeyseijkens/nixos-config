@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # List audio sinks (output devices)
-echo "[ OUTPUT DEVICES]"
+echo "[ OUTPUT DEVICES]"
 pactl list sinks short | while read -r line; do
     sink_id=$(echo "$line" | cut -f1)
     sink_name=$(echo "$line" | cut -f2)
@@ -11,7 +11,7 @@ done
 echo ""
 
 # List audio sources (input devices)
-echo "[ INPUT DEVICES]"
+echo "[ INPUT DEVICES]"
 pactl list sources short | while read -r line; do
     source_id=$(echo "$line" | cut -f1)
     source_name=$(echo "$line" | cut -f2)
@@ -21,7 +21,7 @@ done
 echo ""
 
 # List audio cards
-echo "[󰲸 AUDIO CARDS]"
+echo "[󰲸 AUDIO CARDS]"
 pactl list cards | awk '
 BEGIN {
     profiles_count = 0
