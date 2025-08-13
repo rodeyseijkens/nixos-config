@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 
-# Function to send notifications
-notify() {
-	if [ -z "$notification_id" ]; then
-		notification_id=$(notify-send -a "$main_title" -p -t $2 "$main_title" "$1")
-	else
-		notify-send -a "$main_title" -t $2 --replace-id="$notification_id" "$main_title" "$1"
-	fi
-}
+# Source the generic walker menu functions
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "$SCRIPT_DIR/walker-menu"
 
 if (ps aux | grep mpv | grep -v grep > /dev/null) then
     pkill mpv
 else
-    runbg mpv --no-video --shuffle "https://youtube.com/playlist?list=PLjgfRsNVysApcYyZYU8H6FB_eupl7QlTF"
-    notify "Poolsuite FM started" 2000
+    runbg mpv --no-video --shuffle "https://www.youtube.com/watch?list=PLURHk-dVe0Xl2Ax0KpmVsg1aCIkejPoAU"
+	notify "Poolsuite FM" "Playing random track" 1100
 fi
