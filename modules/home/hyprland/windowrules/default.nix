@@ -1,9 +1,9 @@
 {...}: {
   imports = [
+    ./browsers.nix
     ./cura.nix
     ./evince.nix
     ./file-roller.nix
-    ./firefox.nix
     ./generic.nix
     ./mpv.nix
     ./neovide.nix
@@ -13,7 +13,6 @@
     ./udiskie.nix
     ./viewnior.nix
     ./vscode.nix
-    ./zen-browser.nix
     ./zenity.nix
   ];
 }
