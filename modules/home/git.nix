@@ -58,6 +58,8 @@
     gcma = "git add --all && git commit -m";
     gcza = "git add --all && git cz";
     gcfua = "git add --all && git commit --fixup HEAD";
+    gcmg = "commit-gen -c";
+    gcmgw = "commit-gen -c -w";
     gtag = "git tag -ma";
     gch = "git checkout";
     gchb = "git checkout -b";
