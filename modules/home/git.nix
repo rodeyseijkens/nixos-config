@@ -26,6 +26,7 @@
 
   home.packages = [
     pkgs.gh
+    pkgs.gh-copilot # GitHub Copilot CLI
     pkgs.cz-cli # commitizen CLI tool
     # pkgs.git-lfs # Git Large File Storage
   ];
