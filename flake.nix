@@ -73,7 +73,7 @@
     };
 
     walker = {
-      url = "github:abenz1267/walker";
+      url = "github:abenz1267/walker/0.13.26";
     };
   };
 
