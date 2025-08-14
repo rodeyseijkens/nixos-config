@@ -381,17 +381,6 @@ wall-change.sh
 
 </details>
 
-<details>
-<summary>
-wallpaper-picker.sh 
-</summary>
-
-**Description:** This script provides a Walker-based wallpaper picker that allows you to browse and select wallpapers from your wallpaper directories. It supports both the main wallpaper folder and subdirectories.
-
-**Usage:** `wallpaper-picker`
-
-</details>
-
 ## ⌨️ Keybinds
 
 By default `$mainMod` is the `SUPER` key.
@@ -421,7 +410,7 @@ Keybindings
 - `$mainMod, E, exec, nautilus`
 - `$mainMod SHIFT, B, exec, toggle-waybar`
 - `$mainMod, C, exec, hyprpicker -a`
-- `$mainMod, W, exec, wallpaper-picker`
+- `$mainMod, W, exec, walker-menu wallpapers`
 - `$mainMod, N, exec, swaync-client -t -sw`
 - `$mainMod SHIFT, W, exec, vm-start`
 
@@ -600,22 +589,18 @@ The following directories will be created:
 
 - `~/Downloads`
 - `~/Documents`
-- `~/Pictures/wallpapers/others`
+- `~/Pictures`
 - `~/Projects`
 
-#### 4. Copy the wallpapers
-
-Then the wallpapers will be copied into `~/Pictures/wallpapers/others` which is the folder in which the `wallpaper-picker.sh` script will be looking for them.
-
-#### 5. Get the hardware configuration
+#### 4. Get the hardware configuration
 
 It will also automatically copy the hardware configuration from `/etc/nixos/hardware-configuration.nix` to `./hosts/${host}/hardware-configuration.nix` so that the hardware configuration used is yours and not the default one.
 
-#### 6. Choose a host (desktop / desktop-office / desktop-work / laptop / vm)
+#### 5. Choose a host (desktop / desktop-office / desktop-work / laptop / vm)
 
 Now you will need to choose the host you want. It depends on whether you are using a desktop, office desktop, work desktop, laptop, or VM (although VM can be really buggy).
 
-#### 7. Build the system
+#### 6. Build the system
 
 Lastly, it will build the system using [nh](https://github.com/viperML/nh), which includes both the flake config and home-manager config.
 

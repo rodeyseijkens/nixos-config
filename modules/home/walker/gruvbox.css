@@ -82,7 +82,7 @@ slider,
 
 /* Main box container */
 #box {
-  background: color-mix(in srgb, var(--base) 95%, transparent);
+  background: var(--background);
   padding: 10px;
   border: 2px solid var(--border);
   border-radius: 0px;
@@ -90,9 +90,9 @@ slider,
 
 /* Search container */
 #search {
-  background: var(--base);
+  /* background: var(--base); */
   padding: 10px;
-  margin: 0px;
+  margin: 0px 0px 4px 0px;
 }
 
 /* Hide prompt icon */
@@ -123,7 +123,6 @@ slider,
 /* Hide typeahead */
 #typeahead {
   opacity: 0;
-  color: var(--primary-color);
 }
 
 /* List */

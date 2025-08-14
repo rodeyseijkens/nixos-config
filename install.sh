@@ -89,19 +89,12 @@ install() {
     echo -e "Creating folders:"
     echo -e "    - ${MAGENTA}~/Downloads${NORMAL}"
     echo -e "    - ${MAGENTA}~/Documents${NORMAL}"
-    echo -e "    - ${MAGENTA}~/Pictures/wallpapers/others${NORMAL}"
+    echo -e "    - ${MAGENTA}~/Pictures/${NORMAL}"
     echo -e "    - ${MAGENTA}~/Projects${NORMAL}\n"
     mkdir -p ~/Downloads
     mkdir -p ~/Documents
-    mkdir -p ~/Pictures/wallpapers/others
+    mkdir -p ~/Pictures
     mkdir -p ~/Projects
-    sleep 0.2
-
-    # Copy the wallpapers
-    echo -e "Copying all ${MAGENTA}wallpapers${NORMAL}"
-    cp -r wallpapers/wallpaper.png ~/Pictures/wallpapers
-    cp -r wallpapers/otherWallpaper/gruvbox/* ~/Pictures/wallpapers/others/
-    cp -r wallpapers/otherWallpaper/nixos/* ~/Pictures/wallpapers/others/
     sleep 0.2
 
     # Get the hardware configuration

@@ -23,7 +23,7 @@ in {
         "$mainMod,        E,      exec,       nautilus"
         "$mainMod SHIFT,  B,      exec,       toggle-waybar"
         "$mainMod,        C,      exec,       hyprpicker -a"
-        "$mainMod,        W,      exec,       wallpaper-picker"
+        "$mainMod,        W,      exec,       walker-menu wallpapers"
         "$mainMod,        N,      exec,       swaync-client -t -sw"
         "$mainMod SHIFT,  W,      exec,       vm-start"
 

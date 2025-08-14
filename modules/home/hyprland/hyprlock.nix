@@ -25,7 +25,7 @@ in {
 
       background = {
         monitor = "";
-        path = "${../../../wallpapers/otherWallpaper/gruvbox/fern.jpg}";
+        path = "${../../../wallpapers/raw/fern.jpg}";
         blur_passes = 2;
         contrast = 0.8916;
         brightness = 0.8172;

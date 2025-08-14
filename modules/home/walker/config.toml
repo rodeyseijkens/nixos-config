@@ -7,7 +7,6 @@ timeout = 0
 disable_click_to_close = false
 force_keyboard_focus = true
 theme_location = ["~/nixos-config/modules/home/walker"]
-plugin_location = []
 js_runtime = "node"
 
 [keys.ai]
@@ -93,8 +92,8 @@ hidden = true
 
 [builtins.websearch]
 keep_selection = true
-icon = "applications-internet"
-name = "Websearch"
+icon = ""
+name = "󰖟 Websearch"
 placeholder = "Websearch"
 
 [[builtins.websearch.entries]]

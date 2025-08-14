@@ -55,6 +55,7 @@ go_to_menu() {
         *screenshot*) screenshot-menu ;;
         *apps*) walker -p "Launch..." ;;
         *system*) show_system_info ;;
+        *wallpapers*) walker -m "󰉏 Wallpapers" ;;
         *) exit 0 ;;
     esac
 }

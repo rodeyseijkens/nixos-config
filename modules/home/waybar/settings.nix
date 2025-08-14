@@ -127,7 +127,7 @@ in {
     "custom/launcher" = {
       format = "";
       on-click = "walker";
-      on-click-right = "wallpaper-picker";
+      on-click-right = "walker-menu wallpapers";
       tooltip = "false";
     };
     "custom/notification" = {
