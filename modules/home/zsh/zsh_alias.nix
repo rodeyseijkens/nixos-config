@@ -33,7 +33,7 @@
       cdnix = "cd ~/nixos-config && code ~/nixos-config && clear";
       ns = "nom-shell --run zsh";
       nix-switch = "nh os switch";
-      nix-update = "nh os switch --update";
+      nix-update = "nix flake update --option access-tokens \"github.com=$(gh auth token)\"";
       nix-clean = "nh clean all --keep 5";
       nix-search = "nh search";
       nix-test = "nh os test";
