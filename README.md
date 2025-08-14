@@ -362,17 +362,6 @@ toggle-waybar.sh
 
 <details>
 <summary>
-vm-start.sh 
-</summary>
-
-**Description:** This script starts a Windows 10 virtual machine using libvirt and switches to workspace 6. It then opens the VM in fullscreen mode using virt-viewer.
-
-**Usage:** `vm-start`
-
-</details>
-
-<details>
-<summary>
 wall-change.sh 
 </summary>
 
@@ -413,7 +402,6 @@ Keybindings
 - `$mainMod, C, exec, hyprpicker -a`
 - `$mainMod, W, exec, walker-menu wallpapers`
 - `$mainMod, N, exec, swaync-client -t -sw`
-- `$mainMod SHIFT, W, exec, vm-start`
 
 ##### screenshot
 

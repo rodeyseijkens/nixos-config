@@ -25,7 +25,6 @@ in {
         "$mainMod,        C,      exec,       hyprpicker -a"
         "$mainMod,        W,      exec,       walker-menu wallpapers"
         "$mainMod,        N,      exec,       swaync-client -t -sw"
-        "$mainMod SHIFT,  W,      exec,       vm-start"
 
         # screenshot
         ",                Print,  exec, walker-menu screenshot"
