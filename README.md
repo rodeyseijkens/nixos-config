@@ -164,6 +164,7 @@ Git (EXPAND)
 - `gtag` $\rightarrow$ `git tag -ma`
 - `gch` $\rightarrow$ `git checkout`
 - `gchb` $\rightarrow$ `git checkout -b`
+- `grb` $\rightarrow$ `git rebase`
 - `glog` $\rightarrow$ `git log --oneline --decorate --graph`
 - `glol` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'`
 - `glola` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all`
