@@ -49,6 +49,10 @@
     # Node.js
     volta
 
+    ## Python
+    python3
+    python313Packages.ipython
+
     ## Misc
     winetricks
     wineWowPackages.wayland
