@@ -200,6 +200,35 @@ compress.sh
 
 <details>
 <summary>
+commit-gen.sh 
+</summary>
+
+**Description:** This script generates commit messages using the LLM command following Conventional Commits format with gitmoji and scopes. It can analyze staged changes, all changes, or untracked files and automatically generate appropriate commit messages.
+
+**Usage:** `commit-gen` with various options:
+
+**Options:**
+
+- `-h, --help` - Show help message
+- `-m, --model` - Specify LLM model (uses llm's configured default if not specified)
+- `-p, --print` - Print generated message only (no commit)
+- `-s, --staged` - Analyze staged changes only
+- `-c, --commit` - Automatically commit without confirmation
+- `-w, --workspace` - Specify scope for commit message
+- `-D, --debug` - Show verbose output
+
+**Examples:**
+
+- `commit-gen` - Interactive mode analyzing all changes
+- `commit-gen -s` - Analyze staged changes only
+- `commit-gen -c` - Auto-commit all changes
+- `commit-gen -p -s` - Print message for staged changes
+- `commit-gen -w frontend` - Use 'frontend' as scope
+
+</details>
+
+<details>
+<summary>
 extract.sh 
 </summary>
 
