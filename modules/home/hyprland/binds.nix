@@ -29,7 +29,7 @@ in {
         # screenshot
         ",                Print,  exec, walker-menu screenshot"
         "$mainMod,        Print,  exec, screenshot --save"
-        "$mainMod SHIFT,  Print,  exec, screenshot --swappy"
+        "$mainMod SHIFT,  Print,  exec, screenshot --satty"
 
         # switch focus
         "$mainMod,  left,   movefocus,  l"

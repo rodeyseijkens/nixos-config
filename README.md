@@ -318,7 +318,7 @@ screenshot-menu.sh
 - 📷 **Area** - Select an area and copy directly to clipboard
 - 🖥️ **Fullscreen** - Capture entire screen and copy to clipboard
 - 💾 **Save to File** - Choose between area or fullscreen capture and save to `~/Pictures/Screenshots/`
-- ✏️ **Edit with Swappy** - Capture and save, then open in Swappy image editor
+- ✏️ **Edit with Satty** - Capture and save, then open in Satty image editor
 - ⏰ **Timer** - Delayed fullscreen capture (5s or 10s countdown) and save to file
 
 </details>
@@ -339,9 +339,9 @@ runbg.sh
 screenshot.sh 
 </summary>
 
-**Description:** This script provides basic screenshot functionality with options to copy to clipboard, save to file, or edit with Swappy. Screenshots are saved to `~/Pictures/Screenshots/`.
+**Description:** This script provides basic screenshot functionality with options to copy to clipboard, save to file, or edit with Satty. Screenshots are saved to `~/Pictures/Screenshots/`.
 
-**Usage:** `screenshot --copy` or `screenshot --save` or `screenshot --swappy`
+**Usage:** `screenshot --copy` or `screenshot --save` or `screenshot --satty`
 
 </details>
 
@@ -436,7 +436,7 @@ Keybindings
 
 - `,Print, exec, walker-menu screenshot`
 - `$mainMod, Print, exec, screenshot --save`
-- `$mainMod SHIFT, Print, exec, screenshot --swappy`
+- `$mainMod SHIFT, Print, exec, screenshot --satty`
 
 ##### switch focus
 

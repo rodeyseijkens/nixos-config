@@ -12,9 +12,9 @@ save() {
     grimblast --notify --freeze save area "$file"
 }
 
-swappy_() {
+satty_() {
    grimblast --notify --freeze save area "$file"
-   swappy -f "$file"
+   satty -f "$file"
 }
 
 if [[ ! -d "$dir" ]]; then
@@ -25,10 +25,10 @@ if [[ "$1" == "--copy" ]]; then
     copy
 elif [[ "$1" == "--save" ]]; then
     save
-elif [[ "$1" == "--swappy" ]]; then
-    swappy_
+elif [[ "$1" == "--satty" ]]; then
+    satty_
 else
-    echo -e "Available Options: --copy --save --swappy"
+    echo -e "Available Options: --copy --save --satty"
 fi
 
 exit 0

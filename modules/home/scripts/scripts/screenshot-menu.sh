@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-# Source the generic walker menu functions
+# Display Strings
+area_display='󰩬 Area'
+fullscreen_display='󰹑 Fullscreen'
+save_display=' Save to File'
+satty_display='󱇣 Edit with Satty'
+timer_display='󰄉 Timer'ce the generic walker menu functions
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/walker-menu"
 
@@ -23,7 +28,7 @@ header_title=' Take screenshot'
 area_display='󰩬 Area'
 fullscreen_display='󰹑 Fullscreen'
 save_display=' Save to File'
-swappy_display='󱇣 Edit with Swappy'
+satty_display='󱇣 Edit with Satty'
 timer_display='󰄉 Timer'
 timer5_display='󰔛 5s'
 timer10_display='󱑎 10s'
@@ -58,11 +63,11 @@ countdown() {
 
 # Screenshot Menu Functions
 show_screenshot_menu() {
-    case $(menu "$header_title" "$area_display\n$fullscreen_display\n$save_display\n$swappy_display\n$timer_display" "" "") in
+    case $(menu "$header_title" "$area_display\n$fullscreen_display\n$save_display\n$satty_display\n$timer_display" "" "") in
         *Area*) screenshot_area;;
         *Fullscreen*) screenshot_fullscreen;;
         *Save*) save_file;;
-        *Swappy*) screenshot_edit;;
+        *Satty*) screenshot_edit;;
         *Timer*) show_screenshot_timer_menu;;
         *) exit 0;;
     esac
@@ -83,7 +88,7 @@ save_file() {
 
 # Edit function - handles the sub-menu for editing screenshots
 screenshot_edit() {
-    generic_area_fullscreen_selection "$swappy_display" "screenshot_edit_area" "screenshot_edit_fullscreen" "show_screenshot_menu"
+    generic_area_fullscreen_selection "$satty_display" "screenshot_edit_area" "screenshot_edit_fullscreen" "show_screenshot_menu"
 }
 
 # Screenshot action functions
@@ -115,14 +120,14 @@ screenshot_fullscreen_save() {
 screenshot_edit_area() {
     local file=$(get_screenshot_file)
     grimblast save area "$file"
-    swappy -f "$file"
+    satty -f "$file"
 }
 
 screenshot_edit_fullscreen() {
     local file=$(get_screenshot_file)
     sleep 0.7
     grimblast save output "$file"
-    swappy -f "$file"
+    satty -f "$file"
 }
 
 screenshot_timer() {

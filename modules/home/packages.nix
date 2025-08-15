@@ -32,7 +32,7 @@
     onefetch # git repository information tool
     gifsicle # gif utility - for record.sh
     zenity # simple dialog creator - for record.sh
-    swappy # snapshot editing tool - for screenshot.sh
+    satty # snapshot editing tool - for screenshot.sh
 
     ## CLI fun
     cbonsai # terminal screensaver
