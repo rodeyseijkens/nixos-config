@@ -5,7 +5,9 @@
 }: {
   home.packages = with pkgs; [
     ## LLM Tools
-    python313Packages.llm # Command line tool for working with Large Language Models
-    python313Packages.llm-openrouter # OpenRouter plugin for llm
+    (python313Packages.llm.withPlugins {
+      # LLM plugin for models hosted by OpenRouter
+      llm-openrouter = true;
+    })
   ];
 }
