@@ -26,7 +26,7 @@ DEBUG=false
 STAGED=false
 AUTO_COMMIT=false
 WORKSPACE=""
-MODEL="gpt-4o-mini"
+MODEL=""
 
 # Functions
 show_help() {
@@ -38,7 +38,7 @@ USAGE:
 
 OPTIONS:
     -h, --help        Show this help message
-    -m, --model       Specify the model to use with llm command (default: gpt-4o-mini)
+    -m, --model       Specify the model to use with llm command (default: uses llm's configured default)
     -p, --print       Print the generated message only (no commit, no prompts)
     -D, --debug       Show verbose output
     -s, --staged      Analyze staged changes only
@@ -135,7 +135,7 @@ check_requirements() {
   - pip install llm"
     fi
     
-    debug_log "All requirements satisfied, using llm command with model: $MODEL"
+    debug_log "All requirements satisfied, using llm command$(if [[ -n "$MODEL" ]]; then echo " with model: $MODEL"; else echo " with default model"; fi)"
 }
 
 check_git_repo() {
@@ -220,7 +220,7 @@ choose_scope() {
 
 generate_commit_message() {
     local changes="$1"
-    debug_log "Generating commit message using llm with model: $MODEL"
+    debug_log "Generating commit message using llm$(if [[ -n "$MODEL" ]]; then echo " with model: $MODEL"; else echo " with default model"; fi)"
     
     # Determine scope
     local scope=""
@@ -287,11 +287,15 @@ $changes"
         local temp_error=$(mktemp)
         
         # Run llm command in background
-        (echo "$prompt" | llm -m "$MODEL" 2>"$temp_error" > "$temp_file") &
+        if [[ -n "$MODEL" ]]; then
+            (echo "$prompt" | llm -m "$MODEL" 2>"$temp_error" > "$temp_file") &
+        else
+            (echo "$prompt" | llm 2>"$temp_error" > "$temp_file") &
+        fi
         local llm_pid=$!
         
         # Show spinner while waiting
-        show_spinner $llm_pid "Generating commit message using llm (model: $MODEL)"
+        show_spinner $llm_pid "Generating commit message using llm$(if [[ -n "$MODEL" ]]; then echo " (model: $MODEL)"; fi)"
         
         # Wait for completion
         wait $llm_pid
@@ -300,7 +304,7 @@ $changes"
         if [[ $exit_code -ne 0 ]]; then
             local error_msg=$(cat "$temp_error" 2>/dev/null || echo "Unknown error")
             rm -f "$temp_file" "$temp_error"
-            error_exit "Failed to generate commit message with llm (model: $MODEL): $error_msg"
+            error_exit "Failed to generate commit message with llm$(if [[ -n "$MODEL" ]]; then echo " (model: $MODEL)"; fi): $error_msg"
         fi
         
         # Get the result
@@ -308,8 +312,14 @@ $changes"
         rm -f "$temp_file" "$temp_error"
     else
         # For print-only or non-interactive mode, run without spinner
-        if ! commit_message=$(echo "$prompt" | llm -m "$MODEL" 2>/dev/null); then
-            error_exit "Failed to generate commit message with llm (model: $MODEL)"
+        if [[ -n "$MODEL" ]]; then
+            if ! commit_message=$(echo "$prompt" | llm -m "$MODEL" 2>/dev/null); then
+                error_exit "Failed to generate commit message with llm (model: $MODEL)"
+            fi
+        else
+            if ! commit_message=$(echo "$prompt" | llm 2>/dev/null); then
+                error_exit "Failed to generate commit message with llm"
+            fi
         fi
     fi
     
@@ -414,7 +424,7 @@ main() {
     fi
     
     debug_log "Starting commit-gen.sh..."
-    debug_log "Flags: MODEL=$MODEL, PRINT_ONLY=$PRINT_ONLY, DEBUG=$DEBUG, STAGED=$STAGED, AUTO_COMMIT=$AUTO_COMMIT, WORKSPACE='$WORKSPACE'"
+    debug_log "Flags: MODEL='$MODEL', PRINT_ONLY=$PRINT_ONLY, DEBUG=$DEBUG, STAGED=$STAGED, AUTO_COMMIT=$AUTO_COMMIT, WORKSPACE='$WORKSPACE'"
     
     check_requirements
     check_git_repo
