@@ -243,7 +243,7 @@ generate_commit_message() {
     
     local prompt="Generate a commit message for the following git diff following the Conventional Commits specification STRICTLY.
 
-REQUIRED FORMAT: <type>[optional scope]: <description>
+REQUIRED FORMAT: <type>[optional scope]: <gitmoji> <description>
 
 RULES (MUST follow):
 1. Commits MUST be prefixed with a type (feat, fix, docs, style, refactor, test, chore, etc.)
@@ -252,7 +252,6 @@ RULES (MUST follow):
 4. Description MUST be a short summary of code changes
 5. Use present tense imperitive (add, fix, update - NOT added, fixed, updated)
 6. Description should start with lowercase letter
-7. Include gitmoji after the colon and space, before description
 
 TYPES (use appropriate one):
 - feat: new feature
