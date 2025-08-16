@@ -32,23 +32,21 @@
   ];
 
   programs.zsh.shellAliases = {
+    # tools
     g = "lazygit && clear";
     gi = "onefetch --number-of-file-churns 0 --no-color-palette";
+
+    # status/log
+    gs = "git status";
+    gd = "git diff";
+    glog = "git log --oneline --decorate --graph";
+    glol = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'";
+    glola = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all";
+    glols = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat";
+
+    # stage/commit
     ga = "git add";
     gaa = "git add --all";
-    gs = "git status";
-    gf = "git fetch";
-    gfp = "git fetch --prune";
-    gb = "git branch";
-    gm = "git merge";
-    gd = "git diff";
-    gpl = "git pull";
-    gplo = "git pull origin";
-    gps = "git push";
-    gpsf = "git push --force";
-    gpso = "git push origin";
-    gpst = "git push --follow-tags";
-    gcl = "git clone";
     gc = "git commit";
     gcm = "git commit -m";
     gca = "git commit --amend";
@@ -58,15 +56,28 @@
     gcma = "git add --all && git commit -m";
     gcza = "git add --all && git cz";
     gcfua = "git add --all && git commit --fixup HEAD";
-    gcmg = "commit-gen -c";
-    gcmgw = "commit-gen -c -w";
-    gtag = "git tag -ma";
+    ggcm = "commit-gen -c";
+    ggcmw = "commit-gen -c -w";
+
+    # history
+    gb = "git branch";
     gch = "git checkout";
     gchb = "git checkout -b";
     grb = "git rebase";
-    glog = "git log --oneline --decorate --graph";
-    glol = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'";
-    glola = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all";
-    glols = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat";
+
+    # sync
+    gf = "git fetch";
+    gfp = "git fetch --prune";
+    gpl = "git pull";
+    gplo = "git pull origin";
+    gps = "git push";
+    gpsf = "git push --force";
+    gpso = "git push origin";
+    gpst = "git push --follow-tags";
+    gcl = "git clone";
+
+    # misc
+    gtag = "git tag -ma";
+    gm = "git merge";
   };
 }

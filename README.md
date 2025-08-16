@@ -135,23 +135,24 @@ Nixos (EXPAND)
 Git (EXPAND)
 </summary>
 
-- `g` $\rightarrow$ `lazygit`
+**Tools:**
+
+- `g` $\rightarrow$ `lazygit && clear`
 - `gi` $\rightarrow$ `onefetch --number-of-file-churns 0 --no-color-palette`
+
+**Status/Log:**
+
+- `gs` $\rightarrow$ `git status`
+- `gd` $\rightarrow$ `git diff`
+- `glog` $\rightarrow$ `git log --oneline --decorate --graph`
+- `glol` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'`
+- `glola` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all`
+- `glols` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat`
+
+**Stage/Commit:**
+
 - `ga` $\rightarrow$ `git add`
 - `gaa` $\rightarrow$ `git add --all`
-- `gs` $\rightarrow$ `git status`
-- `gf` $\rightarrow$ `git fetch`
-- `gfp` $\rightarrow$ `git fetch --prune`
-- `gb` $\rightarrow$ `git branch`
-- `gm` $\rightarrow$ `git merge`
-- `gd` $\rightarrow$ `git diff`
-- `gpl` $\rightarrow$ `git pull`
-- `gplo` $\rightarrow$ `git pull origin`
-- `gps` $\rightarrow$ `git push`
-- `gpsf` $\rightarrow$ `git push --force`
-- `gpso` $\rightarrow$ `git push origin`
-- `gpst` $\rightarrow$ `git push --follow-tags`
-- `gcl` $\rightarrow$ `git clone`
 - `gc` $\rightarrow$ `git commit`
 - `gcm` $\rightarrow$ `git commit -m`
 - `gca` $\rightarrow$ `git commit --amend`
@@ -161,14 +162,32 @@ Git (EXPAND)
 - `gcma` $\rightarrow$ `git add --all && git commit -m`
 - `gcza` $\rightarrow$ `git add --all && git cz`
 - `gcfua` $\rightarrow$ `git add --all && git commit --fixup HEAD`
-- `gtag` $\rightarrow$ `git tag -ma`
+- `ggcm` $\rightarrow$ `commit-gen -c`
+- `ggmcw` $\rightarrow$ `commit-gen -c -w`
+
+**History:**
+
+- `gb` $\rightarrow$ `git branch`
 - `gch` $\rightarrow$ `git checkout`
 - `gchb` $\rightarrow$ `git checkout -b`
 - `grb` $\rightarrow$ `git rebase`
-- `glog` $\rightarrow$ `git log --oneline --decorate --graph`
-- `glol` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'`
-- `glola` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all`
-- `glols` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat`
+
+**Sync:**
+
+- `gf` $\rightarrow$ `git fetch`
+- `gfp` $\rightarrow$ `git fetch --prune`
+- `gpl` $\rightarrow$ `git pull`
+- `gplo` $\rightarrow$ `git pull origin`
+- `gps` $\rightarrow$ `git push`
+- `gpsf` $\rightarrow$ `git push --force`
+- `gpso` $\rightarrow$ `git push origin`
+- `gpst` $\rightarrow$ `git push --follow-tags`
+- `gcl` $\rightarrow$ `git clone`
+
+**Misc:**
+
+- `gtag` $\rightarrow$ `git tag -ma`
+- `gm` $\rightarrow$ `git merge`
 
 </details>
 
