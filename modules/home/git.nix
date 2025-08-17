@@ -56,8 +56,8 @@
     gcma = "git add --all && git commit -m";
     gcza = "git add --all && git cz";
     gcfua = "git add --all && git commit --fixup HEAD";
-    ggcm = "commit-gen -c";
-    ggcmw = "commit-gen -c -w";
+    ggcm = "gen-commit -c";
+    ggcmw = "gen-commit -c -w";
 
     # history
     gb = "git branch";

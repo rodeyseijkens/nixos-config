@@ -162,8 +162,8 @@ Git (EXPAND)
 - `gcma` $\rightarrow$ `git add --all && git commit -m`
 - `gcza` $\rightarrow$ `git add --all && git cz`
 - `gcfua` $\rightarrow$ `git add --all && git commit --fixup HEAD`
-- `ggcm` $\rightarrow$ `commit-gen -c`
-- `ggmcw` $\rightarrow$ `commit-gen -c -w`
+- `ggcm` $\rightarrow$ `gen-commit -c`
+- `ggcmw` $\rightarrow$ `gen-commit -c -w`
 
 **History:**
 
@@ -219,12 +219,12 @@ compress.sh
 
 <details>
 <summary>
-commit-gen.sh 
+gen-commit.sh
 </summary>
 
 **Description:** This script generates commit messages using the LLM command following Conventional Commits format with gitmoji and scopes. It can analyze staged changes, all changes, or untracked files and automatically generate appropriate commit messages.
 
-**Usage:** `commit-gen` with various options:
+**Usage:** `gen-commit` with various options:
 
 **Options:**
 
@@ -238,11 +238,11 @@ commit-gen.sh
 
 **Examples:**
 
-- `commit-gen` - Interactive mode analyzing all changes
-- `commit-gen -s` - Analyze staged changes only
-- `commit-gen -c` - Auto-commit all changes
-- `commit-gen -p -s` - Print message for staged changes
-- `commit-gen -w frontend` - Use 'frontend' as scope
+- `gen-commit` - Interactive mode analyzing all changes
+- `gen-commit -s` - Analyze staged changes only
+- `gen-commit -c` - Auto-commit all changes
+- `gen-commit -p -s` - Print message for staged changes
+- `gen-commit -w frontend` - Use 'frontend' as scope
 
 </details>
 
