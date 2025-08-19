@@ -72,6 +72,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    gen-commit = {
+      url = "github:rodeyseijkens/gen-commit";
+    };
+
     walker = {
       url = "github:abenz1267/walker/0.13.26";
     };

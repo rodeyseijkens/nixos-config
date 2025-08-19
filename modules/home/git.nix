@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   programs.git = {
     enable = true;
 
@@ -56,8 +60,8 @@
     gcma = "git add --all && git commit -m";
     gcza = "git add --all && git cz";
     gcfua = "git add --all && git commit --fixup HEAD";
-    ggcm = "gen-commit -c";
-    ggcmw = "gen-commit -c -w";
+    ggcm = "${inputs.gen-commit.packages.${pkgs.system}.default}/bin/gen-commit -c -a";
+    ggcmw = "${inputs.gen-commit.packages.${pkgs.system}.default}/bin/gen-commit -c -a -s";
 
     # history
     gb = "git branch";
