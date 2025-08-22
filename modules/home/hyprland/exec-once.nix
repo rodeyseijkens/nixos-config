@@ -1,4 +1,6 @@
-{...}: {
+{...}: let
+  terminal = "ghostty";
+in {
   wayland.windowManager.hyprland = {
     settings = {
       # autostart
@@ -18,6 +20,8 @@
         "poweralertd"
 
         "hyprlock"
+
+        "${terminal} --gtk-single-instance=true --quit-after-last-window-closed=false --initial-window=false"
       ];
     };
   };

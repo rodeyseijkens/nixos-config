@@ -1,4 +1,6 @@
-{...}: {
+{...}: let
+  terminal = "ghostty";
+in {
   wayland.windowManager.hyprland = {
     settings = {
       env = [
@@ -40,12 +42,10 @@
         "SSH_AUTH_SOCK, /run/user/1000/keyring/ssh"
         "DIRENV_LOG_FORMAT, "
         "EDITOR,nvim"
-        # Set terminal and xdg_terminal_emulator to kitty
-        # To prevent yazi from starting xterm when run from walker menu
-        # You can set to your preferred terminal if you you like
-        # TODO: Pull default terminal from config
-        "TERMINAL,kitty"
-        "XDG_TERMINAL_EMULATOR,kitty"
+        # Set terminal and xdg_terminal_emulator
+        # To prevent yazi from starting xterm
+        "TERMINAL,${terminal}"
+        "XDG_TERMINAL_EMULATOR,${terminal}"
       ];
     };
   };

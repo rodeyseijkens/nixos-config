@@ -4,9 +4,6 @@
   options,
   ...
 }: let
-  browser = "zen-beta";
-  terminal = "kitty";
-
   # Color helper functions
   rgb = color: "rgb(${color})";
   rgba = color: alpha: "rgba(${color}${alpha})";

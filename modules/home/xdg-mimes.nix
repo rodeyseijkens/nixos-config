@@ -12,7 +12,7 @@ with lib; let
     video = ["mpv.desktop"];
     directory = ["org.gnome.Nautilus.desktop"];
     pdf = ["org.gnome.Evince.desktop"];
-    terminal = ["kitty.desktop"];
+    terminal = ["ghostty.desktop"];
     archive = ["org.gnome.FileRoller.desktop"];
     discord = ["legcord.desktop"];
   };

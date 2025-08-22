@@ -69,7 +69,7 @@ Hyprlock (EXPAND)
 | **Bar**                     |                                  [Waybar][Waybar]                                   |
 | **Application Launcher**    |                                  [Walker][Walker]                                   |
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
-| **Terminal Emulator**       |                         [Kitty][Kitty] + [Ghostty][Ghostty]                         |
+| **Terminal Emulator**       |                         [Ghostty][Ghostty] + [Kitty][Kitty]                         |
 | **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
 | **Text Editor**             |                [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro]                 |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
@@ -430,9 +430,9 @@ Keybindings
 
 ##### keybindings
 
-- `$mainMod, Return, exec, [float; center; size 50% 50%] kitty`
-- `$mainMod SHIFT, Return, exec, kitty`
-- `$mainMod ALT, Return, exec, [fullscreen] kitty`
+- `$mainMod, Return, exec, [float; center; size 50% 50%] $terminal`
+- `$mainMod SHIFT, Return, exec, $terminal`
+- `$mainMod ALT, Return, exec, [fullscreen] $terminal`
 - `$mainMod, B, exec, zen-beta`
 - `$mainMod, Q, killactive,`
 - `$mainMod, F, fullscreen, 0`
