@@ -5,7 +5,7 @@
 # A plugin to display and set wallpapers using swww
 # =============================================================================
 WALLPAPERS_FOLDER="$HOME/nixos-config/wallpapers"
-WALLPAPER_LIST=$(find "$WALLPAPERS_FOLDER" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" \) | sort -V)
+WALLPAPER_LIST=$(find "$WALLPAPERS_FOLDER" -type d \( -name "raw" -o -name "generator" \) -prune -o -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" \) -print | sort -V)
 
 # Plugin information for walker
 info() {
