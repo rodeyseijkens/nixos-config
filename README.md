@@ -121,11 +121,11 @@ Utils (EXPAND)
 Nixos (EXPAND)
 </summary>
 
-- `cdnix` $\rightarrow$ `cd ~/nixos-config && code ~/nixos-config`
+- `cdnix` $\rightarrow$ `cd ~/nixos-config && code ~/nixos-config && clear`
 - `ns` $\rightarrow$ `nom-shell --run zsh`
 - `nix-test` $\rightarrow$ `nh os test`
 - `nix-switch` $\rightarrow$ `nh os switch`
-- `nix-update` $\rightarrow$ `nh os switch --update`
+- `nix-update` $\rightarrow$ `nix flake update --option access-tokens "github.com=$(gh auth token)"`
 - `nix-clean` $\rightarrow$ `nh clean all --keep 5`
 - `nix-search` $\rightarrow$ `nh search`
 </details>
@@ -193,7 +193,7 @@ Git (EXPAND)
 
 ## 🛠️ Scripts
 
-All the scripts are in `modules/home/scripts/scripts/` and are exported as packages in `modules/home/scripts/default.nix`
+All the scripts are in `modules/home/scripts/scripts/` and are exported as packages in `modules/home/scripts/scripts.nix`
 
 <details>
 <summary>
@@ -219,30 +219,31 @@ compress.sh
 
 <details>
 <summary>
-gen-commit.sh
+gen-commit (package)
 </summary>
 
-**Description:** This script generates commit messages using the LLM command following Conventional Commits format with gitmoji and scopes. It can analyze staged changes, all changes, or untracked files and automatically generate appropriate commit messages.
+**Description:** `gen-commit` is provided as a flake input (see `inputs.gen-commit` in `flake.nix`) and exposes a binary for generating Conventional Commit messages using an LLM. It's not a local shell script in the `scripts/` folder but is available via the flake package.
 
 **Usage:** `gen-commit` with various options:
 
 **Options:**
 
-- `-h, --help` - Show help message
-- `-m, --model` - Specify LLM model (uses llm's configured default if not specified)
-- `-p, --print` - Print generated message only (no commit)
-- `-s, --staged` - Analyze staged changes only
-- `-c, --commit` - Automatically commit without confirmation
-- `-w, --workspace` - Specify scope for commit message
-- `-D, --debug` - Show verbose output
+- `-h, --help` — Show help message
+- `-m, --model MODEL` — Specify the model to use with llm
+- `-p, --print` — Print the generated message only (no commit)
+- `-D, --debug` — Enable debug mode (no real commit)
+- `-v, --verbose` — Show all output
+- `-a, --all` — Analyze all changes
+- `-c, --commit` — Automatically commit without confirmation
+- `-s, --scope SCOPE` — Specify scope for commit message
 
 **Examples:**
 
-- `gen-commit` - Interactive mode analyzing all changes
-- `gen-commit -s` - Analyze staged changes only
-- `gen-commit -c` - Auto-commit all changes
-- `gen-commit -p -s` - Print message for staged changes
-- `gen-commit -w frontend` - Use 'frontend' as scope
+- `gen-commit` — Interactive mode
+- `gen-commit -a` — Analyze all changes (staged, unstaged & untracked)
+- `gen-commit -c` — Auto-commit all changes
+- `gen-commit -p` — Print message only (no commit)
+- `gen-commit -s frontend` — Use 'frontend' as scope
 
 </details>
 
@@ -417,6 +418,56 @@ wall-change.sh
 
 **Usage:** `wall-change <wallpaper_path>`
 
+</details>
+
+<details>
+<summary>
+walker-menu.sh 
+</summary>
+
+**Description:** A Walker-based launcher/menu wrapper that exposes various project and system menus (power, wallpapers, screenshots, and other helper menus used throughout the config). It centralises small interactive menus so other scripts and keybindings can call a single, consistent interface.
+
+**Usage:** `walker-menu <menu-name>` (e.g. `walker-menu power`, `walker-menu wallpapers`, `walker-menu screenshot`)
+
+</details>
+
+## 🎨 Wallpapers generator
+
+<details>
+<summary>
+CLI to produce Gruvbox-themed wallpapers from source images.
+</summary>
+<br/>
+
+The generator script is located at `wallpapers/generator/gruv-img.sh` and uses ImageMagick's `magick` command to remap or quantize image colors to one of the included palettes.
+
+**Quick summary:**
+
+- Location: `wallpapers/generator/gruv-img.sh`
+- Palettes: `wallpapers/generator/palette-black.txt`, `palette-white.txt`, `palette-mix.txt`
+- Dependency: ImageMagick (`magick` must be available in PATH)
+- Methods: `remap` (dithered color remap) and `quantize` (color quantization + remap)
+
+**Flags (short)**
+
+- `-p, --palette` — `black|white|mix` (default: `mix`)
+- `-m, --method` — `remap|quantize` (default: `remap`)
+- `-i, --images` — space-separated image paths to process
+- `-v, --vibrance` — vibrance (default: `100`, range: `0-200`)
+- `-b, --brightness` — brightness adjustment (default: `0`, range: `-100..100`)
+- `-c, --contrast` — contrast adjustment (default: `0`, range: `-100..100`)
+
+**Notes:**
+
+- Output files are written to the script directory (same folder as the generator) and keep the original filename with the processed image (e.g. `image.jpg` -> `wallpapers/generator/image.jpg`).
+- The script builds a temporary palette image from the palette file and uses it for remapping/quantizing.
+
+**Examples:**
+
+- Process one image with the mix palette and remap method:
+  `gruv-img.sh -p mix -m remap -i ~/Pictures/source.jpg`
+- Process multiple images and boost vibrance:
+`gruv-img.sh -p black -m quantize -i *.jpg -v 120 -b 5 -c 10`
 </details>
 
 ## ⌨️ Keybinds
