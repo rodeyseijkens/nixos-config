@@ -56,6 +56,7 @@ go_to_menu() {
         *apps*) walker -p "Launch..." ;;
         *system*) show_system_info ;;
         *wallpapers*) walker -m "󰉏 Wallpapers" ;;
+        *reload*) walker -m "󰑓 Reload services" ;;
         *) exit 0 ;;
     esac
 }
