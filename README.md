@@ -326,25 +326,6 @@ power-menu.sh
 
 <details>
 <summary>
-screenshot-menu.sh 
-</summary>
-
-**Description:** This script provides a Walker-based menu for taking screenshots with multiple capture modes and clipboard functionality. All capture modes automatically copy screenshots to the clipboard for immediate use.
-
-**Usage:** `screenshot-menu`
-
-**Options:**
-
-- 📷 **Area** - Select an area and copy directly to clipboard
-- 🖥️ **Fullscreen** - Capture entire screen and copy to clipboard
-- 💾 **Save to File** - Choose between area or fullscreen capture and save to `~/Pictures/Screenshots/`
-- ✏️ **Edit with Satty** - Capture and save, then open in Satty image editor
-- ⏰ **Timer** - Delayed fullscreen capture (5s or 10s countdown) and save to file
-
-</details>
-
-<details>
-<summary>
 runbg.sh 
 </summary>
 
