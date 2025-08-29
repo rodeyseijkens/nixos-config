@@ -315,17 +315,6 @@ record.sh
 
 <details>
 <summary>
-power-menu.sh 
-</summary>
-
-**Description:** This script provides a Walker-based power menu with options to shutdown, reboot, or lock the system with confirmation dialogs.
-
-**Usage:** `power-menu`
-
-</details>
-
-<details>
-<summary>
 runbg.sh 
 </summary>
 

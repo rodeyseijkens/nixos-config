@@ -51,12 +51,12 @@ show_system_info() {
 # Direct menu access function
 go_to_menu() {
     case "${1,,}" in
-        *apps*) walker -p "󱓞 Launch..." ;;
-        *reload*) walker -m "󰑓 Reload services" ;;
-        *screenshot*) walker -m " Screenshot" ;;
-        *wallpapers*) walker -m "󰉏 Wallpapers" ;;
-        *power*) power-menu ;;
-        *system*) show_system_info ;;
+    *apps*) walker -p "󱓞 Launch..." ;;
+    *reload*) walker -m "󰑓 Reload services" ;;
+    *screenshot*) walker -m " Screenshot" ;;
+    *wallpapers*) walker -m "󰉏 Wallpapers" ;;
+    *power*) walker -m "󰐥 Power menu" ;;
+    *system*) show_system_info ;;
         *) exit 0 ;;
     esac
 }
