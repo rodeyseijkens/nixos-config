@@ -13,6 +13,6 @@
       gnome-settings-daemon
     ];
 
-    logind.powerKey = "ignore";
+    logind.settings.Login.HandlePowerKey = "ignore";
   };
 }
