@@ -186,6 +186,9 @@ in {
           "workspace 9,   class:^(spotify)$"
           "workspace 9,   class:^(steam)$"
           "workspace 10,  class:^(discord|legcord)$"
+
+          # work specific
+          "workspace 10, class:^(google-chrome)$"
         ];
       };
 
