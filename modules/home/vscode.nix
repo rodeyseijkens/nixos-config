@@ -92,6 +92,7 @@ in {
           "workbench.startupEditor" = "none";
           "workbench.statusBar.visible" = true;
           "workbench.panel.showLabels" = false;
+          "workbench.panel.defaultLocation" = "right";
 
           # Extension settings
           "alejandra.program" = "alejandra";
