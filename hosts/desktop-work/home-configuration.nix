@@ -15,6 +15,9 @@
       "9,   monitor:DP-2"
       "10,  monitor:DP-2"
     ];
+    windowrules = [
+      "workspace 10, class:^(google-chrome)$"
+    ];
   };
 
   # Audio configuration for desktop-work

@@ -14,6 +14,10 @@
       "9,   monitor:DP-2"
       "10,  monitor:DP-2"
     ];
+    windowrules = [
+      "workspace 5,   class:(dota2),title:(Dota 2)"
+      "workspace 5,   class:^(steam_app_3164500)$"
+    ];
   };
 
   # Audio configuration for desktop-work

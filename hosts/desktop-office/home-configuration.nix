@@ -16,6 +16,9 @@
       "9,   monitor:HDMI-A-1"
       "10,  monitor:HDMI-A-1"
     ];
+    windowrules = [
+      "workspace 10, class:^(google-chrome)$"
+    ];
   };
 
   modules = {

@@ -22,6 +22,11 @@
       "9,   default"
       "10,  default"
     ];
+    windowrules = [
+      "workspace 9,   class:^(spotify)$"
+      "workspace 9,   class:^(steam)$"
+      "workspace 10,  class:^(discord|legcord)$"
+    ];
   };
 
   # Use custom config if provided, otherwise fallback to default
@@ -30,6 +35,7 @@
     then {
       monitors = config.monitors.hyprland.config;
       workspaces = config.monitors.hyprland.workspaces;
+      windowrules = config.monitors.hyprland.windowrules;
     }
     else defaultMonitorConfig;
 in {
@@ -56,6 +62,16 @@ in {
       example = [
         "1, monitor:DP-3"
         "2, monitor:DP-3"
+      ];
+    };
+
+    windowrules = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      description = "Window rules (Hyprland) to apply per-host. If empty, fallback defaults are used.";
+      example = [
+        "workspace 9,   class:^(spotify)$"
+        "workspace 10,  class:^(discord|legcord)$"
       ];
     };
   };
@@ -181,15 +197,7 @@ in {
         workspace = monitorConfig.workspaces;
 
         # workspace window rules
-        windowrule = [
-          "workspace 5,   class:(dota2),title:(Dota 2)"
-          "workspace 9,   class:^(spotify)$"
-          "workspace 9,   class:^(steam)$"
-          "workspace 10,  class:^(discord|legcord)$"
-
-          # work specific
-          "workspace 10, class:^(google-chrome)$"
-        ];
+        windowrule = defaultMonitorConfig.windowrules ++ monitorConfig.windowrules;
       };
 
       extraConfig = "
