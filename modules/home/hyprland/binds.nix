@@ -1,30 +1,35 @@
 {...}: let
   browser = "zen-beta";
   terminal = "ghostty";
+  filebrowser = "nautilus";
 in {
   wayland.windowManager.hyprland = {
     settings = {
       bind = [
-        # keybindings
+        # applications
         "$mainMod,        Return, exec,       [float; center; size 50% 50%] ${terminal}"
         "$mainMod SHIFT,  Return, exec,       ${terminal}"
         "$mainMod ALT,    Return, exec,       [fullscreen] ${terminal}"
         "$mainMod,        B,      exec,       ${browser}"
+        "$mainMod,        E,      exec,       ${filebrowser}"
+        "$mainMod SHIFT,  D,      exec,       legcord & steam"
+
+        # window management
         "$mainMod,        Q,      killactive,"
         "$mainMod,        F,      fullscreen, 0"
         "$mainMod SHIFT,  F,      fullscreen, 1"
-        "$mainMod,        G,      exec,       toggle-float"
-        "$mainMod,        Space,  exec,       walker"
-        "$mainMod SHIFT,  D,      exec,       legcord --enable-features=UseOzonePlatform --ozone-platform=wayland"
-        "$mainMod SHIFT,  Escape, exec,       walker-menu power"
+        "$mainMod SHIFT,  T,      exec,       toggle-float"
         "$mainMod,        P,      pseudo,"
         "$mainMod,        X,      togglesplit,"
-        "$mainMod,        T,      exec,       toggle-opacity"
-        "$mainMod,        E,      exec,       nautilus"
+        "$mainMod,        O,      exec,       toggle-opacity"
+
+        # utilities and scripts
         "$mainMod SHIFT,  B,      exec,       toggle-waybar"
         "$mainMod,        C,      exec,       hyprpicker -a"
-        "$mainMod,        W,      exec,       walker-menu wallpapers"
         "$mainMod,        N,      exec,       swaync-client -t -sw"
+        "$mainMod,        Space,  exec,       walker"
+        "$mainMod SHIFT,  Escape, exec,       walker-menu power"
+        "$mainMod,        W,      exec,       walker-menu wallpapers"
 
         # screenshot
         ",                Print,  exec, walker-menu screenshot"

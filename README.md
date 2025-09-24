@@ -449,28 +449,33 @@ By default `$mainMod` is the `SUPER` key.
 Keybindings 
 </summary>
 
-##### keybindings
+##### applications
 
 - `$mainMod, Return, exec, [float; center; size 50% 50%] $terminal`
 - `$mainMod SHIFT, Return, exec, $terminal`
 - `$mainMod ALT, Return, exec, [fullscreen] $terminal`
-- `$mainMod, B, exec, zen-beta`
+- `$mainMod, B, exec, $browser`
+- `$mainMod, E, exec, $filebrowser`
+- `$mainMod SHIFT, D, exec, legcord && steam`
+
+#### window management
+
 - `$mainMod, Q, killactive,`
 - `$mainMod, F, fullscreen, 0`
 - `$mainMod SHIFT, F, fullscreen, 1`
-- `$mainMod, G, exec, toggle-float`
-- `$mainMod, Space, exec, walker`
-- `CTRL, Space, exec, walker`
-- `$mainMod SHIFT, D, exec, legcord --enable-features=UseOzonePlatform --ozone-platform=wayland`
-- `$mainMod SHIFT, Escape, exec, walker-menu power`
+- `$mainMod SHIFT, T, exec, toggle-float`
 - `$mainMod, P, pseudo,`
 - `$mainMod, X, togglesplit,`
-- `$mainMod, T, exec, toggle-opacity`
-- `$mainMod, E, exec, nautilus`
+- `$mainMod, O, exec, toggle-opacity`
+
+##### utilities and scripts
+
 - `$mainMod SHIFT, B, exec, toggle-waybar`
 - `$mainMod, C, exec, hyprpicker -a`
-- `$mainMod, W, exec, walker-menu wallpapers`
 - `$mainMod, N, exec, swaync-client -t -sw`
+- `$mainMod, Space, exec, walker`
+- `$mainMod SHIFT, Escape, exec, walker-menu power`
+- `$mainMod, W, exec, walker-menu wallpapers`
 
 ##### screenshot
 
@@ -526,7 +531,6 @@ Keybindings
 - `$mainMod SHIFT, j, movewindoworgroup, d`
 - `$mainMod SHIFT, k, movewindoworgroup, u`
 - `$mainMod SHIFT, l, movewindoworgroup, r`
-
 - `$mainMod CTRL, left, resizeactive, -80 0`
 - `$mainMod CTRL, right, resizeactive, 80 0`
 - `$mainMod CTRL, up, resizeactive, 0 -80`
@@ -535,12 +539,11 @@ Keybindings
 - `$mainMod CTRL, j, resizeactive, 0 80`
 - `$mainMod CTRL, k, resizeactive, 0 -80`
 - `$mainMod CTRL, l, resizeactive, 80 0`
-
-- `$mainMod ALT, left, moveactive,  -80 0`
+- `$mainMod ALT, left, moveactive, -80 0`
 - `$mainMod ALT, right, moveactive, 80 0`
 - `$mainMod ALT, up, moveactive, 0 -80`
 - `$mainMod ALT, down, moveactive, 0 80`
-- `$mainMod ALT, h, moveactive,  -80 0`
+- `$mainMod ALT, h, moveactive, -80 0`
 - `$mainMod ALT, j, moveactive, 0 80`
 - `$mainMod ALT, k, moveactive, 0 -80`
 - `$mainMod ALT, l, moveactive, 80 0`
@@ -553,17 +556,17 @@ Keybindings
 - `$mainMod ALT, j, changegroupactive, b # change active tab back`
 - `$mainMod ALT, l, changegroupactive, f # change active tab forward`
 
-#### mouse bindings
+##### media and volume controls
+
+- `,XF86AudioPlay, exec, playerctl play-pause`
+- `,XF86AudioNext, exec, playerctl next`
+- `,XF86AudioPrev, exec, playerctl previous`
+- `,XF86AudioStop, exec, playerctl stop`
+
+##### mouse bindings
 
 - `$mainMod, mouse:274, movewindow`
 - `$mainMod SHIFT, mouse:274, resizewindow`
-
-##### media and volume controls
-
-- `,XF86AudioPlay,exec, playerctl play-pause`
-- `,XF86AudioNext,exec, playerctl next`
-- `,XF86AudioPrev,exec, playerctl previous`
-- `,XF86AudioStop, exec, playerctl stop`
 - `$mainMod, mouse_down, workspace, e-1`
 - `$mainMod, mouse_up, workspace, e+1`
 </details>
