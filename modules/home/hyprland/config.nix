@@ -26,6 +26,9 @@
       "workspace 9,   class:^(spotify)$"
       "workspace 9,   class:^(steam)$"
       "workspace 10,  class:^(discord|legcord)$"
+
+      # Keyring Dialog on workspace 1
+      "workspace 1,  title:^(keyring)$"
     ];
   };
 
