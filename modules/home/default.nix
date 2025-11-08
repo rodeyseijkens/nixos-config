@@ -27,6 +27,7 @@
     ./swaync/swaync.nix # notification deamon
     ./swayosd.nix # brightness / volume wiget
     ./tigervnc.nix # remote desktop
+    ./tiled.nix # tiled mapeditor
     ./viewnior.nix # image viewer
     ./vscode.nix # vscode
     ./walker # walker launcher

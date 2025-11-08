@@ -65,5 +65,6 @@
     legcord.enable = true;
     obs-studio.enable = true;
     cura.enable = true;
+    tiled.enable = true;
   };
 }
