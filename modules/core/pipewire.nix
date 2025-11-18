@@ -15,7 +15,7 @@
 
     lowLatency = {
       # enable this module
-      enable = true;
+      enable = false;
       # defaults (no need to be set unless modified)
       quantum = 64;
       rate = 48000;
