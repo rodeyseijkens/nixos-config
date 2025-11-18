@@ -137,57 +137,58 @@ Git (EXPAND)
 
 **Tools:**
 
-- `g` $\rightarrow$ `lazygit && clear`
-- `gi` $\rightarrow$ `onefetch --number-of-file-churns 0 --no-color-palette`
+- `g` → `lazygit && clear`
+- `gi` → `onefetch --number-of-file-churns 0 --no-color-palette`
 
 **Status/Log:**
 
-- `gs` $\rightarrow$ `git status`
-- `gd` $\rightarrow$ `git diff`
-- `glog` $\rightarrow$ `git log --oneline --decorate --graph`
-- `glol` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'`
-- `glola` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all`
-- `glols` $\rightarrow$ `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat`
+- `gs` → `git status`
+- `gd` → `git diff`
+- `glog` → `git log --oneline --decorate --graph`
+- `glol` → `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'`
+- `glola` → `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all`
+- `glols` → `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat`
 
 **Stage/Commit:**
 
-- `ga` $\rightarrow$ `git add`
-- `gaa` $\rightarrow$ `git add --all`
-- `gc` $\rightarrow$ `git commit`
-- `gcm` $\rightarrow$ `git commit -m`
-- `gca` $\rightarrow$ `git commit --amend`
-- `gcaa` $\rightarrow$ `git add --all && git commit --amend --no-edit`
-- `gcz` $\rightarrow$ `git cz`
-- `gcfu` $\rightarrow$ `git commit --fixup HEAD`
-- `gcma` $\rightarrow$ `git add --all && git commit -m`
-- `gcza` $\rightarrow$ `git add --all && git cz`
-- `gcfua` $\rightarrow$ `git add --all && git commit --fixup HEAD`
-- `ggcm` $\rightarrow$ `gen-commit -c`
-- `ggcmw` $\rightarrow$ `gen-commit -c -w`
+- `ga` → `git add`
+- `gaa` → `git add --all`
+- `gc` → `git commit`
+- `gcm` → `git commit -m`
+- `gca` → `git commit --amend`
+- `gcaa` → `git add --all && git commit --amend --no-edit`
+- `gcz` → `git cz`
+- `gcfu` → `git commit --fixup HEAD`
+- `gcma` → `git add --all && git commit -m`
+- `gcza` → `git add --all && git cz`
+- `gcfua` → `git add --all && git commit --fixup HEAD`
 
-**History:**
+**History / branches:**
 
-- `gb` $\rightarrow$ `git branch`
-- `gch` $\rightarrow$ `git checkout`
-- `gchb` $\rightarrow$ `git checkout -b`
-- `grb` $\rightarrow$ `git rebase`
+- `gb` → `git branch`
+- `gch` → `git checkout`
+- `gchb` → `git checkout -b`
+- `grb` → `git rebase`
+- `grs` → `git reset --soft HEAD~`
 
 **Sync:**
 
-- `gf` $\rightarrow$ `git fetch`
-- `gfp` $\rightarrow$ `git fetch --prune`
-- `gpl` $\rightarrow$ `git pull`
-- `gplo` $\rightarrow$ `git pull origin`
-- `gps` $\rightarrow$ `git push`
-- `gpsf` $\rightarrow$ `git push --force`
-- `gpso` $\rightarrow$ `git push origin`
-- `gpst` $\rightarrow$ `git push --follow-tags`
-- `gcl` $\rightarrow$ `git clone`
+- `gf` → `git fetch`
+- `gfp` → `git fetch --prune`
+- `gpl` → `git pull`
+- `gplo` → `git pull origin`
+- `gps` → `git push`
+- `gpsf` → `git push --force`
+- `gpso` → `git push origin`
+- `gpst` → `git push --follow-tags`
+- `gcl` → `git clone`
 
 **Misc:**
 
-- `gtag` $\rightarrow$ `git tag -ma`
-- `gm` $\rightarrow$ `git merge`
+- `gtag` → `git tag -ma`
+- `gm` → `git merge`
+- `ggcm` → `gen-commit -c -a`
+- `ggcmw` → `gen-commit -c -a -s`
 
 </details>
 

@@ -68,6 +68,7 @@
     gch = "git checkout";
     gchb = "git checkout -b";
     grb = "git rebase";
+    grs = "git reset --soft HEAD~";
 
     # sync
     gf = "git fetch";
