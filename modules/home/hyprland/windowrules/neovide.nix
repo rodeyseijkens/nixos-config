@@ -1,5 +1,5 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
-    "tile,class:^(.*neovide.*)$"
+    "tile true, match:class ^(.*neovide.*)$"
   ];
 }

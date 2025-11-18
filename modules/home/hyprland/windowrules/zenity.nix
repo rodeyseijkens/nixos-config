@@ -1,7 +1,7 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
-    "float,class:^(zenity)$"
-    "center,class:^(zenity)$"
-    "size 850 500,class:^(zenity)$"
+    "float true, match:class ^(zenity)$"
+    "center true, match:class ^(zenity)$"
+    "size 850 500, match:class ^(zenity)$"
   ];
 }

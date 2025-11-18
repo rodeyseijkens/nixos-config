@@ -1,5 +1,6 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
-    "center,floating:1,class:(Code)"
+    "center true, match:class ^(Code)$"
+    "float true, match:class ^(Code)$"
   ];
 }

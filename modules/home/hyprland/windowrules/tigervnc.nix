@@ -1,5 +1,6 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
-    "center,floating:1,class:^(Vncviewer)$"
+    "center true, match:class ^(Vncviewer)$"
+    "float true, match:class ^(Vncviewer)$"
   ];
 }

@@ -1,10 +1,10 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
-    "float,class:^(.*mpv.*)$"
-    "center,class:^(.*mpv.*)$"
-    "size 1200 725,class:^(.*mpv.*)$"
-    "idleinhibit focus,class:^(.*mpv.*)$"
-    "opacity 1.0 override 1.0 override, title:^(.*mpv.*)$"
-    "idleinhibit focus, class:^(mpv)$"
+    "float true, match:class ^(.*mpv.*)$"
+    "center true, match:class ^(.*mpv.*)$"
+    "size 1200 725, match:class ^(.*mpv.*)$"
+    "idle_inhibit focus, match:class ^(.*mpv.*)$"
+    "opacity 1.0 override 1.0 override, match:title ^(.*mpv.*)$"
+    "idle_inhibit focus, match:class ^(mpv)$"
   ];
 }

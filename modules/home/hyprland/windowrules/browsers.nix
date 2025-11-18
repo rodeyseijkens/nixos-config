@@ -1,19 +1,19 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
     # Firefox rules
-    "idleinhibit fullscreen, class:^(firefox)$"
+    "idle_inhibit fullscreen, match:class ^(firefox)$"
 
     # Zen Browser rules
-    "idleinhibit fullscreen, class:^(zen-beta)$"
+    "idle_inhibit fullscreen, match:class ^(zen-beta)$"
 
     # Google Chrome rules
-    "idleinhibit fullscreen, class:^(google-chrome)$"
+    "idle_inhibit fullscreen, match:class ^(google-chrome)$"
 
     # Screen sharing notification rules for all browsers
-    "float,title:^(.* is sharing .*\.)$"
-    "move 0 0,title:^(.* is sharing .*\.)$"
-    "opacity 0.9 override 0.9 override,title:^(.* is sharing .*\.)$"
-    "noblur,title:^(.* is sharing .*\.)$"
-    "noshadow,title:^(.* is sharing .*\.)$"
+    "float true, match:title ^(.* is sharing .*\.)$"
+    "move 0 0, match:title ^(.* is sharing .*\.)$"
+    "opacity 0.9 override 0.9 override, match:title ^(.* is sharing .*\.)$"
+    "no_blur true, match:title ^(.* is sharing .*\.)$"
+    "no_shadow true, match:title ^(.* is sharing .*\.)$"
   ];
 }

@@ -6,17 +6,17 @@
       monitor = DP-3, 2560x1440@165, 0x0, 1
     '';
     workspaces = [
-      "1,   monitor:DP-3"
-      "2,   monitor:DP-3"
-      "3,   monitor:DP-3"
-      "4,   monitor:DP-3"
-      "5,   monitor:DP-3"
-      "9,   monitor:DP-2"
-      "10,  monitor:DP-2"
+      "1, monitor:DP-3, default:true"
+      "2, monitor:DP-3"
+      "3, monitor:DP-3"
+      "4, monitor:DP-3"
+      "5, monitor:DP-3"
+      "9, monitor:DP-2, default:true"
+      "10, monitor:DP-2"
     ];
     windowrules = [
-      "workspace 5,   class:(dota2),title:(Dota 2)"
-      "workspace 5,   class:^(steam_app_3164500)$"
+      "workspace 5, match:class (dota2) match:title (Dota 2)"
+      "workspace 5, match:class ^(steam_app_3164500)$"
     ];
   };
 

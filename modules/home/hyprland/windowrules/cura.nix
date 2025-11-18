@@ -1,5 +1,6 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
-    "center,floating:1,class:^(UltiMaker-Cura)$"
+    "center true, match:class ^(UltiMaker-Cura)$"
+    "float true, match:class ^(UltiMaker-Cura)$"
   ];
 }

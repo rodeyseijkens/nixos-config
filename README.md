@@ -452,12 +452,12 @@ Keybindings
 
 ##### applications
 
-- `$mainMod, Return, exec, [float; center; size 50% 50%] $terminal`
+- `$mainMod, Return, exec, [float; center; size (monitor_w*0.5) (monitor_h*0.5)] $terminal`
 - `$mainMod SHIFT, Return, exec, $terminal`
 - `$mainMod ALT, Return, exec, [fullscreen] $terminal`
 - `$mainMod, B, exec, $browser`
 - `$mainMod, E, exec, $filebrowser`
-- `$mainMod SHIFT, D, exec, legcord && steam`
+- `$mainMod SHIFT, D, exec, legcord & steam`
 
 #### window management
 

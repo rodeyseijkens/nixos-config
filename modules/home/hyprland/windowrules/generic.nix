@@ -1,49 +1,49 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
     # Generic float window rules
-    "float,class:^(file_progress)$"
-    "float,class:^(confirm)$"
-    "float,class:^(dialog)$"
-    "float,class:^(download)$"
-    "float,class:^(notification)$"
-    "float,class:^(error)$"
-    "float,class:^(confirmreset)$"
-    "float,title:^(Open Files?)$"
-    "float,title:^(File Uploads?)$"
-    "float,title:^(All Files)$"
-    "float,title:^(branchdialog)$"
-    "float,title:^(Confirm to replace files)$"
-    "float,title:^(File Operation Progress)$"
+    "float true, match:class ^(file_progress)$"
+    "float true, match:class ^(confirm)$"
+    "float true, match:class ^(dialog)$"
+    "float true, match:class ^(download)$"
+    "float true, match:class ^(notification)$"
+    "float true, match:class ^(error)$"
+    "float true, match:class ^(confirmreset)$"
+    "float true, match:title ^(Open Files?)$"
+    "float true, match:title ^(File Uploads?)$"
+    "float true, match:title ^(All Files)$"
+    "float true, match:title ^(branchdialog)$"
+    "float true, match:title ^(Confirm to replace files)$"
+    "float true, match:title ^(File Operation Progress)$"
 
     # File upload specific rules
-    "size 850 500,title:^(Open Files?)$"
-    "size 850 500,title:^(File Uploads?)$"
-    "size 850 500,title:^(All Files)$"
+    "size 850 500, match:title ^(Open Files?)$"
+    "size 850 500, match:title ^(File Uploads?)$"
+    "size 850 500, match:title ^(All Files)$"
 
     # Volume control rules
-    "float,title:^(Volume Control)$"
-    "size 700 450,title:^(Volume Control)$"
-    "move 40 55%,title:^(Volume Control)$"
+    "float true, match:title ^(Volume Control)$"
+    "size 700 450, match:title ^(Volume Control)$"
+    "move 40 55%, match:title ^(Volume Control)$"
 
     # Sharing indicator rules
-    "float,title:^(.* — Sharing Indicator)$"
-    "move 0 0,title:^(.* — Sharing Indicator)$"
+    "float true, match:title ^(.* — Sharing Indicator)$"
+    "move 0 0, match:title ^(.* — Sharing Indicator)$"
 
     # Picture-in-Picture rules
-    "float, title:^(Picture-in-Picture)$"
-    "opacity 1.0 override 1.0 override, title:^(Picture-in-Picture)$"
-    "pin, title:^(Picture-in-Picture)$"
+    "float true, match:title ^(Picture-in-Picture)$"
+    "opacity 1.0 override 1.0 override, match:title ^(Picture-in-Picture)$"
+    "pin true, match:title ^(Picture-in-Picture)$"
 
     # XWayland video bridge rules
-    "opacity 0.0 override,class:^(xwaylandvideobridge)$"
-    "noanim,class:^(xwaylandvideobridge)$"
-    "noinitialfocus,class:^(xwaylandvideobridge)$"
-    "maxsize 1 1,class:^(xwaylandvideobridge)$"
-    "noblur,class:^(xwaylandvideobridge)$"
+    "opacity 0.0 override, match:class ^(xwaylandvideobridge)$"
+    "no_anim true, match:class ^(xwaylandvideobridge)$"
+    "no_initial_focus true, match:class ^(xwaylandvideobridge)$"
+    "max_size 1 1, match:class ^(xwaylandvideobridge)$"
+    "no_blur true, match:class ^(xwaylandvideobridge)$"
 
     # Remove context menu transparency in chromium based apps
-    "opaque,class:^()$,title:^()$"
-    "noshadow,class:^()$,title:^()$"
-    "noblur,class:^()$,title:^()$"
+    "opaque true, match:class ^()$ match:title ^()$"
+    "no_shadow true, match:class ^()$ match:title ^()$"
+    "no_blur true, match:class ^()$ match:title ^()$"
   ];
 }

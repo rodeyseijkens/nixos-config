@@ -14,21 +14,21 @@
       monitor = , preferred, auto, 1
     '';
     workspaces = [
-      "1,   default"
-      "2,   default"
-      "3,   default"
-      "4,   default"
-      "5,   default"
-      "9,   default"
-      "10,  default"
+      "1, default:true"
+      "2"
+      "3"
+      "4"
+      "5"
+      "9"
+      "10"
     ];
     windowrules = [
-      "workspace 9,   class:^(spotify)$"
-      "workspace 9,   class:^(steam)$"
-      "workspace 10,  class:^(discord|legcord)$"
+      "workspace 9, match:class ^(spotify)$"
+      "workspace 9, match:class ^(steam)$"
+      "workspace 10, match:class ^(discord|legcord)$"
 
       # Keyring Dialog on workspace 1
-      "workspace 1,  title:^(keyring)$"
+      "workspace 1, match:title ^(keyring)$"
     ];
   };
 
@@ -73,8 +73,8 @@ in {
       default = [];
       description = "Window rules (Hyprland) to apply per-host. If empty, fallback defaults are used.";
       example = [
-        "workspace 9,   class:^(spotify)$"
-        "workspace 10,  class:^(discord|legcord)$"
+        "workspace 9, match:class ^(spotify)$"
+        "workspace 10, match:class ^(discord|legcord)$"
       ];
     };
   };
@@ -103,7 +103,6 @@ in {
           gaps_in = 5;
           gaps_out = 10;
           border_size = 2;
-          no_border_on_floating = false;
           "col.active_border" = rgba config.lib.stylix.colors.base0B "FF";
           "col.inactive_border" = rgba config.lib.stylix.colors.base0B "00";
         };
