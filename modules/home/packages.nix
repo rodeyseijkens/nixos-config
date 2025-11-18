@@ -57,6 +57,6 @@
     ## Misc
     winetricks
     wineWowPackages.wayland
-    inputs.alejandra.defaultPackage.${system} # syntax highlighter for nix
+    inputs.alejandra.defaultPackage.${pkgs.stdenv.hostPlatform.system} # syntax highlighter for nix
   ];
 }

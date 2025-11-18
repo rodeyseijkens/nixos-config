@@ -5,10 +5,10 @@
 }: {
   home.packages = with pkgs; [
     swww
-    inputs.hypr-contrib.packages.${pkgs.system}.grimblast
-    inputs.hyprpicker.packages.${pkgs.system}.hyprpicker
+    inputs.hypr-contrib.packages.${pkgs.stdenv.hostPlatform.system}.grimblast
+    inputs.hyprpicker.packages.${pkgs.stdenv.hostPlatform.system}.hyprpicker
     hyprpolkitagent
-    inputs.hyprmag.packages.${pkgs.system}.hyprmag
+    inputs.hyprmag.packages.${pkgs.stdenv.hostPlatform.system}.hyprmag
     slurp
     wl-clip-persist
     cliphist

@@ -34,7 +34,7 @@ in {
 
   programs.walker = {
     enable = true;
-    package = inputs.walker.packages.${pkgs.system}.default;
+    package = inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 
   # Create out-of-store symlink to the walker config.toml file

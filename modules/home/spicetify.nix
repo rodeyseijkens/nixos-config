@@ -6,7 +6,7 @@
   ...
 }:
 with lib; let
-  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
+  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
   cfg = config.modules.spicetify;
 in {
   options.modules.spicetify = {enable = mkEnableOption "spicetify";};

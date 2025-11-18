@@ -7,8 +7,8 @@
 }:
 with lib; let
   cfg = config.modules.vscode;
-  marketplace = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace;
-  marketplace-release = inputs.nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace-release;
+  marketplace = inputs.nix-vscode-extensions.extensions.${pkgs.stdenv.hostPlatform.system}.vscode-marketplace;
+  marketplace-release = inputs.nix-vscode-extensions.extensions.${pkgs.stdenv.hostPlatform.system}.vscode-marketplace-release;
 in {
   options.modules.vscode = {enable = mkEnableOption "vscode";};
   config = mkIf cfg.enable {
