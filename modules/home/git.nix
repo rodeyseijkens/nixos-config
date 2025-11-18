@@ -6,25 +6,27 @@
   programs.git = {
     enable = true;
 
-    userName = "Rodey Seijkens";
-    userEmail = "me@rodey.nl";
-
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Rodey Seijkens";
+        email = "me@rodey.nl";
+      };
       init.defaultBranch = "main";
       credential.helper = "store";
       merge.conflictstyle = "diff3";
       diff.colorMoved = "default";
       push.autoSetupRemote = true;
     };
+  };
 
-    delta = {
-      enable = true;
-      options = {
-        line-numbers = true;
-        side-by-side = true;
-        diff-so-fancy = true;
-        navigate = true;
-      };
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      line-numbers = true;
+      side-by-side = true;
+      diff-so-fancy = true;
+      navigate = true;
     };
   };
 
