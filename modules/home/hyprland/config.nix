@@ -195,6 +195,10 @@ in {
           };
         };
 
+        cursor = {
+          inactive_timeout = 5;
+        };
+
         # workspace
         workspace = monitorConfig.workspaces;
 

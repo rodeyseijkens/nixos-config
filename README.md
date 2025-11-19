@@ -551,7 +551,7 @@ Keybindings
 
 #### window tabbed grouping
 
-- `$mainMod SHIFT, T, togglegroup # toggle tabbed group`
+- `$mainMod SHIFT, G, togglegroup # toggle tabbed group`
 - `$mainMod ALT, left, changegroupactive, b # change active tab back`
 - `$mainMod ALT, right, changegroupactive, f # change active tab forward`
 - `$mainMod ALT, j, changegroupactive, b # change active tab back`
