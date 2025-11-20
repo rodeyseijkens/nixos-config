@@ -69,7 +69,7 @@ Hyprlock (EXPAND)
 | **Bar**                     |                                  [Waybar][Waybar]                                   |
 | **Application Launcher**    |                                  [Walker][Walker]                                   |
 | **Notification Daemon**     |                                  [swaync][swaync]                                   |
-| **Terminal Emulator**       |                         [Ghostty][Ghostty] + [Kitty][Kitty]                         |
+| **Terminal Emulator**       |                                 [Ghostty][Ghostty]                                  |
 | **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
 | **Text Editor**             |                [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro]                 |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
@@ -105,7 +105,6 @@ Utils (EXPAND)
 - `y` $\rightarrow$ `yazi`
 - `py` $\rightarrow$ `python`
 - `ipy` $\rightarrow$ `ipython`
-- `icat` $\rightarrow$ `kitten icat`
 - `dsize` $\rightarrow$ `du -hs`
 - `pdf` $\rightarrow$ `tdf`
 - `open` $\rightarrow$ `xdg-open`
@@ -723,7 +722,6 @@ Other dotfiles that I learned / copy from:
 <!-- Links -->
 
 [Hyprland]: https://github.com/hyprwm/Hyprland
-[Kitty]: https://sw.kovidgoyal.net/kitty/
 [Ghostty]: https://ghostty.org/
 [Waybar]: https://github.com/Alexays/Waybar
 [Btop]: https://github.com/aristocratos/btop

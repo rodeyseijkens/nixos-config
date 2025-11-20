@@ -12,7 +12,6 @@
     ./gnome.nix # gnome apps
     ./gtk.nix # gtk theme
     ./hyprland # window manager
-    ./kitty.nix # terminal
     ./legcord # discord client with gruvbox
     ./llm # llm tools and plugins
     ./micro.nix # nano replacement

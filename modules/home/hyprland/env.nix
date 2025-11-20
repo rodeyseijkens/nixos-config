@@ -1,5 +1,6 @@
 {...}: let
   terminal = "ghostty";
+  editor = "code";
 in {
   wayland.windowManager.hyprland = {
     settings = {
@@ -41,7 +42,7 @@ in {
         # Application specific settings
         "SSH_AUTH_SOCK, /run/user/1000/keyring/ssh"
         "DIRENV_LOG_FORMAT, "
-        "EDITOR,nvim"
+        "EDITOR,${editor}"
         # Set terminal and xdg_terminal_emulator
         # To prevent yazi from starting xterm
         "TERMINAL,${terminal}"
