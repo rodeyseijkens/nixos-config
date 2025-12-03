@@ -76,6 +76,7 @@ in {
 
           "files.autoSave" = "onWindowChange";
           "terminal.integrated.fontFamily" = "'Maple Mono', 'SymbolsNerdFont'";
+          "terminal.integrated.tabs.enabled" = false;
           "vsicons.dontShowNewVersionMessage" = true;
 
           "window.customTitleBarVisibility" = "auto";
