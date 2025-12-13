@@ -473,7 +473,8 @@ Keybindings
 - `$mainMod SHIFT, B, exec, toggle-waybar`
 - `$mainMod, C, exec, hyprpicker -a`
 - `$mainMod, N, exec, swaync-client -t -sw`
-- `$mainMod, Space, exec, walker`
+- `$mainMod, Space, exec, walker-menu apps`
+- `$mainMod CTRL, Space, exec, walker-menu`
 - `$mainMod SHIFT, Escape, exec, walker-menu power`
 - `$mainMod, W, exec, walker-menu wallpapers`
 

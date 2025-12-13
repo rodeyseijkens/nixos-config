@@ -1,166 +1,41 @@
-close_when_open = true
-theme = "gruvbox"
-monitor = ""
-hotreload_theme = true
-as_window = false
-timeout = 0
-disable_click_to_close = false
-force_keyboard_focus = true
-theme_location = ["~/nixos-config/modules/home/walker"]
-js_runtime = "node"
+force_keyboard_focus = true # forces keyboard forcus to stay in Walker
+selection_wrap = true       # wrap list if at bottom or top
+theme = "gruvbox"           # theme to use
+hide_action_hints = true    # globally hide the action hints
 
-[keys.ai]
-run_last_response = ["ctrl e"]
+[placeholders]
+"default" = { input = " Search...", list = "No Results" } # placeholders for input and empty list, key is the providers name, so f.e. "desktopapplications" or "menus:other"
 
-[list]
-max_entries = 200
+[keybinds]
+quick_activate = []
 
-[search]
-placeholder = " Search..."
+[columns]
+symbols = 1 # providers to be queried by default
 
-[builtins.hyprland_keybinds]
-path = "~/.config/hypr/hyprland.conf"
-hidden = true
+[providers]
+max_results = 256                              # 256 should be enough for everyone
+default = ["desktopapplications", "websearch"]
 
-[builtins.applications]
-placeholder = " Search..."
-prioritize_new = false
-context_aware = false
-show_sub_when_single = false
-history = false
-icon = ""
-hidden = true
+[[providers.prefixes]]
+prefix = "/"
+provider = "providerlist"
 
-[builtins.applications.actions]
-enabled = false
-hide_category = true
-
-[builtins.bookmarks]
-enabled = false
-hidden = true
-
-[builtins.calc]
-name = "󰪚 Calculator"
-icon = ""
-min_chars = 3
-prefix = "="
-
-[builtins.windows]
-switcher_only = true
-hidden = true
-
-[builtins.clipboard]
-hidden = true
-
-[builtins.commands]
-hidden = true
-
-[builtins.custom_commands]
-hidden = true
-
-[builtins.emojis]
-exec = "wl-copy"
-icon = ""
-name = "󰞅 Emojis"
-placeholder = "Emojis"
-switcher_only = true
-history = true
-typeahead = true
-show_unqualified = false
-prefix = ":"
-
-[builtins.symbols]
-after_copy = ""
-hidden = true
-
-[builtins.finder]
-use_fd = true
-cmd_alt = "xdg-open $(dirname ~/%RESULT%)"
-icon = ""
-name = "󰉋 Finder"
-preview_images = true
-hidden = false
+[[providers.prefixes]]
 prefix = "."
+provider = "files"
 
-[builtins.runner]
-shell_config = ""
-switcher_only = true
-hidden = true
+[[providers.prefixes]]
+prefix = ":"
+provider = "symbols"
 
-[builtins.ssh]
-hidden = true
+[[providers.prefixes]]
+prefix = "="
+provider = "calc"
 
-[builtins.websearch]
-keep_selection = true
-icon = ""
-name = "󰖟 Websearch"
-placeholder = "Websearch"
+[[providers.prefixes]]
+prefix = "@"
+provider = "websearch"
 
-[[builtins.websearch.entries]]
-name = "󰭹 T3 Chat"
-url = "https://www.t3.chat/new?model=gemini-2.5-flash&q=%TERM%"
-prefix = "@t3"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰗃 YouTube"
-url = "https://www.youtube.com/results?search_query=%TERM%"
-prefix = "@yt"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰮠 GitLab"
-url = "https://gitlab.com/search?search=%TERM%"
-prefix = "@gl"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰊤 GitHub"
-url = "https://github.com/search?q=%TERM%"
-prefix = "@gh"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰑍 Reddit"
-url = "https://www.reddit.com/search?q=%TERM%"
-prefix = "@r"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰍎 DuckDuckGo Maps"
-url = "https://duckduckgo.com/?iaxm=maps&q=%TERM%"
-prefix = "@dmap"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰗵 Google Maps"
-url = "https://www.google.com/maps?q=%TERM%"
-prefix = "@gmap"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󱄅 NixOS Packages"
-url = "https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=%TERM%"
-prefix = "@nix"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󱄅 Home Manager NixOS Options"
-url = "https://home-manager-options.extranix.com/?query=%TERM%&release=master"
-prefix = "@nhm"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰊭 Google"
-url = "https://www.google.com/search?q=%TERM%"
-prefix = "@g"
-switcher_only = true
-
-[[builtins.websearch.entries]]
-name = "󰇥 DuckDuckGo"
-url = "https://duckduckgo.com/?q=%TERM%"
-prefix = "?"
-switcher_only = true
-
-[builtins.translation]
-hidden = true
+[[providers.prefixes]]
+prefix = "$"
+provider = "clipboard"

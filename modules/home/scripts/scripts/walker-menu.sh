@@ -43,25 +43,39 @@ show_system_info() {
     local info="󱩛 Host: $HOST\n󱎫 Uptime: $UPTIME\n󰆦 OS: NixOS $OS\n󰒔 Kernel: $(uname -r)"
     case $(menu " System Info" "$info" "" "") in
         *)
-            exit 0
+            show_main_menu
             ;;
+    esac
+}
+
+show_main_menu() {
+    case $(menu "Go" "󱓞 Launch...\n󰑓 Reload services\n Screenshot\n󰉏 Wallpapers\n󰐥 Power menu\n System Info") in
+        *Launch*) walker --width 600 --maxheight 300 --minheight 300 ;;
+        *Reload*) ~/.config/walker/plugins/reload.sh ;;
+        *Screenshot*) ~/.config/walker/plugins/screenshot.sh ;;
+        *Wallpapers*) ~/.config/walker/plugins/wallpapers.sh ;;
+        *Power*) ~/.config/walker/plugins/power-menu.sh ;;
+        *System*) show_system_info ;;
+        *) exit 0 ;;
     esac
 }
 
 # Direct menu access function
 go_to_menu() {
     case "${1,,}" in
-    *apps*) walker -p "󱓞 Launch..." ;;
-    *reload*) walker -m "󰑓 Reload services" ;;
-    *screenshot*) walker -m " Screenshot" ;;
-    *wallpapers*) walker -m "󰉏 Wallpapers" ;;
-    *power*) walker -m "󰐥 Power menu" ;;
+    *apps*) walker --width 600 --maxheight 300 --minheight 300 ;;
+    *reload*) ~/.config/walker/plugins/reload.sh ;;
+    *screenshot*) ~/.config/walker/plugins/screenshot.sh ;;
+    *wallpapers*) ~/.config/walker/plugins/wallpapers.sh ;;
+    *power*) ~/.config/walker/plugins/power-menu.sh ;;
     *system*) show_system_info ;;
-        *) exit 0 ;;
+        *) show_main_menu ;;
     esac
 }
 
 # Main execution
 if [[ -n "$1" ]]; then
     go_to_menu "$1"
+else
+    show_main_menu
 fi

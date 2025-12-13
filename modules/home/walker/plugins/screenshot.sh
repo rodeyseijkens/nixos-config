@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Notification function (works with notify-send and walker notification replacement)
+# Notification function
 notify() {
     if [ -z "$notification_id" ]; then
         notification_id=$(notify-send -a "$1" -p -t $3 "$1" "$2")
@@ -9,7 +9,7 @@ notify() {
     fi
 }
 
-# Menu function - core walker menu interface
+# Menu function
 menu() {
     local prompt="$1"
     local options="$2"
@@ -27,15 +27,6 @@ menu() {
     fi
     
     echo -e "$options" | walker --dmenu -p "$prompt" "${args[@]}" 2>/dev/null
-}
-
-# Plugin information for walker
-info() {
-    echo 'name = " Screenshot"
-        placeholder = "Screenshot"
-        switcher_only = true
-        parser = "kv"
-        src_once = "yes"'  
 }
 
 # Configuration
@@ -136,7 +127,7 @@ show_screenshot_timer_menu() {
     case $(menu "Timer Screenshot" "$timer5_display\n$timer10_display" "" "") in
         *5*) screenshot_timer 5 ;;
         *10*) screenshot_timer 10 ;;
-        *) exit 0 ;;
+        *) show_screenshot_menu ;;
     esac
 }
 
@@ -151,44 +142,12 @@ show_screenshot_menu() {
     esac
 }
 
-entries() {
-    local script="${BASH_SOURCE[0]}"
-    cat <<EOF
-label=$area_display;exec=bash -lc '$script area';value=area;recalculate_score=true
-label=$fullscreen_display;exec=bash -lc '$script fullscreen';value=fullscreen;recalculate_score=true
-label=$save_display;exec=bash -lc '$script save';value=save;recalculate_score=true
-label=$satty_display;exec=bash -lc '$script satty';value=satty;recalculate_score=true
-label=$timer_display;exec=bash -lc '$script timer';value=timer;recalculate_score=true
-EOF
-}
-
 case "$1" in
-    info)
-        info
-        ;;
-    entries)
-        entries
-        ;;
-    area)
-        screenshot_area
-        ;;
-    fullscreen)
-        screenshot_fullscreen
-        ;;
-    save)
-        generic_area_fullscreen_selection "$save_display" screenshot_area_save screenshot_fullscreen_save show_screenshot_menu
-        ;;
-    satty)
-        generic_area_fullscreen_selection "$satty_display" screenshot_edit_area screenshot_edit_fullscreen show_screenshot_menu
-        ;;
-    timer)
-        show_screenshot_timer_menu
-        ;;
-    menu|"")
-        show_screenshot_menu
-        ;;
-    *)
-        echo "Usage: $0 {info|entries|menu|area|fullscreen|save|satty|timer}"
-        exit 1
-        ;;
+    area) screenshot_area ;;
+    fullscreen) screenshot_fullscreen ;;
+    save) generic_area_fullscreen_selection "$save_display" screenshot_area_save screenshot_fullscreen_save show_screenshot_menu ;;
+    satty) generic_area_fullscreen_selection "$satty_display" screenshot_edit_area screenshot_edit_fullscreen show_screenshot_menu ;;
+    timer) show_screenshot_timer_menu ;;
+    menu|"") show_screenshot_menu ;;
+    *) echo "Usage: $0 {menu|area|fullscreen|save|satty|timer}"; exit 1 ;;
 esac

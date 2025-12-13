@@ -32,13 +32,17 @@ in {
     libqalculate
   ];
 
-  programs.walker = {
-    enable = true;
-    package = inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default;
-  };
+  programs.walker.enable = true;
 
   # Create out-of-store symlink to the walker config.toml file
   xdg.configFile."walker/config.toml".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos-config/modules/home/walker/config.toml");
+
+  # Link the theme directory
+  xdg.configFile."walker/themes/gruvbox".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos-config/modules/home/walker/themes/gruvbox");
+
+  # Link elephant configs
+  xdg.configFile."elephant/calc.toml".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos-config/modules/home/walker/elephant/calc.toml");
+  xdg.configFile."elephant/desktopapplications.toml".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos-config/modules/home/walker/elephant/desktopapplications.toml");
 
   # Create plugins in the walker plugins directory
   home.file =

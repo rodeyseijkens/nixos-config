@@ -76,8 +76,11 @@
       url = "github:rodeyseijkens/gen-commit";
     };
 
+    elephant.url = "github:abenz1267/elephant";
+
     walker = {
-      url = "github:abenz1267/walker/0.13.26";
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
     };
   };
 

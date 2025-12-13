@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Walker power plugin
+# Walker power script
 
 notify() {
     if [ -z "$notification_id" ]; then
@@ -26,34 +26,12 @@ menu() {
     echo -e "$options" | walker --dmenu -p "$prompt" "${args[@]}" 2>/dev/null
 }
 
-# Titles
-UPTIME=$(uptime | sed 's/.*up *\([^,]*\).*/\1/')
-header_title="󱎫 Uptime: $UPTIME"
-
 # Display Strings
-shutdown_display='󰐥 Shutdown'
-reboot_display='󰜉 Reboot'
-lock_display='󰌾 Lock'
 yes_display='󰄬 Yes'
 no_display='󰅖 No'
-
-# Plugin information for walker
-info() {
-    echo 'name = "󰐥 Power menu"
-        placeholder = "Power"
-        switcher_only = true
-        parser = "kv"
-        src_once = "yes"'  
-}
-
-entries() {
-    local script="${BASH_SOURCE[0]}"
-    cat <<EOF
-label=$lock_display;exec=bash -lc '$script lock';value=lock;recalculate_score=true
-label=$reboot_display;exec=bash -lc '$script reboot';value=reboot;recalculate_score=true
-label=$shutdown_display;exec=bash -lc '$script shutdown';value=shutdown;recalculate_score=true
-EOF
-}
+lock_display='󰌾 Lock'
+reboot_display='󰜉 Reboot'
+shutdown_display='󰐥 Shutdown'
 
 show_power_confirm() {
     local action="$1"
@@ -80,13 +58,24 @@ show_power_confirm() {
     esac
 }
 
+show_power_menu() {
+    case $(menu "Power" "$lock_display\n$reboot_display\n$shutdown_display" "" "") in
+        *Lock*) 
+            playerctl --all-players pause & hyprlock 
+            ;;
+        *Reboot*) 
+            show_power_confirm reboot 
+            ;;
+        *Shutdown*) 
+            show_power_confirm shutdown 
+            ;;
+        *) 
+            exit 0 
+            ;;
+    esac
+}
+
 case "$1" in
-    info)
-        info
-        ;;
-    entries)
-        entries
-        ;;
     lock)
         playerctl --all-players pause & hyprlock
         ;;
@@ -96,8 +85,11 @@ case "$1" in
     shutdown)
         show_power_confirm shutdown
         ;;
+    menu|"")
+        show_power_menu
+        ;;
     *)
-        echo "Usage: $0 {info|entries|lock|reboot|shutdown}"
+        echo "Usage: $0 {lock|reboot|shutdown|menu}"
         exit 1
         ;;
 esac
