@@ -50,11 +50,11 @@ show_system_info() {
 
 show_main_menu() {
     case $(menu "Go" "󱓞 Launch...\n󰑓 Reload services\n Screenshot\n󰉏 Wallpapers\n󰐥 Power menu\n System Info") in
-        *Launch*) walker --width 600 --maxheight 300 --minheight 300 ;;
-        *Reload*) ~/.config/walker/plugins/reload.sh ;;
-        *Screenshot*) ~/.config/walker/plugins/screenshot.sh ;;
+        *Launch*) walker --maxheight 300 --minheight 300 ;;
+        *Reload*) walker -n -m "menus:reload-services" ;;
+        *Screenshot*) walker -n -m "menus:screenshot" ;;
         *Wallpapers*) ~/.config/walker/plugins/wallpapers.sh ;;
-        *Power*) ~/.config/walker/plugins/power-menu.sh ;;
+        *Power*) walker -n -m "menus:power" ;;
         *System*) show_system_info ;;
         *) exit 0 ;;
     esac
@@ -63,11 +63,11 @@ show_main_menu() {
 # Direct menu access function
 go_to_menu() {
     case "${1,,}" in
-    *apps*) walker --width 600 --maxheight 300 --minheight 300 ;;
-    *reload*) ~/.config/walker/plugins/reload.sh ;;
-    *screenshot*) ~/.config/walker/plugins/screenshot.sh ;;
+    *apps*) walker --maxheight 300 --minheight 300 ;;
+    *reload*) walker -n -m "menus:reload-services" ;;
+    *screenshot*) walker -n -m "menus:screenshot" ;;
     *wallpapers*) ~/.config/walker/plugins/wallpapers.sh ;;
-    *power*) ~/.config/walker/plugins/power-menu.sh ;;
+    *power*) walker -n -m "menus:power" ;;
     *system*) show_system_info ;;
         *) show_main_menu ;;
     esac

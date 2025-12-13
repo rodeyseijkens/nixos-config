@@ -1,0 +1,9 @@
+name = "reload_walker_confirm"
+name_pretty = "Restart Walker?"
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "pkill -9 walker || true; sleep 0.5; pkill -9 elephant || true; sleep 0.5; runbg elephant; runbg walker --gapplication-service; notify-send \"Walker\" \"Walker restarted\" -t 2000 >/dev/null 2>&1 &" }
+
+[[entries]]
+text = "󰅖 No"

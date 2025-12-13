@@ -1,0 +1,9 @@
+name = "power_shutdown_confirm"
+name_pretty = "Are you sure you want to shutdown?"
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "notify-send 'Shutting down system...' && sleep 1 && systemctl poweroff" }
+
+[[entries]]
+text = "󰅖 No"

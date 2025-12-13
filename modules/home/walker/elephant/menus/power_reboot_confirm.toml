@@ -1,0 +1,9 @@
+name = "power_reboot_confirm"
+name_pretty = "Are you sure you want to reboot?"
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "notify-send 'Rebooting system...' && sleep 1 && systemctl reboot" }
+
+[[entries]]
+text = "󰅖 No"

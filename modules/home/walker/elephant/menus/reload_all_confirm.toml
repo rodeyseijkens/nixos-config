@@ -1,0 +1,9 @@
+name = "reload_all_confirm"
+name_pretty = "Reload all services?"
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "hyprctl reload; pkill -9 waybar || true; sleep 0.5; runbg waybar; pkill -9 swaync || true; sleep 0.5; runbg swaync; pkill -9 walker || true; sleep 0.5; pkill -9 elephant || true; sleep 0.5; runbg elephant; runbg walker --gapplication-service; notify-send \"Reload\" \"All services reloaded\" -t 3000 >/dev/null 2>&1 &" }
+
+[[entries]]
+text = "󰅖 No"

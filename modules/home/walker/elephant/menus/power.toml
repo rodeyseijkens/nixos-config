@@ -1,0 +1,14 @@
+name = "power"
+name_pretty = "Power"
+
+[[entries]]
+text = "󰌾 Lock"
+actions = { "lock" = "playerctl --all-players pause & hyprlock" }
+
+[[entries]]
+text = "󰜉 Reboot"
+submenu = "power_reboot_confirm"
+
+[[entries]]
+text = "󰐥 Shutdown"
+submenu = "power_shutdown_confirm"

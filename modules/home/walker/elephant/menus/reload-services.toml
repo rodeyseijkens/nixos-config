@@ -1,0 +1,22 @@
+name = "reload-services"
+name_pretty = "Reload Services"
+
+[[entries]]
+text = " All"
+submenu = "reload_all_confirm"
+
+[[entries]]
+text = " Hyprland"
+submenu = "reload_hyprland_confirm"
+
+[[entries]]
+text = "󰍜 Waybar"
+submenu = "reload_waybar_confirm"
+
+[[entries]]
+text = "󰂚 Swaync"
+submenu = "reload_swaync_confirm"
+
+[[entries]]
+text = "󰌧 Walker"
+submenu = "reload_walker_confirm"

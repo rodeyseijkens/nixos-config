@@ -329,9 +329,9 @@ runbg.sh
 screenshot.sh 
 </summary>
 
-**Description:** This script provides basic screenshot functionality with options to copy to clipboard, save to file, or edit with Satty. Screenshots are saved to `~/Pictures/Screenshots/`.
+**Description:** This script provides screenshot functionality with options to copy to clipboard, save to file, or edit with Satty. It supports capturing specific areas or the entire output, and includes a timer function. Screenshots are saved to `~/Pictures/Screenshots/`.
 
-**Usage:** `screenshot --copy` or `screenshot --save` or `screenshot --satty`
+**Usage:** `screenshot {copy-area|copy-output|save-area|save-output|edit-area|edit-output|timer <seconds>}`
 
 </details>
 
@@ -481,8 +481,8 @@ Keybindings
 ##### screenshot
 
 - `,Print, exec, walker-menu screenshot`
-- `$mainMod, Print, exec, screenshot --save`
-- `$mainMod SHIFT, Print, exec, screenshot --satty`
+- `$mainMod, Print, exec, screenshot copy-output`
+- `$mainMod SHIFT, Print, exec, screenshot edit-output`
 
 ##### switch focus
 

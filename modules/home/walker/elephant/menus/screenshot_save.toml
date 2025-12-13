@@ -1,0 +1,10 @@
+name = "screenshot_save"
+name_pretty = "Save Screenshot"
+
+[[entries]]
+text = "󰩬 Area"
+actions = { "save" = "screenshot save-area" }
+
+[[entries]]
+text = "󰹑 Fullscreen"
+actions = { "save" = "screenshot save-output" }

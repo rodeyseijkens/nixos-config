@@ -1,0 +1,9 @@
+name = "reload_hyprland_confirm"
+name_pretty = "Reload Hyprland?"
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "hyprctl reload; notify-send \"Hyprland\" \"Hyprland reloaded\" -t 2000 >/dev/null 2>&1 &" }
+
+[[entries]]
+text = "󰅖 No"

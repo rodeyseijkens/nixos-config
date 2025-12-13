@@ -1,0 +1,9 @@
+name = "reload_waybar_confirm"
+name_pretty = "Restart Waybar?"
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "pkill -9 waybar || true; sleep 0.5; runbg waybar; notify-send \"Waybar\" \"Waybar restarted\" -t 2000 >/dev/null 2>&1 &" }
+
+[[entries]]
+text = "󰅖 No"

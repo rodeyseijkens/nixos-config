@@ -1,0 +1,22 @@
+name = "screenshot"
+name_pretty = "Screenshot"
+
+[[entries]]
+text = "󰩬 Area"
+actions = { "copy" = "screenshot copy-area" }
+
+[[entries]]
+text = "󰹑 Fullscreen"
+actions = { "copy" = "screenshot copy-output" }
+
+[[entries]]
+text = " Save to File"
+submenu = "screenshot_save"
+
+[[entries]]
+text = "󱇣 Edit with Satty"
+submenu = "screenshot_edit"
+
+[[entries]]
+text = "󰄉 Timer"
+submenu = "screenshot_timer"

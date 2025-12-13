@@ -68,7 +68,7 @@ scrollbar {
 
 /* Main box container */
 .box-wrapper {
-  background: var(--background);
+  background: rgb(from var(--background) r g b / 95%);
   padding: 20px;
   border: 2px solid var(--border);
 }

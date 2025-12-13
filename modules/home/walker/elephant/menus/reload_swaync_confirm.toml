@@ -1,0 +1,9 @@
+name = "reload_swaync_confirm"
+name_pretty = "Restart Swaync?"
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "pkill -9 swaync || true; sleep 0.5; runbg swaync; notify-send \"Swaync\" \"Swaync restarted\" -t 2000 >/dev/null 2>&1 &" }
+
+[[entries]]
+text = "󰅖 No"

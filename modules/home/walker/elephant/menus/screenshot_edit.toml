@@ -1,0 +1,10 @@
+name = "screenshot_edit"
+name_pretty = "Edit Screenshot"
+
+[[entries]]
+text = "󰩬 Area"
+actions = { "edit" = "screenshot edit-area" }
+
+[[entries]]
+text = "󰹑 Fullscreen"
+actions = { "edit" = "screenshot edit-output" }

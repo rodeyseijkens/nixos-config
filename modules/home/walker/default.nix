@@ -44,6 +44,9 @@ in {
   xdg.configFile."elephant/calc.toml".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos-config/modules/home/walker/elephant/calc.toml");
   xdg.configFile."elephant/desktopapplications.toml".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos-config/modules/home/walker/elephant/desktopapplications.toml");
 
+  # Link elephant menus
+  xdg.configFile."elephant/menus".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos-config/modules/home/walker/elephant/menus");
+
   # Create plugins in the walker plugins directory
   home.file =
     builtins.mapAttrs

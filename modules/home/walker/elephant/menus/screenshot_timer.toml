@@ -1,0 +1,10 @@
+name = "screenshot_timer"
+name_pretty = "Timer Screenshot"
+
+[[entries]]
+text = "󰔛 5s"
+actions = { "timer" = "screenshot timer 5" }
+
+[[entries]]
+text = "󱑎 10s"
+actions = { "timer" = "screenshot timer 10" }
