@@ -116,7 +116,7 @@ in {
           animate_manual_resizes = false;
           enable_swallow = true;
           focus_on_activate = true;
-          new_window_takes_over_fullscreen = 2;
+          on_focus_under_fullscreen = 1;
           middle_click_paste = false;
         };
 
