@@ -58,5 +58,6 @@
     winetricks
     wineWowPackages.wayland
     inputs.alejandra.defaultPackage.${pkgs.stdenv.hostPlatform.system} # syntax highlighter for nix
+    inputs.protonpass-cli.packages.${pkgs.stdenv.hostPlatform.system}.default # ProtonPass CLI
   ];
 }
