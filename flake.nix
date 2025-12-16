@@ -13,7 +13,7 @@
       inputs.nix-gaming.follows = "nix-gaming";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland.url = "github:hyprwm/Hyprland?rev=f82a8630d7a51dab4cc70924f500bf70e723db12";
 
     hyprmag.url = "github:SIMULATAN/hyprmag";
 
@@ -29,13 +29,7 @@
 
     hyprlock = {
       url = "github:hyprwm/hyprlock";
-      inputs = {
-        hyprgraphics.follows = "hyprland/hyprgraphics";
-        hyprlang.follows = "hyprland/hyprlang";
-        hyprutils.follows = "hyprland/hyprutils";
-        nixpkgs.follows = "hyprland/nixpkgs";
-        systems.follows = "hyprland/systems";
-      };
+      inputs.nixpkgs.follows = "hyprland/nixpkgs";
     };
 
     home-manager = {
