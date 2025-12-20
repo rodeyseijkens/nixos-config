@@ -18,7 +18,6 @@
       y = "yazi";
       py = "python";
       ipy = "ipython";
-      icat = "icat";
       dsize = "du -hs";
       pdf = "tdf";
       open = "xdg-open";
