@@ -74,6 +74,7 @@ Hyprlock (EXPAND)
 | **Text Editor**             |                [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro]                 |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
+| **System Fetch**            |                               [Fastfetch][Fastfetch]                                |
 | **Browser**                 |                             [Zen Browser][zen-browser]                              |
 | **File Manager**            |                         [Nautilus][Nautilus] + [yazi][yazi]                         |
 | **Fonts**                   |                              [Maple Mono][Maple Mono]                               |
@@ -83,6 +84,7 @@ Hyprlock (EXPAND)
 | **Lockscreen**              |                                [Hyprlock][Hyprlock]                                 |
 | **Image Viewer**            |                                [viewnior][viewnior]                                 |
 | **Media Player**            |                                     [mpv][mpv]                                      |
+| **Music Player**            |                               [Spicetify][Spicetify]                                |
 | **Screenshot Software**     |                               [grimblast][grimblast]                                |
 | **Screen Recording**        |                             [wf-recorder][wf-recorder]                              |
 | **Color Picker**            |                              [hyprpicker][hyprpicker]                               |
@@ -103,13 +105,12 @@ Utils (EXPAND)
 - `diff` $\rightarrow$ `delta --diff-so-fancy --side-by-side`
 - `less` $\rightarrow$ `bat`
 - `y` $\rightarrow$ `yazi`
-- `py` $\rightarrow$ `python`
-- `ipy` $\rightarrow$ `ipython`
 - `dsize` $\rightarrow$ `du -hs`
 - `pdf` $\rightarrow$ `tdf`
 - `open` $\rightarrow$ `xdg-open`
 - `space` $\rightarrow$ `ncdu`
 - `man` $\rightarrow$ `BAT_THEME='default' batman`
+- `genpw` $\rightarrow$ `generate password and copy to clipboard`
 - `l` $\rightarrow$ `eza --icons  -a --group-directories-first -1`
 - `ll` $\rightarrow$ `eza --icons  -a --group-directories-first -1 --no-user --long`
 - `tree` $\rightarrow$ `eza --icons --tree --group-directories-first`
@@ -127,6 +128,17 @@ Nixos (EXPAND)
 - `nix-update` $\rightarrow$ `nix flake update --option access-tokens "github.com=$(gh auth token)"`
 - `nix-clean` $\rightarrow$ `nh clean all --keep 5`
 - `nix-search` $\rightarrow$ `nh search`
+</details>
+
+<details>
+<summary>
+Python (EXPAND)
+</summary>
+
+- `py` $\rightarrow$ `python`
+- `ipy` $\rightarrow$ `ipython`
+- `piv` $\rightarrow$ `python -m venv .venv`
+- `psv` $\rightarrow$ `source .venv/bin/activate`
 </details>
 
 <details>
@@ -395,9 +407,9 @@ wall-change.sh
 walker-menu.sh 
 </summary>
 
-**Description:** A Walker-based launcher/menu wrapper that exposes various project and system menus (power, wallpapers, screenshots, and other helper menus used throughout the config). It centralises small interactive menus so other scripts and keybindings can call a single, consistent interface.
+**Description:** A Walker-based launcher/menu wrapper that exposes various project and system menus (apps, power, wallpapers, screenshots, reload services, system info and other helper menus used throughout the config). It centralises small interactive menus so other scripts and keybindings can call a single, consistent interface.
 
-**Usage:** `walker-menu <menu-name>` (e.g. `walker-menu power`, `walker-menu wallpapers`, `walker-menu screenshot`)
+**Usage:** `walker-menu <menu-name>` (e.g. `walker-menu apps`, `walker-menu power`, `walker-menu wallpapers`, `walker-menu screenshot`, `walker-menu reload`, `walker-menu system`)
 
 </details>
 
@@ -749,3 +761,5 @@ Other dotfiles that I learned / copy from:
 [viewnior]: https://siyanpanayotov.com/project/viewnior
 [Stylix]: https://github.com/danth/stylix
 [Walker]: https://github.com/abenz1267/walker
+[Spicetify]: https://spicetify.app/
+[Fastfetch]: https://github.com/fastfetch-cli/fastfetch
