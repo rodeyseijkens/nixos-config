@@ -35,7 +35,7 @@ in {
         # screenshot
         ",                Print,  exec, walker-menu screenshot"
         "$mainMod,        Print,  exec, screenshot copy-output"
-        "$mainMod SHIFT,  Print,  exec, screenshot edit_output"
+        "$mainMod SHIFT,  Print,  exec, screenshot edit-output"
 
         # switch focus
         "$mainMod,  left,   movefocus,  l"
