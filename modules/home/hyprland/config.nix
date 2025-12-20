@@ -103,8 +103,8 @@ in {
           gaps_in = 5;
           gaps_out = 10;
           border_size = 2;
-          "col.active_border" = rgba config.lib.stylix.colors.base0B "FF";
-          "col.inactive_border" = rgba config.lib.stylix.colors.base0B "00";
+          "col.active_border" = rgba config.lib.stylix.colors.base0D "FF";
+          "col.inactive_border" = rgba config.lib.stylix.colors.base0D "00";
         };
 
         misc = {

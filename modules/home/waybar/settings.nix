@@ -1,8 +1,8 @@
 {config, ...}: let
   custom = {
-    green = config.lib.stylix.colors.withHashtag.base0B;
-    yellow = config.lib.stylix.colors.withHashtag.base0B;
-    blue = config.lib.stylix.colors.withHashtag.base0D;
+    green = config.lib.stylix.colors.withHashtag.base0D;
+    yellow = config.lib.stylix.colors.withHashtag.base0A;
+    blue = config.lib.stylix.colors.withHashtag.base0B;
     cyan = config.lib.stylix.colors.withHashtag.base0C;
     magenta = config.lib.stylix.colors.withHashtag.base0E;
     orange = config.lib.stylix.colors.withHashtag.base0F;
@@ -35,7 +35,7 @@ in {
     ];
     clock = {
       calendar = {
-        format = {today = "<span color='#98971A'><b>{}</b></span>";};
+        format = {today = "<span color='${green}'><b>{}</b></span>";};
       };
       format = "  {:%H:%M}";
       tooltip = "true";

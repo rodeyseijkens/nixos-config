@@ -30,9 +30,9 @@ in {
         base08 = "#FB4934"; # red
         base09 = "#FE8019"; # orange
         base0A = "#D79921"; # yellow
-        base0B = "#98971A"; # green
+        base0B = "#458588"; # blue
         base0C = "#689D6A"; # aqua/cyan
-        base0D = "#458588"; # blue
+        base0D = "#98971A"; # green
         base0E = "#D16286"; # purple
         base0F = "#D65D0E"; # dark orange
       };
