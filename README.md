@@ -74,7 +74,7 @@ Hyprlock (EXPAND)
 | **Text Editor**             |                [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro]                 |
 | **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor** |                                    [Btop][Btop]                                     |
-| **Browser**                 |                   [Zen Browser][zen-browser] + [Firefox][Firefox]                   |
+| **Browser**                 |                             [Zen Browser][zen-browser]                              |
 | **File Manager**            |                         [Nautilus][Nautilus] + [yazi][yazi]                         |
 | **Fonts**                   |                              [Maple Mono][Maple Mono]                               |
 | **Color Scheme**            |                            [Gruvbox Dark Hard][Gruvbox]                             |
@@ -619,7 +619,7 @@ After rebooting, the config should be applied, you'll be greeted by hyprlock pro
 Even though I use home manager and Stylix for automated theming, there is still a little bit of manual configuration to do:
 
 - Enable Discord theme (in Discord settings under VENCORD > Themes).
-- Configure the browser (some browser configuration is done automatically for firefox & zen).
+- Configure the browser (some browser configuration is done automatically for zen).
 - Change the git account information in `./modules/home/git.nix`
 
 ```nix
@@ -743,7 +743,6 @@ Other dotfiles that I learned / copy from:
 [Gruvbox]: https://github.com/morhetz/gruvbox
 [Papirus-Dark]: https://github.com/PapirusDevelopmentTeam/papirus-icon-theme
 [Bibata-Modern-Ice]: https://www.gnome-look.org/p/1197198
-[Firefox]: https://www.mozilla.org
 [zen-browser]: https://github.com/zen-browser/desktop
 [Maple Mono]: https://github.com/subframe7536/maple-font
 [micro]: https://micro-editor.github.io/

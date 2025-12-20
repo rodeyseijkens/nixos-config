@@ -2,7 +2,7 @@
   imports = [
     ./audio.nix # audio configuration
     ./bat.nix # better cat command
-    ./browsers # firefox, zen browser, and google chrome
+    ./browsers # zen browser, and google chrome
     ./btop.nix # resouces monitor
     ./cura.nix # 3D printing slicer
     ./fastfetch.nix # fetch tool

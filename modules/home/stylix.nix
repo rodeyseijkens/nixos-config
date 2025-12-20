@@ -10,5 +10,8 @@
       light = "Papirus-Dark";
       dark = "Papirus-Dark";
     };
+    targets.zen-browser = {
+      profileNames = [ "default" ];
+    };
   };
 }

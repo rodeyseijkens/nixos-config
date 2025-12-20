@@ -1,8 +1,5 @@
 {...}: {
   wayland.windowManager.hyprland.settings.windowrule = [
-    # Firefox rules
-    "idle_inhibit fullscreen, match:class ^(firefox)$"
-
     # Zen Browser rules
     "idle_inhibit fullscreen, match:class ^(zen-beta)$"
 
