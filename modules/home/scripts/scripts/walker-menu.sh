@@ -51,10 +51,10 @@ show_system_info() {
 show_main_menu() {
     case $(menu "Go" "󱓞 Launch...\n󰑓 Reload services\n Screenshot\n󰉏 Wallpapers\n󰐥 Power menu\n System Info") in
         *Launch*) walker --maxheight 300 --minheight 300 ;;
-        *Reload*) walker -n -m "menus:reload-services" ;;
-        *Screenshot*) walker -n -m "menus:screenshot" ;;
-        *Wallpapers*) ~/.config/walker/plugins/wallpapers.sh ;;
-        *Power*) walker -n -m "menus:power" ;;
+        *Reload*) walker -m "menus:reload-services" ;;
+        *Screenshot*) walker -m "menus:screenshot" ;;
+        *Wallpapers*) walker -m "menus:wallpapers" ;;
+        *Power*) walker -m "menus:power" ;;
         *System*) show_system_info ;;
         *) exit 0 ;;
     esac
@@ -64,10 +64,10 @@ show_main_menu() {
 go_to_menu() {
     case "${1,,}" in
     *apps*) walker --maxheight 300 --minheight 300 ;;
-    *reload*) walker -n -m "menus:reload-services" ;;
-    *screenshot*) walker -n -m "menus:screenshot" ;;
-    *wallpapers*) ~/.config/walker/plugins/wallpapers.sh ;;
-    *power*) walker -n -m "menus:power" ;;
+    *reload*) walker -m "menus:reload-services" ;;
+    *screenshot*) walker -m "menus:screenshot" ;;
+    *wallpapers*) walker -m "menus:wallpapers" ;;
+    *power*) walker -m "menus:power" ;;
     *system*) show_system_info ;;
         *) show_main_menu ;;
     esac
