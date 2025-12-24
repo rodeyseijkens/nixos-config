@@ -699,6 +699,22 @@ Lastly, it will build the system using [nh](https://github.com/viperML/nh), whic
 
 This will reset Volta's local configuration and properly reinstall the tool with correct PATH integration.
 
+**Helper Script:**
+
+There is a helper script available to reset Volta and install common packages:
+
+```bash
+volta-install-pkgs
+```
+
+This script will:
+
+1. Remove `~/.volta`
+2. Install `node@latest`
+3. Install `@antfu/ni@latest`
+4. Install `pnpm@latest`
+5. Install `@biomejs/biome`
+
 # 👥 Credits
 
 Special thanks to **Frost-Phoenix**
