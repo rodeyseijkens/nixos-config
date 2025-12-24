@@ -1,5 +1,6 @@
 name = "power_shutdown_confirm"
 name_pretty = "Are you sure you want to shutdown?"
+hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"

@@ -1,5 +1,6 @@
 name = "reload_swaync_confirm"
 name_pretty = "Restart Swaync?"
+hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"

@@ -1,5 +1,5 @@
 name = "reload-services"
-name_pretty = "Reload Services"
+name_pretty = " Reload Services"
 
 [[entries]]
 text = " All"

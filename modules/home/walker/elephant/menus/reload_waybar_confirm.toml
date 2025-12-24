@@ -1,5 +1,6 @@
 name = "reload_waybar_confirm"
 name_pretty = "Restart Waybar?"
+hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"

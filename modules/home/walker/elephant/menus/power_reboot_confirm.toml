@@ -1,5 +1,6 @@
 name = "power_reboot_confirm"
 name_pretty = "Are you sure you want to reboot?"
+hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"

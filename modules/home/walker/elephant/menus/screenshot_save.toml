@@ -1,5 +1,6 @@
 name = "screenshot_save"
 name_pretty = "Save Screenshot"
+hide_from_providerlist = true
 
 [[entries]]
 text = "󰩬 Area"

@@ -1,5 +1,6 @@
 name = "reload_walker_confirm"
 name_pretty = "Restart Walker?"
+hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"

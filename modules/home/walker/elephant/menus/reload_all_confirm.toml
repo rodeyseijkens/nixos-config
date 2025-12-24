@@ -1,5 +1,6 @@
 name = "reload_all_confirm"
 name_pretty = "Reload all services?"
+hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"
