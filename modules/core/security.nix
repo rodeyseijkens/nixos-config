@@ -9,7 +9,9 @@
         Defaults timestamp_type=global
       '';
     };
-    pam.services.hyprlock = {};
+    pam.services = {
+      hyprlock.enableGnomeKeyring = true;
+    };
     polkit = {
       enable = true;
       extraConfig = ''
