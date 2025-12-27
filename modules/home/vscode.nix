@@ -12,6 +12,7 @@ with lib; let
 in {
   options.modules.vscode = {enable = mkEnableOption "vscode";};
   config = mkIf cfg.enable {
+    stylix.targets.vscode.enable = false;
     programs.vscode = {
       enable = true;
 
@@ -83,7 +84,7 @@ in {
           "window.menuBarVisibility" = "toggle";
 
           "workbench.activityBar.location" = "top";
-          "workbench.colorTheme" = mkForce "Gruvbox Dark Hard";
+          "workbench.colorTheme" = "Gruvbox Dark Hard";
           "workbench.editor.limit.enabled" = true;
           "workbench.editor.limit.perEditorGroup" = true;
           "workbench.editor.limit.value" = 10;
@@ -94,6 +95,9 @@ in {
           "workbench.statusBar.visible" = true;
           "workbench.panel.showLabels" = false;
           "workbench.panel.defaultLocation" = "right";
+
+          "chat.agentSessionsViewLocation" = "single-view";
+          "chat.viewSessions.orientation" = "stacked";
 
           # Extension settings
           "alejandra.program" = "alejandra";
