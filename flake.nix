@@ -13,7 +13,7 @@
       inputs.nix-gaming.follows = "nix-gaming";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland?rev=f82a8630d7a51dab4cc70924f500bf70e723db12";
+    hyprland.url = "github:hyprwm/Hyprland";
 
     hyprmag.url = "github:SIMULATAN/hyprmag";
 
