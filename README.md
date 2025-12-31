@@ -536,14 +536,14 @@ Keybindings
 
 ##### window control
 
-- `$mainMod SHIFT, left, movewindoworgroup, l`
-- `$mainMod SHIFT, right, movewindoworgroup, r`
-- `$mainMod SHIFT, up, movewindoworgroup, u`
-- `$mainMod SHIFT, down, movewindoworgroup, d`
-- `$mainMod SHIFT, h, movewindoworgroup, l`
-- `$mainMod SHIFT, j, movewindoworgroup, d`
-- `$mainMod SHIFT, k, movewindoworgroup, u`
-- `$mainMod SHIFT, l, movewindoworgroup, r`
+- `$mainMod SHIFT, left, movewindow, l`
+- `$mainMod SHIFT, right, movewindow, r`
+- `$mainMod SHIFT, up, movewindow, u`
+- `$mainMod SHIFT, down, movewindow, d`
+- `$mainMod SHIFT, h, movewindow, l`
+- `$mainMod SHIFT, j, movewindow, d`
+- `$mainMod SHIFT, k, movewindow, u`
+- `$mainMod SHIFT, l, movewindow, r`
 - `$mainMod CTRL, left, resizeactive, -80 0`
 - `$mainMod CTRL, right, resizeactive, 80 0`
 - `$mainMod CTRL, up, resizeactive, 0 -80`
@@ -566,7 +566,7 @@ Keybindings
 - `$mainMod SHIFT, G, togglegroup # toggle tabbed group`
 - `$mainMod ALT, left, changegroupactive, b # change active tab back`
 - `$mainMod ALT, right, changegroupactive, f # change active tab forward`
-- `$mainMod ALT, j, changegroupactive, b # change active tab back`
+- `$mainMod ALT, h, changegroupactive, b # change active tab back`
 - `$mainMod ALT, l, changegroupactive, f # change active tab forward`
 
 ##### media and volume controls
