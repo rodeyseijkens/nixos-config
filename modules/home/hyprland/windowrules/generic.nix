@@ -15,6 +15,12 @@
     "float true, match:title ^(Confirm to replace files)$"
     "float true, match:title ^(File Operation Progress)$"
 
+    # Keyring dialog rules
+    "float true, match:title ^(keyring)$"
+    "pin true, match:title ^(keyring)$"
+    "opacity 1.0 override 1.0 override, match:title ^(keyring)$"
+    "stay_focused true, match:title ^(keyring)$"
+
     # File upload specific rules
     "size 850 500, match:title ^(Open Files?)$"
     "size 850 500, match:title ^(File Uploads?)$"
