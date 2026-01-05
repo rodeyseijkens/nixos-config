@@ -169,6 +169,8 @@
         export TERM=xterm-256color
       fi
 
+      export LC_ALL=en_US.UTF-8
+
       # Add Volta to the path
       export VOLTA_HOME="$HOME/.volta"
       export PATH="$VOLTA_HOME/bin:$PATH"
