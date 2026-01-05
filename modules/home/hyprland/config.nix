@@ -196,6 +196,7 @@ in {
 
         cursor = {
           inactive_timeout = 5;
+          no_hardware_cursors = true;
         };
 
         # workspace
