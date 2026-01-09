@@ -7,105 +7,105 @@ in {
     settings = {
       bind = [
         # applications
-        "$mainMod,        Return, exec,       [float; center; size (monitor_w*0.5) (monitor_h*0.5)] ${terminal}"
-        "$mainMod SHIFT,  Return, exec,       ${terminal}"
-        "$mainMod ALT,    Return, exec,       [fullscreen] ${terminal}"
-        "$mainMod,        B,      exec,       ${browser}"
-        "$mainMod,        E,      exec,       ${filebrowser}"
-        "$mainMod SHIFT,  D,      exec,       legcord & steam"
+        "$mod,        Return, exec,       [float; center; size (monitor_w*0.5) (monitor_h*0.5)] ${terminal}"
+        "$mod SHIFT,  Return, exec,       ${terminal}"
+        "$mod ALT,    Return, exec,       [fullscreen] ${terminal}"
+        "$mod,        B,      exec,       ${browser}"
+        "$mod,        E,      exec,       ${filebrowser}"
+        "$mod SHIFT,  D,      exec,       legcord & steam"
 
         # window management
-        "$mainMod,        Q,      killactive,"
-        "$mainMod,        F,      fullscreen, 0"
-        "$mainMod SHIFT,  F,      fullscreen, 1"
-        "$mainMod SHIFT,  T,      exec,       toggle-float"
-        "$mainMod,        P,      pseudo,"
-        "$mainMod,        X,      togglesplit,"
-        "$mainMod,        O,      exec,       toggle-opacity"
+        "$mod,        Q,      killactive,"
+        "$mod,        F,      fullscreen, 0"
+        "$mod SHIFT,  F,      fullscreen, 1"
+        "$mod SHIFT,  T,      exec,       toggle-float"
+        "$mod,        P,      pseudo,"
+        "$mod,        X,      togglesplit,"
+        "$mod,        O,      exec,       toggle-opacity"
 
         # utilities and scripts
-        "$mainMod SHIFT,  B,      exec,       toggle-waybar"
-        "$mainMod,        C,      exec,       hyprpicker -a"
-        "$mainMod,        N,      exec,       swaync-client -t -sw"
-        "$mainMod,        Space,  exec,       walker-menu apps"
-        "$mainMod CTRL,   Space,  exec,       walker-menu"
-        "$mainMod SHIFT,  Escape, exec,       walker-menu power"
-        "$mainMod,        W,      exec,       walker-menu wallpapers"
+        "$mod SHIFT,  B,      exec,       toggle-waybar"
+        "$mod,        C,      exec,       hyprpicker -a"
+        "$mod,        N,      exec,       swaync-client -t -sw"
+        "$mod,        Space,  exec,       walker-menu apps"
+        "$mod CTRL,   Space,  exec,       walker-menu"
+        "$mod SHIFT,  Escape, exec,       walker-menu power"
+        "$mod,        W,      exec,       walker-menu wallpapers"
 
         # screenshot
         ",                Print,  exec, walker-menu screenshot"
-        "$mainMod,        Print,  exec, screenshot copy-output"
-        "$mainMod SHIFT,  Print,  exec, screenshot edit-output"
+        "$mod,        Print,  exec, screenshot copy-output"
+        "$mod SHIFT,  Print,  exec, screenshot edit-output"
 
         # switch focus
-        "$mainMod,  left,   movefocus,  l"
-        "$mainMod,  right,  movefocus,  r"
-        "$mainMod,  up,     movefocus,  u"
-        "$mainMod,  down,   movefocus,  d"
-        "$mainMod,  h,      movefocus,  l"
-        "$mainMod,  j,      movefocus,  d"
-        "$mainMod,  k,      movefocus,  u"
-        "$mainMod,  l,      movefocus,  r"
+        "$mod,  left,   movefocus,  l"
+        "$mod,  right,  movefocus,  r"
+        "$mod,  up,     movefocus,  u"
+        "$mod,  down,   movefocus,  d"
+        "$mod,  h,      movefocus,  l"
+        "$mod,  j,      movefocus,  d"
+        "$mod,  k,      movefocus,  u"
+        "$mod,  l,      movefocus,  r"
 
         # switch workspace
-        "$mainMod,  1,  workspace,  1"
-        "$mainMod,  2,  workspace,  2"
-        "$mainMod,  3,  workspace,  3"
-        "$mainMod,  4,  workspace,  4"
-        "$mainMod,  5,  workspace,  5"
-        "$mainMod,  6,  workspace,  6"
-        "$mainMod,  7,  workspace,  7"
-        "$mainMod,  8,  workspace,  8"
-        "$mainMod,  9,  workspace,  9"
-        "$mainMod,  0,  workspace,  10"
+        "$mod,  1,  workspace,  1"
+        "$mod,  2,  workspace,  2"
+        "$mod,  3,  workspace,  3"
+        "$mod,  4,  workspace,  4"
+        "$mod,  5,  workspace,  5"
+        "$mod,  6,  workspace,  6"
+        "$mod,  7,  workspace,  7"
+        "$mod,  8,  workspace,  8"
+        "$mod,  9,  workspace,  9"
+        "$mod,  0,  workspace,  10"
 
         # same as above, but move to the workspace
-        "$mainMod SHIFT,  1,  movetoworkspacesilent,  1" # movetoworkspacesilent
-        "$mainMod SHIFT,  2,  movetoworkspacesilent,  2"
-        "$mainMod SHIFT,  3,  movetoworkspacesilent,  3"
-        "$mainMod SHIFT,  4,  movetoworkspacesilent,  4"
-        "$mainMod SHIFT,  5,  movetoworkspacesilent,  5"
-        "$mainMod SHIFT,  6,  movetoworkspacesilent,  6"
-        "$mainMod SHIFT,  7,  movetoworkspacesilent,  7"
-        "$mainMod SHIFT,  8,  movetoworkspacesilent,  8"
-        "$mainMod SHIFT,  9,  movetoworkspacesilent,  9"
-        "$mainMod SHIFT,  0,  movetoworkspacesilent,  10"
-        "$mainMod CTRL,   c,  movetoworkspace,        empty"
+        "$mod SHIFT,  1,  movetoworkspacesilent,  1" # movetoworkspacesilent
+        "$mod SHIFT,  2,  movetoworkspacesilent,  2"
+        "$mod SHIFT,  3,  movetoworkspacesilent,  3"
+        "$mod SHIFT,  4,  movetoworkspacesilent,  4"
+        "$mod SHIFT,  5,  movetoworkspacesilent,  5"
+        "$mod SHIFT,  6,  movetoworkspacesilent,  6"
+        "$mod SHIFT,  7,  movetoworkspacesilent,  7"
+        "$mod SHIFT,  8,  movetoworkspacesilent,  8"
+        "$mod SHIFT,  9,  movetoworkspacesilent,  9"
+        "$mod SHIFT,  0,  movetoworkspacesilent,  10"
+        "$mod CTRL,   c,  movetoworkspace,        empty"
 
         # window control
-        "$mainMod SHIFT,  left,   movewindow,  l"
-        "$mainMod SHIFT,  right,  movewindow,  r"
-        "$mainMod SHIFT,  up,     movewindow,  u"
-        "$mainMod SHIFT,  down,   movewindow,  d"
-        "$mainMod SHIFT,  h,      movewindow,  l"
-        "$mainMod SHIFT,  j,      movewindow,  d"
-        "$mainMod SHIFT,  k,      movewindow,  u"
-        "$mainMod SHIFT,  l,      movewindow,  r"
+        "$mod SHIFT,  left,   movewindow,  l"
+        "$mod SHIFT,  right,  movewindow,  r"
+        "$mod SHIFT,  up,     movewindow,  u"
+        "$mod SHIFT,  down,   movewindow,  d"
+        "$mod SHIFT,  h,      movewindow,  l"
+        "$mod SHIFT,  j,      movewindow,  d"
+        "$mod SHIFT,  k,      movewindow,  u"
+        "$mod SHIFT,  l,      movewindow,  r"
 
-        "$mainMod CTRL, left,   resizeactive, -80 0"
-        "$mainMod CTRL, right,  resizeactive, 80 0"
-        "$mainMod CTRL, up,     resizeactive, 0 -80"
-        "$mainMod CTRL, down,   resizeactive, 0 80"
-        "$mainMod CTRL, h,      resizeactive, -80 0"
-        "$mainMod CTRL, j,      resizeactive, 0 80"
-        "$mainMod CTRL, k,      resizeactive, 0 -80"
-        "$mainMod CTRL, l,      resizeactive, 80 0"
+        "$mod CTRL, left,   resizeactive, -80 0"
+        "$mod CTRL, right,  resizeactive, 80 0"
+        "$mod CTRL, up,     resizeactive, 0 -80"
+        "$mod CTRL, down,   resizeactive, 0 80"
+        "$mod CTRL, h,      resizeactive, -80 0"
+        "$mod CTRL, j,      resizeactive, 0 80"
+        "$mod CTRL, k,      resizeactive, 0 -80"
+        "$mod CTRL, l,      resizeactive, 80 0"
 
-        "$mainMod ALT,  left,   moveactive, -80 0"
-        "$mainMod ALT,  right,  moveactive, 80 0"
-        "$mainMod ALT,  up,     moveactive, 0 -80"
-        "$mainMod ALT,  down,   moveactive, 0 80"
-        "$mainMod ALT,  h,      moveactive, -80 0"
-        "$mainMod ALT,  j,      moveactive, 0 80"
-        "$mainMod ALT,  k,      moveactive, 0 -80"
-        "$mainMod ALT,  l,      moveactive, 80 0"
+        "$mod ALT,  left,   moveactive, -80 0"
+        "$mod ALT,  right,  moveactive, 80 0"
+        "$mod ALT,  up,     moveactive, 0 -80"
+        "$mod ALT,  down,   moveactive, 0 80"
+        "$mod ALT,  h,      moveactive, -80 0"
+        "$mod ALT,  j,      moveactive, 0 80"
+        "$mod ALT,  k,      moveactive, 0 -80"
+        "$mod ALT,  l,      moveactive, 80 0"
 
         # window tabbed grouping
-        "$mainMod SHIFT,  G,      togglegroup" # toggle tabbed group
-        "$mainMod ALT,    left,   changegroupactive,  b" # change active tab back
-        "$mainMod ALT,    right,  changegroupactive,  f" # change active tab forward
-        "$mainMod ALT,    h,      changegroupactive,  b" # change active tab back
-        "$mainMod ALT,    l,      changegroupactive,  f" # change active tab forward
+        "$mod SHIFT,  G,      togglegroup" # toggle tabbed group
+        "$mod ALT,    left,   changegroupactive,  b" # change active tab back
+        "$mod ALT,    right,  changegroupactive,  f" # change active tab forward
+        "$mod ALT,    h,      changegroupactive,  b" # change active tab back
+        "$mod ALT,    l,      changegroupactive,  f" # change active tab forward
 
         # media and volume controls
         # ",XF86AudioMute,exec, pamixer -t"
@@ -114,29 +114,14 @@ in {
         ",XF86AudioPrev,  exec, playerctl previous"
         ",XF86AudioStop,  exec, playerctl stop"
 
-        "$mainMod,  mouse_down, workspace, e-1"
-        "$mainMod,  mouse_up, workspace, e+1"
+        "$mod,  mouse_down, workspace, e-1"
+        "$mod,  mouse_up, workspace, e+1"
       ];
-
-      # # binds active in lockscreen
-      # bindl = [
-      #   # laptop brigthness
-      #   ",XF86MonBrightnessUp, exec, brightnessctl set 5%+"
-      #   ",XF86MonBrightnessDown, exec, brightnessctl set 5%-"
-      #   "$mainMod, XF86MonBrightnessUp, exec, brightnessctl set 100%+"
-      #   "$mainMod, XF86MonBrightnessDown, exec, brightnessctl set 100%-"
-      # ];
-
-      # # binds that repeat when held
-      # binde = [
-      #   ",XF86AudioRaiseVolume,exec, pamixer -i 2"
-      #   ",XF86AudioLowerVolume,exec, pamixer -d 2"
-      # ];
 
       # mouse binding
       bindm = [
-        "$mainMod,        mouse:274,  movewindow"
-        "$mainMod SHIFT,  mouse:274,  resizewindow"
+        "$mod,        mouse:274,  movewindow"
+        "$mod SHIFT,  mouse:274,  resizewindow"
       ];
     };
   };

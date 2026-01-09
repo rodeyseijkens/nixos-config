@@ -82,6 +82,8 @@ in {
   config = {
     wayland.windowManager.hyprland = {
       settings = {
+        "$mod" = "SUPER";
+
         input = {
           kb_layout = "us";
           kb_options = "grp:alt_caps_toggle";
@@ -98,7 +100,6 @@ in {
         };
 
         general = lib.mkForce {
-          "$mainMod" = "SUPER";
           layout = "dwindle";
           gaps_in = 5;
           gaps_out = 10;
@@ -214,10 +215,10 @@ in {
         }
 
         # Special Keybind disabler
-        bind = $mainMod SHIFT CTRL, HOME, submap, clean
+        bind = $mod SHIFT CTRL, HOME, submap, clean
         submap = clean
-        bind = $mainMod SHIFT CTRL, Q, killactive,
-        bind = $mainMod SHIFT CTRL, HOME, submap, reset
+        bind = $mod SHIFT CTRL, Q, killactive,
+        bind = $mod SHIFT CTRL, HOME, submap, reset
         submap = reset
       ";
     };
