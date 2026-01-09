@@ -43,6 +43,7 @@ in {
             gruntfuggly.todo-tree # todo helper
             pflannery.vscode-versionlens # version lens
             vscodevim.vim # vim
+            antfu.file-nesting # file nesting
 
             # Color theme
             jdinhlife.gruvbox
@@ -72,6 +73,7 @@ in {
 
           "explorer.confirmDragAndDrop" = false;
           "explorer.openEditors.visible" = 0;
+          "explorer.fileNesting.enabled" = true;
 
           "extensions.autoUpdate" = false; # This stuff fixes vscode freaking out when theres an update
 
