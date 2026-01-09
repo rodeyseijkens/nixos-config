@@ -1,6 +1,5 @@
-{ pkgs, ... }:
-{
-  home.packages = with pkgs; [ viewnior ];
+{pkgs, ...}: {
+  home.packages = with pkgs; [viewnior];
 
   xdg.configFile."viewnior/viewnior.conf".text = ''
     [prefs]
@@ -8,7 +7,7 @@
     fit-on-fullscreen=true
     show-hidden=true
     dark-background=false
-    smooth-images=true
+    smooth-images=false
     confirm-delete=true
     reload-on-save=false
     show-menu-bar=true
