@@ -1,7 +1,6 @@
 {...}: {
   imports = [
     ./browsers.nix
-    ./cura.nix
     ./evince.nix
     ./file-roller.nix
     ./generic.nix

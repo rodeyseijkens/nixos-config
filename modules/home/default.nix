@@ -4,7 +4,7 @@
     ./bat.nix # better cat command
     ./browsers # zen browser, and google chrome
     ./btop.nix # resouces monitor
-    ./cura.nix # 3D printing slicer
+    ./3d-printing.nix # 3D printing slicers
     ./fastfetch.nix # fetch tool
     ./fzf.nix # fuzzy finder
     ./ghostty.nix # terminal
