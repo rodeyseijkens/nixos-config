@@ -34,6 +34,7 @@
     zenity # simple dialog creator - for record.sh
     satty # snapshot editing tool - for screenshot.sh
     imagemagick # image manipulation tool
+    viu # image viewer for terminal
 
     ## CLI fun
     cbonsai # terminal screensaver
