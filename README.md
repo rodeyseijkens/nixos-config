@@ -714,6 +714,7 @@ This script will:
 3. Install `@antfu/ni@latest`
 4. Install `pnpm@latest`
 5. Install `@biomejs/biome`
+6. Install `opencode-ai@latest`
 
 # 👥 Credits
 
@@ -724,7 +725,6 @@ I forked this project from: [Frost-Phoenix/nixos-config](https://github.com/Fros
 Other dotfiles that I learned / copy from:
 
 - Nix Flakes
-
   - [nomadics9/NixOS-Flake](https://github.com/nomadics9/NixOS-Flake)
   - [samiulbasirfahim/Flakes](https://github.com/samiulbasirfahim/Flakes): General flake / files structure
   - [justinlime/dotfiles](https://github.com/justinlime/dotfiles): Mainly waybar (old design)
