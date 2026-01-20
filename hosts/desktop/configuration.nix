@@ -3,6 +3,7 @@
   powerManagement.cpuFreqGovernor = "performance";
 
   boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
   # Driver Options
   drivers = {
