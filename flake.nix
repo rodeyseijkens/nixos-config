@@ -9,7 +9,7 @@
 
     nix-gaming.url = "github:fufexan/nix-gaming";
     nix-citizen = {
-      url = "github:LovingMelody/nix-citizen";
+      url = "github:LovingMelody/nix-citizen/update";
       inputs.nix-gaming.follows = "nix-gaming";
     };
 

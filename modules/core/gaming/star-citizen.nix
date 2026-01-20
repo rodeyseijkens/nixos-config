@@ -14,7 +14,7 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      inputs.nix-citizen.packages.${pkgs.stdenv.hostPlatform.system}.star-citizen
+      inputs.nix-citizen.packages.${pkgs.stdenv.hostPlatform.system}.rsi-launcher
     ];
     boot.kernel.sysctl = {
       "fs.file-max" = 524288;
