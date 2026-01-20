@@ -100,6 +100,7 @@ in {
 
           "chat.agentSessionsViewLocation" = "single-view";
           "chat.viewSessions.orientation" = "stacked";
+          "chat.useAgentSkills" = true;
 
           # Extension settings
           "alejandra.program" = "alejandra";
