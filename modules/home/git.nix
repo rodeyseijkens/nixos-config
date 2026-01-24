@@ -32,7 +32,7 @@
 
   home.packages = [
     pkgs.gh
-    pkgs.gh-copilot # GitHub Copilot CLI
+    pkgs.github-copilot-cli # GitHub Copilot CLI
     pkgs.cz-cli # commitizen CLI tool
     # pkgs.git-lfs # Git Large File Storage
   ];
@@ -87,6 +87,10 @@
     gtag = "git tag -ma";
     gm = "git merge";
     gsl = "git stash list | sed -E 's/stash@\\{([0-9]+)\\}: (WIP on |On )?([^:]+): (.*)/\\x1b[44;37m \\1 \\x1b[0m\\x1b[34;48;5;238m\\xee\\x82\\xb0\\x1b[0m\\x1b[48;5;238;37m \\xee\\x82\\xa0 \\3 \\x1b[0m\\x1b[38;5;238m\\xee\\x82\\xb0\\x1b[0m \\4/'";
-    gsa = "git stash apply stash@{$1}";
   };
+
+  programs.zsh.initContent = ''
+    # Function for git stash apply with parameter support
+    gsa() { git stash apply "stash@{''${1:-0}}"; }
+  '';
 }
