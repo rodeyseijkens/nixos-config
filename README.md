@@ -166,7 +166,7 @@ Git (EXPAND)
 - `gaa` → `git add --all`
 - `gc` → `git commit`
 - `gcm` → `git commit -m`
-- `gca` → `git commit --amend`
+- `gca` → `git commit --amend --no-edit`
 - `gcaa` → `git add --all && git commit --amend --no-edit`
 - `gcz` → `git cz`
 - `gcfu` → `git commit --fixup HEAD`
