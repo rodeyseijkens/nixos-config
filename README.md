@@ -63,32 +63,32 @@ Hyprlock (EXPAND)
 
 ## 📓 Components
 
-|                             |                                  NixOS + Hyprland                                   |
-| --------------------------- | :---------------------------------------------------------------------------------: |
-| **Window Manager**          |                                [Hyprland][Hyprland]                                 |
-| **Bar**                     |                                  [Waybar][Waybar]                                   |
-| **Application Launcher**    |                                  [Walker][Walker]                                   |
-| **Notification Daemon**     |                                  [swaync][swaync]                                   |
-| **Terminal Emulator**       |                                 [Ghostty][Ghostty]                                  |
-| **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                         |
-| **Text Editor**             |                [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro]                 |
-| **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
-| **System resource monitor** |                                    [Btop][Btop]                                     |
-| **System Fetch**            |                               [Fastfetch][Fastfetch]                                |
-| **Browser**                 |                             [Zen Browser][zen-browser]                              |
-| **File Manager**            |                         [Nautilus][Nautilus] + [yazi][yazi]                         |
-| **Fonts**                   |                              [Maple Mono][Maple Mono]                               |
-| **Color Scheme**            |                            [Gruvbox Dark Hard][Gruvbox]                             |
-| **Cursor**                  |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
-| **Icons**                   |                            [Papirus-Dark][Papirus-Dark]                             |
-| **Lockscreen**              |                                [Hyprlock][Hyprlock]                                 |
-| **Image Viewer**            |                                [viewnior][viewnior]                                 |
-| **Media Player**            |                                     [mpv][mpv]                                      |
-| **Music Player**            |                               [Spicetify][Spicetify]                                |
-| **Screenshot Software**     |                               [grimblast][grimblast]                                |
-| **Screen Recording**        |                             [wf-recorder][wf-recorder]                              |
-| **Color Picker**            |                              [hyprpicker][hyprpicker]                               |
-| **Theme Manager**           |                                  [Stylix][Stylix]                                   |
+|                             |                                   NixOS + Hyprland                                   |
+| --------------------------- | :----------------------------------------------------------------------------------: |
+| **Window Manager**          |                                 [Hyprland][Hyprland]                                 |
+| **Bar**                     |                                   [Waybar][Waybar]                                   |
+| **Application Launcher**    |                                   [Walker][Walker]                                   |
+| **Notification Daemon**     |                                   [swaync][swaync]                                   |
+| **Terminal Emulator**       |                                  [Ghostty][Ghostty]                                  |
+| **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                          |
+| **Text Editor**             | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] |
+| **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]  |
+| **System resource monitor** |                                     [Btop][Btop]                                     |
+| **System Fetch**            |                                [Fastfetch][Fastfetch]                                |
+| **Browser**                 |                              [Zen Browser][zen-browser]                              |
+| **File Manager**            |                         [Nautilus][Nautilus] + [yazi][yazi]                          |
+| **Fonts**                   |                               [Maple Mono][Maple Mono]                               |
+| **Color Scheme**            |                             [Gruvbox Dark Hard][Gruvbox]                             |
+| **Cursor**                  |                        [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
+| **Icons**                   |                             [Papirus-Dark][Papirus-Dark]                             |
+| **Lockscreen**              |                                 [Hyprlock][Hyprlock]                                 |
+| **Image Viewer**            |                                 [viewnior][viewnior]                                 |
+| **Media Player**            |                                      [mpv][mpv]                                      |
+| **Music Player**            |                                [Spicetify][Spicetify]                                |
+| **Screenshot Software**     |                                [grimblast][grimblast]                                |
+| **Screen Recording**        |                              [wf-recorder][wf-recorder]                              |
+| **Color Picker**            |                               [hyprpicker][hyprpicker]                               |
+| **Theme Manager**           |                                   [Stylix][Stylix]                                   |
 
 ## 📝 Shell aliases
 
@@ -774,6 +774,8 @@ Other dotfiles that I learned / copy from:
 [zen-browser]: https://github.com/zen-browser/desktop
 [Maple Mono]: https://github.com/subframe7536/maple-font
 [micro]: https://micro-editor.github.io/
+[Zed]: https://zed.dev/
+[Cursor]: https://www.cursor.com/
 [viewnior]: https://siyanpanayotov.com/project/viewnior
 [Stylix]: https://github.com/danth/stylix
 [Walker]: https://github.com/abenz1267/walker

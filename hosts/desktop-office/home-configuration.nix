@@ -28,13 +28,14 @@
 
     # Code editors
     vscode.enable = true;
+    cursor-editor.enable = true;
+    zed-editor.enable = true;
 
     # File managers
     nautilus.enable = true;
 
     # Misc
     spicetify.enable = true;
-    legcord.enable = true;
     tigervnc.enable = true;
   };
 }
