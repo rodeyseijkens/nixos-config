@@ -32,6 +32,7 @@
     ./walker # walker launcher
     ./waybar # status bar
     ./xdg-mimes.nix # xdg config
+    ./zed-editor.nix # zed editor
     ./zsh # shell
   ];
 }
