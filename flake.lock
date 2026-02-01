@@ -453,11 +453,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769951345,
-        "narHash": "sha256-I1ZVdwGERLVdsi9FMVP2nLtlwUyfI0WGJjowjlMc4DU=",
+        "lastModified": 1769952507,
+        "narHash": "sha256-eNTfxT3v8b7s1dqswgposi5Y1CUMoOUhQKiy29QY25U=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "47d542afdd31797a3f725b7639a6bae82aea5bb6",
+        "rev": "b59376563943ce163b2553aeb63d0c170967d74e",
         "type": "github"
       },
       "original": {
@@ -1203,22 +1203,6 @@
     },
     "nixpkgs_11": {
       "locked": {
-        "lastModified": 1765472234,
-        "narHash": "sha256-9VvC20PJPsleGMewwcWYKGzDIyjckEz8uWmT0vCDYK0=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "2fbfb1d73d239d2402a8fe03963e37aab15abe8b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_12": {
-      "locked": {
         "lastModified": 1768564909,
         "narHash": "sha256-Kell/SpJYVkHWMvnhqJz/8DqQg2b6PguxVWOuadbHCc=",
         "owner": "NixOS",
@@ -1364,11 +1348,11 @@
         "nixpkgs": "nixpkgs_10"
       },
       "locked": {
-        "lastModified": 1769951380,
-        "narHash": "sha256-9A8kEtfJW14GqotWmCA/iM/yNkcSGP8coNUbo0Qu+e4=",
+        "lastModified": 1769953729,
+        "narHash": "sha256-EVqaOl5iQGSg5fWuhBIgHHBrq2dSeSSKuhQA60je/Gs=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "ea8a44693995cd1c67265356205dc7675f301dda",
+        "rev": "1279ebffcb0e0ab14b959948a308345db748775f",
         "type": "github"
       },
       "original": {
@@ -1425,24 +1409,6 @@
         "type": "github"
       }
     },
-    "protonpass-cli": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_11"
-      },
-      "locked": {
-        "lastModified": 1766261454,
-        "narHash": "sha256-81J7oV3BZObouxaZFI9y6NDIWSI0032Bgmq0m1OiYUU=",
-        "owner": "rodeyseijkens",
-        "repo": "protonpass-cli-nix",
-        "rev": "059bc2a9d06b5b178d6bd91f3c8ef51ebe93c549",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rodeyseijkens",
-        "repo": "protonpass-cli-nix",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "alejandra": "alejandra",
@@ -1461,7 +1427,6 @@
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixpkgs": "nixpkgs_9",
         "nur": "nur",
-        "protonpass-cli": "protonpass-cli",
         "spicetify-nix": "spicetify-nix",
         "stylix": "stylix",
         "walker": "walker",
@@ -1815,7 +1780,7 @@
         "elephant": [
           "elephant"
         ],
-        "nixpkgs": "nixpkgs_12",
+        "nixpkgs": "nixpkgs_11",
         "systems": "systems_10"
       },
       "locked": {
