@@ -71,10 +71,6 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
-
-    protonpass-cli = {
-      url = "github:rodeyseijkens/protonpass-cli-nix";
-    };
   };
 
   # All outputs for the system (configs)
