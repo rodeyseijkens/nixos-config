@@ -1,0 +1,10 @@
+[
+  {
+    "command": "workbench.action.files.saveFiles",
+    "key": "ctrl+s"
+  },
+  {
+    "command": "workbench.action.terminal.killAll",
+    "key": "ctrl+alt+meta+delete"
+  }
+]
