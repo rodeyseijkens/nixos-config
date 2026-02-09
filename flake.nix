@@ -71,6 +71,8 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
+
+    cursor-editor.url = "github:tomsch/cursor-nix";
   };
 
   # All outputs for the system (configs)
