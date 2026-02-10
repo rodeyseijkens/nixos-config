@@ -5,7 +5,7 @@
   "editor.formatOnSave": true,
   "editor.formatOnType": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.organizeImports.biome": "explicit"
   },
   "editor.minimap.enabled": true,
   "editor.mouseWheelZoom": true,
@@ -35,7 +35,6 @@
   "workbench.panel.showLabels": false,
   "workbench.panel.defaultLocation": "right",
   "chat.agentSessionsViewLocation": "single-view",
-  "chat.viewSessions.orientation": "stacked",
   "chat.useAgentSkills": true,
   "alejandra.program": "alejandra",
   "material-icon-theme.folders.theme": "classic",
@@ -44,26 +43,11 @@
   "github.copilot.nextEditSuggestions.enabled": true,
   "vim.disableExtension": true,
   "[nix]": {
-    "editor.defaultFormatter": "kamadorueda.alejandra"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "kamadorueda.alejandra",
   },
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
-    "//": "Last update at 2/9/2026, 6:33:04 PM",
+    "//": "Last update at 2/10/2026, 12:32:55 PM",
     ".agent": ".agent, .claude, .cline, .codebuddy, .codex, .commandcode, .continue, .crush, .cursor, .factory, .gemini, .goose, .junie, .kilocode, .kiro, .kode, .mcpjam, .mux, .neovate, .opencode, .openhands, .pi, .pochi, .qoder, .qwen, .roo, .trae, .windsurf, .zencoder",
     ".clang-tidy": ".clang-format, .clangd, compile_commands.json",
     ".env": "*.env, .env.*, .envrc, env.d.ts",
@@ -164,5 +148,14 @@
     "*.w": "$(capture).*.w, I$(capture).w",
     "*.wat": "$(capture).wasm",
     "*.xaml": "$(capture).xaml.cs"
-  }
+  },
+  "json.schemaDownload.trustedDomains": {
+    "https://schemastore.azurewebsites.net/": true,
+    "https://raw.githubusercontent.com/": true,
+    "https://www.schemastore.org/": true,
+    "https://json.schemastore.org/": true,
+    "https://json-schema.org/": true,
+    "https://biomejs.dev": true,
+  },
+  "biome.lsp.bin": "/home/rodey/.volta/bin/biome"
 }
