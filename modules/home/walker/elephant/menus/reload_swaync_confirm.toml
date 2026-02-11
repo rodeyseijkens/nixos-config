@@ -4,7 +4,7 @@ hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"
-actions = { "confirm" = "pkill -9 swaync || true; sleep 0.5; runbg swaync; notify-send \"Swaync\" \"Swaync restarted\" -t 2000 >/dev/null 2>&1 &" }
+actions = { "confirm" = "killall -q swaync || true; sleep 0.5; runbg swaync; notify-send \"Swaync\" \"Swaync restarted\" -t 2000 >/dev/null 2>&1 &" }
 
 [[entries]]
 text = "󰅖 No"

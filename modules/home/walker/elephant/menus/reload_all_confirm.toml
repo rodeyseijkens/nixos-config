@@ -4,7 +4,7 @@ hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"
-actions = { "confirm" = "hyprctl reload; pkill -9 waybar || true; sleep 0.5; runbg waybar; pkill -9 swaync || true; sleep 0.5; runbg swaync; pkill -9 walker || true; sleep 0.5; pkill -9 elephant || true; sleep 0.5; runbg elephant; runbg walker --gapplication-service; pkill -9 swww || true; sleep 0.5; runbg swww-daemon; notify-send \"Reload\" \"All services reloaded\" -t 3000 >/dev/null 2>&1 &" }
+actions = { "confirm" = "hyprctl reload; killall -q waybar || true; sleep 0.5; runbg waybar; killall -q swaync || true; sleep 0.5; runbg swaync; killall -q walker || true; sleep 0.5; killall -q elephant || true; sleep 0.5; runbg elephant; runbg walker --gapplication-service; killall -q swww || true; sleep 0.5; runbg swww-daemon; notify-send \"Reload\" \"All services reloaded\" -t 3000 >/dev/null 2>&1 &" }
 
 [[entries]]
 text = "󰅖 No"

@@ -4,7 +4,7 @@ SERVICE=".waybar-wrapped"
 
 if pgrep -x "$SERVICE" >/dev/null
 then
-  pkill -9 waybar
+  killall -q waybar
 else
   runbg waybar
 fi
