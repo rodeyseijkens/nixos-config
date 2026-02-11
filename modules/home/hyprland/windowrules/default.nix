@@ -3,6 +3,7 @@
     ./browsers.nix
     ./evince.nix
     ./file-roller.nix
+    ./libresprite.nix
     ./generic.nix
     ./mpv.nix
     ./neovide.nix

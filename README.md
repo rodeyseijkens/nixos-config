@@ -83,6 +83,7 @@ Hyprlock (EXPAND)
 | **Icons**                   |                             [Papirus-Dark][Papirus-Dark]                             |
 | **Lockscreen**              |                                 [Hyprlock][Hyprlock]                                 |
 | **Image Viewer**            |                                 [viewnior][viewnior]                                 |
+| **Pixel Art / Sprite Editor** |                              [LibreSprite][LibreSprite]                              |
 | **Media Player**            |                                      [mpv][mpv]                                      |
 | **Music Player**            |                                [Spicetify][Spicetify]                                |
 | **Screenshot Software**     |                                [grimblast][grimblast]                                |
@@ -777,6 +778,7 @@ Other dotfiles that I learned / copy from:
 [Zed]: https://zed.dev/
 [Cursor]: https://www.cursor.com/
 [viewnior]: https://siyanpanayotov.com/project/viewnior
+[LibreSprite]: https://libresprite.github.io/
 [Stylix]: https://github.com/danth/stylix
 [Walker]: https://github.com/abenz1267/walker
 [Spicetify]: https://spicetify.app/

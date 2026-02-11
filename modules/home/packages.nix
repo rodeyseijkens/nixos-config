@@ -45,6 +45,7 @@
 
     ## GUI Apps
     bleachbit # cache cleaner
+    libresprite # pixel art / sprite editor
     pwvucontrol # pipewire volume controle (GUI)
     mission-center # system monitor
 
