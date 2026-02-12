@@ -1,10 +1,10 @@
 name = "reload_all_confirm"
-name_pretty = "Reload all services?"
+name_pretty = "Restart all services?"
 hide_from_providerlist = true
 
 [[entries]]
 text = "󰄬 Yes"
-actions = { "confirm" = "hyprctl reload; killall -q waybar || true; sleep 0.5; runbg waybar; killall -q swaync || true; sleep 0.5; runbg swaync; killall -q walker || true; sleep 0.5; killall -q elephant || true; sleep 0.5; runbg elephant; runbg walker --gapplication-service; killall -q swww || true; sleep 0.5; runbg swww-daemon; notify-send \"Reload\" \"All services reloaded\" -t 3000 >/dev/null 2>&1 &" }
+actions = { "confirm" = "reload-services all" }
 
 [[entries]]
 text = "󰅖 No"
