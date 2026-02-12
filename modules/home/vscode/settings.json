@@ -39,6 +39,7 @@
   "chat.agentSessionsViewLocation": "single-view",
   "chat.useAgentSkills": true,
   "chat.agentsControl.enabled": false,
+  "chat.viewSessions.orientation": "stacked",
   "alejandra.program": "alejandra",
   "material-icon-theme.folders.theme": "classic",
   "gitlens.rebaseEditor.ordering": "asc",
