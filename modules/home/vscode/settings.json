@@ -39,6 +39,7 @@
   "chat.agentSessionsViewLocation": "single-view",
   "chat.useAgentSkills": true,
   "chat.agentsControl.enabled": false,
+  "chat.viewSessions.orientation": "stacked",
   "alejandra.program": "alejandra",
   "material-icon-theme.folders.theme": "classic",
   "gitlens.rebaseEditor.ordering": "asc",
@@ -46,7 +47,7 @@
   "github.copilot.nextEditSuggestions.enabled": true,
   "vim.disableExtension": true,
   "[nix]": {
-    "editor.defaultFormatter": "kamadorueda.alejandra",
+    "editor.defaultFormatter": "kamadorueda.alejandra"
   },
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
@@ -158,7 +159,7 @@
     "https://www.schemastore.org/": true,
     "https://json.schemastore.org/": true,
     "https://json-schema.org/": true,
-    "https://biomejs.dev": true,
+    "https://biomejs.dev": true
   },
   "biome.lsp.bin": "/home/rodey/.volta/bin/biome"
 }
