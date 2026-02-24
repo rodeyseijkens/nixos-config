@@ -86,6 +86,7 @@
     # misc
     gtag = "git tag -ma";
     gm = "git merge";
+    gsp = "git stash push -m";
     gsl = "git stash list | sed -E 's/stash@\\{([0-9]+)\\}: (WIP on |On )?([^:]+): (.*)/\\x1b[44;37m \\1 \\x1b[0m\\x1b[34;48;5;238m\\xee\\x82\\xb0\\x1b[0m\\x1b[48;5;238;37m \\xee\\x82\\xa0 \\3 \\x1b[0m\\x1b[38;5;238m\\xee\\x82\\xb0\\x1b[0m \\4/'";
   };
 
