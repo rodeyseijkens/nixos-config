@@ -58,7 +58,7 @@
 
     ## Misc
     winetricks
-    wineWowPackages.wayland
+    wineWow64Packages.wayland
     inputs.alejandra.defaultPackage.${pkgs.stdenv.hostPlatform.system} # syntax highlighter for nix
     proton-pass-cli
   ];
