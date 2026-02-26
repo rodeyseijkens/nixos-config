@@ -31,6 +31,7 @@ restart_walker() {
   killall -q -r 'elephant' || true
   sleep 0.5
   runbg elephant
+  sleep 1
   runbg walker --gapplication-service
   notify "Walker" "Walker restarted" 2000
 }
@@ -41,7 +42,7 @@ restart_all() {
   killall -q -r 'swaync' || true; sleep 0.5; runbg swaync
   killall -q -r 'walker' || true; sleep 0.5
   killall -q -r 'elephant' || true; sleep 0.5
-  runbg elephant
+  runbg elephant; sleep 1
   runbg walker --gapplication-service
   notify "Reload" "All services restarted" 3000
 }
