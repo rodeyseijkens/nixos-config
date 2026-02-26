@@ -1,0 +1,15 @@
+name = "screenshot_timer_5"
+name_pretty = "Timer 5s Screenshot"
+hide_from_providerlist = true
+
+[[entries]]
+text = "󰹑 Fullscreen"
+actions = { "timer" = "screenshot timer 5 copy-output" }
+
+[[entries]]
+text = " Save to File"
+actions = { "timer" = "screenshot timer 5 save-output" }
+
+[[entries]]
+text = "󱇣 Edit with Satty"
+actions = { "timer" = "screenshot timer 5 edit-output" }

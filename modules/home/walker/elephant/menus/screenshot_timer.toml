@@ -4,8 +4,8 @@ hide_from_providerlist = true
 
 [[entries]]
 text = "󰔛 5s"
-actions = { "timer" = "screenshot timer 5" }
+submenu = "screenshot_timer_5"
 
 [[entries]]
 text = "󱑎 10s"
-actions = { "timer" = "screenshot timer 10" }
+submenu = "screenshot_timer_10"

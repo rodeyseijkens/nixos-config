@@ -42,7 +42,7 @@ save_area() {
     local file
     file=$(get_screenshot_file)
     grimblast save area "$file"
-    notify "Saved \n$(basename "$file")" 3000
+    notify "Saved $(basename "$file")" 3000
 }
 
 save_output() {
@@ -50,7 +50,7 @@ save_output() {
     file=$(get_screenshot_file)
     sleep 0.7
     grimblast save output "$file"
-    notify "Saved \n$(basename "$file")" 3000
+    notify "Saved $(basename "$file")" 3000
 }
 
 edit_area() {
@@ -70,13 +70,25 @@ edit_output() {
 
 timer() {
     local seconds="$1"
-    local file
-    file=$(get_screenshot_file)
+    local mode="${2:-save-output}"
 
     countdown "$seconds"
-    sleep 0.7
-    grimblast save output "$file"
-    notify "Saved \n$(basename "$file")" 3000
+
+    case "$mode" in
+        copy-output)
+            copy_output
+            ;;
+        save-output)
+            save_output
+            ;;
+        edit-output)
+            edit_output
+            ;;
+        *)
+            echo "Invalid timer mode: $mode"
+            exit 1
+            ;;
+    esac
 }
 
 case "$1" in
@@ -86,6 +98,6 @@ case "$1" in
     save-output) save_output ;;
     edit-area) edit_area ;;
     edit-output) edit_output ;;
-    timer) timer "$2" ;;
-    *) echo "Usage: $0 {copy-area|copy-output|save-area|save-output|edit-area|edit-output|timer <seconds>}"; exit 1 ;;
+    timer) timer "$2" "$3" ;;
+    *) echo "Usage: $0 {copy-area|copy-output|save-area|save-output|edit-area|edit-output|timer <seconds> [copy-area|copy-output|save-area|save-output|edit-area|edit-output]}"; exit 1 ;;
 esac
