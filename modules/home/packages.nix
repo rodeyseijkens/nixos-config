@@ -13,12 +13,10 @@
     file # Show file information
     jq # command-line JSON processor
     killall # For Killing All Instances Of Programs
-    lazygit # terminal git UI
     libnotify # Notification library
     man-pages # extra man pages
     mpv # video player
     ncdu # disk space
-    nitch # systhem fetch util
     nix-prefetch-github
     openssl # cryptographic library
     pamixer # pulseaudio command line mixer
