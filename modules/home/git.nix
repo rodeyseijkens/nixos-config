@@ -30,6 +30,15 @@
     };
   };
 
+  programs.lazygit = {
+    enable = true;
+    settings = {
+      gui = {
+        mouseEvents = false;
+      };
+    };
+  };
+
   home.packages = [
     pkgs.gh
     pkgs.github-copilot-cli # GitHub Copilot CLI
@@ -40,6 +49,7 @@
   programs.zsh.shellAliases = {
     # tools
     g = "lazygit && clear";
+    gl = "lazygit log --screen-mode full && clear";
     gi = "onefetch --number-of-file-churns 0 --no-color-palette";
 
     # status/log
