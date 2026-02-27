@@ -1,0 +1,14 @@
+name = "record"
+name_pretty = "󰕧 Record"
+
+[[entries]]
+text = "󰹑 Screen"
+actions = { "copy" = "record screen" }
+
+[[entries]]
+text = "󰩬 Area"
+actions = { "copy" = "record area" }
+
+[[entries]]
+text = "󰵸 GIF"
+actions = { "copy" = "record gif" }

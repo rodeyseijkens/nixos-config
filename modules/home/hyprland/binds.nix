@@ -32,10 +32,11 @@ in {
         "$mod SHIFT,  Escape, exec,       walker-menu power"
         "$mod,        W,      exec,       walker-menu wallpapers"
 
-        # screenshot
-        ",                Print,  exec, walker-menu screenshot"
+        # screenshot and recording
+        ",            Print,  exec, walker-menu screenshot"
         "$mod,        Print,  exec, screenshot copy-output"
         "$mod SHIFT,  Print,  exec, screenshot edit-output"
+        "ALT,         Print,  exec, sh -c 'pgrep -x wf-recorder >/dev/null && record stop || walker-menu record'"
 
         # switch focus
         "$mod,  left,   movefocus,  l"

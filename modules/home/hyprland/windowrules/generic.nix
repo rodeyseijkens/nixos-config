@@ -14,6 +14,7 @@
     "float true, match:title ^(branchdialog)$"
     "float true, match:title ^(Confirm to replace files)$"
     "float true, match:title ^(File Operation Progress)$"
+    "float true, match:title ^(Save File)$"
 
     # Keyring dialog rules
     "float true, match:title ^(keyring)$"
@@ -25,6 +26,7 @@
     "size 850 500, match:title ^(Open Files?)$"
     "size 850 500, match:title ^(File Uploads?)$"
     "size 850 500, match:title ^(All Files)$"
+    "size 850 500, match:title ^(Save File)$"
 
     # Volume control rules
     "float true, match:title ^(Volume Control)$"

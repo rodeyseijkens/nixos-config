@@ -49,10 +49,11 @@ show_system_info() {
 }
 
 show_main_menu() {
-    case $(menu "Go" "󱓞 Launch...\n󰑓 Reload services\n Screenshot\n󰉏 Wallpapers\n󰐥 Power menu\n System Info") in
+    case $(menu "Go" "󱓞 Launch...\n󰑓 Reload services\n Screenshot\n󰕧 Record\n󰉏 Wallpapers\n󰐥 Power menu\n System Info") in
         *Launch*) walker --maxheight 300 --minheight 300 ;;
         *Reload*) walker -m "menus:reload-services" ;;
         *Screenshot*) walker -m "menus:screenshot" ;;
+        *Record*) walker -m "menus:record" ;;
         *Wallpapers*) walker -m "menus:wallpapers" ;;
         *Power*) walker -m "menus:power" ;;
         *System*) show_system_info ;;
@@ -66,6 +67,7 @@ go_to_menu() {
     *apps*) walker --maxheight 300 --minheight 300 ;;
     *reload*) walker -m "menus:reload-services" ;;
     *screenshot*) walker -m "menus:screenshot" ;;
+    *record*) walker -m "menus:record" ;;
     *wallpapers*) walker -m "menus:wallpapers" ;;
     *power*) walker -m "menus:power" ;;
     *system*) show_system_info ;;

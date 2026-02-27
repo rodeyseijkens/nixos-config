@@ -322,7 +322,7 @@ record.sh
 
 **Description:** This script provides screen recording functionality with options to record as MP4 or GIF format, with the ability to select recording area and output optimization.
 
-**Usage:** `record`
+**Usage:** `record {screen|area|gif|stop}`
 
 </details>
 
@@ -410,7 +410,7 @@ walker-menu.sh
 
 **Description:** A Walker-based launcher/menu wrapper that exposes various project and system menus (apps, power, wallpapers, screenshots, reload services, system info and other helper menus used throughout the config). It centralises small interactive menus so other scripts and keybindings can call a single, consistent interface.
 
-**Usage:** `walker-menu <menu-name>` (e.g. `walker-menu apps`, `walker-menu power`, `walker-menu wallpapers`, `walker-menu screenshot`, `walker-menu reload`, `walker-menu system`)
+**Usage:** `walker-menu <menu-name>` (e.g. `walker-menu apps`, `walker-menu power`, `walker-menu wallpapers`, `walker-menu screenshot`, `walker-menu record`, `walker-menu reload`, `walker-menu system`)
 
 </details>
 
@@ -494,6 +494,7 @@ Keybindings
 ##### screenshot
 
 - `,Print, exec, walker-menu screenshot`
+- `ALT, Print, exec, pgrep -x wf-recorder >/dev/null && record stop || walker-menu record`
 - `$mod, Print, exec, screenshot copy-output`
 - `$mod SHIFT, Print, exec, screenshot edit-output`
 
