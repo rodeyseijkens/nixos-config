@@ -11,7 +11,7 @@
   config = lib.mkIf config.modules.printing3d.enable {
     home.packages = with pkgs; [
       cura-appimage # 3D printing slicer
-      LycheeSlicer # Resin 3D printing slicer
+      lycheeslicer # Resin 3D printing slicer
     ];
   };
 }
