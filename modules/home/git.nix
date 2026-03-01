@@ -21,7 +21,7 @@
 
   programs.delta = {
     enable = true;
-    enableGitIntegration = true;
+    enableGitIntegration = false;
     options = {
       line-numbers = true;
       side-by-side = true;
@@ -43,6 +43,7 @@
     pkgs.gh
     pkgs.github-copilot-cli # GitHub Copilot CLI
     pkgs.cz-cli # commitizen CLI tool
+    pkgs.diffnav
     # pkgs.git-lfs # Git Large File Storage
   ];
 
@@ -54,7 +55,7 @@
 
     # status/log
     gs = "git status";
-    gd = "git diff";
+    gd = "git diff | diffnav";
     glog = "git log --oneline --decorate --graph";
     glol = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'";
     glola = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all";
