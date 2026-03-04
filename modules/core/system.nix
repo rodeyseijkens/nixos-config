@@ -8,6 +8,8 @@
 }: {
   nix = {
     settings = {
+      cores = 8; # CPU cores per build job
+      max-jobs = 10; # Max parallel build jobs
       auto-optimise-store = true;
       experimental-features = ["nix-command" "flakes"];
       substituters = [
