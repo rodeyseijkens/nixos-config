@@ -41,8 +41,6 @@ in {
             vivaxy.vscode-conventional-commits # commit message helper
             eamodio.gitlens # git helper
             biomejs.biome # biome code formatter
-            dbaeumer.vscode-eslint # eslint
-            esbenp.prettier-vscode # prettier
             editorconfig.editorconfig # editorconfig
             tamasfe.even-better-toml # toml
             yoavbls.pretty-ts-errors # pretty ts errors
