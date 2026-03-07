@@ -4,6 +4,7 @@
   lib,
   inputs,
   username,
+  stateVersion,
   ...
 }: {
   nix = {
@@ -43,8 +44,8 @@
     ntfs3g
   ];
 
-  time.timeZone = "Europe/Amsterdam";
+  time.timeZone = lib.mkDefault "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";
   nixpkgs.config.allowUnfree = true;
-  system.stateVersion = "24.05";
+  system.stateVersion = stateVersion;
 }

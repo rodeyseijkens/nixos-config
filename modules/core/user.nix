@@ -4,6 +4,7 @@
   username,
   host,
   self,
+  stateVersion,
   ...
 }: {
   imports = [inputs.home-manager.nixosModules.home-manager];
@@ -11,7 +12,7 @@
     useUserPackages = true;
     useGlobalPkgs = true;
     backupFileExtension = "backup";
-    extraSpecialArgs = {inherit inputs username host self;};
+    extraSpecialArgs = {inherit inputs username host self stateVersion;};
     users.${username} = {
       imports = [
         ./../home
@@ -19,7 +20,7 @@
       ];
       home.username = "${username}";
       home.homeDirectory = "/home/${username}";
-      home.stateVersion = "24.05";
+      home.stateVersion = stateVersion;
       programs.home-manager.enable = true;
     };
   };

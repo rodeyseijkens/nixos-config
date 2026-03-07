@@ -82,6 +82,9 @@
   } @ inputs: let
     username = "rodey";
     system = "x86_64-linux";
+    # Centralized state version for NixOS and Home Manager
+    stateVersion = "24.05";
+
     pkgs = import nixpkgs {
       inherit system;
       config.allowUnfree = true;
@@ -105,7 +108,7 @@
           # Host specific configuration and overrides
           ./hosts/${host}/configuration.nix
         ];
-        specialArgs = {inherit inputs username host self;};
+        specialArgs = {inherit inputs username host self stateVersion;};
       };
   in {
     nixosConfigurations = {
@@ -115,5 +118,8 @@
       desktop-work = mkSystem inputs.nixpkgs "x86_64-linux" "desktop-work";
       desktop-office = mkSystem inputs.nixpkgs "x86_64-linux" "desktop-office";
     };
+
+    # Formatter: use alejandra for consistent code formatting
+    formatter.${system} = inputs.alejandra.packages.${system}.default;
   };
 }

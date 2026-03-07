@@ -1,35 +1,47 @@
 #!/usr/bin/env bash
 
-init() {
-    # Vars
-    CURRENT_USERNAME='rodey'
+#--------------------#
+#   Initialisation   #
+#--------------------#
 
-    # Colors
-    NORMAL=$(tput sgr0)
-    WHITE=$(tput setaf 7)
-    BLACK=$(tput setaf 0)
-    RED=$(tput setaf 1)
-    GREEN=$(tput setaf 2)
-    YELLOW=$(tput setaf 3)
-    BLUE=$(tput setaf 4)
-    MAGENTA=$(tput setaf 5)
-    CYAN=$(tput setaf 6)
-    BRIGHT=$(tput bold)
-    UNDERLINE=$(tput smul)
-}
+CURRENT_USERNAME='rodey'
 
-confirm() {
-    echo -en "[${GREEN}y${NORMAL}/${RED}n${NORMAL}]: "
-    read -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]
-    then
-        exit 0
-    fi
-}
+RESET=$(tput sgr0)
+WHITE=$(tput setaf 7)
+BLACK=$(tput setaf 0)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+BRIGHT=$(tput bold)
+UNDERLINE=$(tput smul)
 
-print_header() {
-    echo -E "$CYAN
+OK="[${GREEN}OK${RESET}]\t"
+INFO="[${BLUE}INFO${RESET}]\t"
+WARN="[${MAGENTA}WARN${RESET}]\t"
+ERROR="[${RED}ERROR${RESET}]\t"
+
+set -e
+
+#------------------------------#
+#   Check if running as root   #
+#------------------------------#
+
+if [[ $EUID -eq 0 ]]; then
+    echo -e "${ERROR}This script should ${RED}NOT${RESET} be executed as root!"
+    echo -e "${INFO}Exiting..."
+    exit 1
+fi
+
+#---------------------#
+#   Greeting Banner   #
+#---------------------#
+
+clear
+
+echo -E "$CYAN
      _   _ _       ___        ___           _        _ _           
     | \ | (_)_  __/ _ \ ___  |_ _|_ __  ___| |_ __ _| | | ___ _ __ 
     |  \| | \ \/ / | | / __|  | || '_ \/ __| __/ _' | | |/ _ \ '__|
@@ -37,27 +49,43 @@ print_header() {
     |_| \_|_/_/\_\\\\___/|___/ |___|_| |_|___/\__\__,_|_|_|\___|_| 
 
 
-                  $BLUE https://github.com/rodeyseijkens $RED 
-      ! To make sure everything runs correctly DONT run as root ! $GREEN
-                        -> '"./install.sh"' $NORMAL
+       ${BLUE} ─── https://github.com/rodeyseijkens/nixos-config ─── ${RESET}
+"
 
-    "
-}
+#------------------#
+#   Get username   #
+#------------------#
 
-get_username() {
-    echo -en "Enter your$GREEN username$NORMAL : $YELLOW"
+while true; do
+    echo -en "${INFO}Enter your ${GREEN}username${RESET}: ${YELLOW}"
     read username
-    echo -en "$NORMAL"
-    echo -en "Use$YELLOW "$username"$NORMAL as ${GREEN}username${NORMAL} ? "
-    confirm
-}
+    echo -en "${RESET}"
 
-set_username() {
-    sed -i -e "s/${CURRENT_USERNAME}/${username}/g" ./flake.nix
-}
+    if [ -z "$username" ]; then
+        echo -e "${ERROR}Username cannot be empty!"
+        continue
+    fi
 
-get_host() {
-    echo -en "Choose a ${GREEN}host${NORMAL} - [${YELLOW}D${NORMAL}]esktop, Desktop-[${YELLOW}W${NORMAL}]ork, Desktop-[${YELLOW}O${NORMAL}]ffice: "
+    if ! [[ $username =~ ^[a-z][a-z0-9_-]{0,31}$ ]]; then
+        echo -e "${ERROR}Invalid username: '$username'"
+        echo -e "${INFO}Username must start with a lowercase letter and contain only lowercase letters, digits, hyphens, and underscores (max 32 chars)"
+        continue
+    fi
+
+    echo -en "${INFO}Use ${YELLOW}'$username'${RESET} as username? [${GREEN}y${RESET}/${RED}n${RESET}]: "
+    read -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        break
+    fi
+done
+
+#-----------------#
+#   Choose host   #
+#-----------------#
+
+while true; do
+    echo -en "${INFO}Choose a ${GREEN}host${RESET} - [${YELLOW}D${RESET}]esktop, Desktop-[${YELLOW}W${RESET}]ork, Desktop-[${YELLOW}O${RESET}]ffice: "
     read -n 1 -r
     echo
 
@@ -68,55 +96,87 @@ get_host() {
     elif [[ $REPLY =~ ^[Oo]$ ]]; then
         HOST='desktop-office'
     else
-        echo "Invalid choice. Please select 'D' for desktop, 'W' for desktop-work, or 'O' for desktop-office."
-        exit 1
+        echo -e "${ERROR}Invalid choice. Please select 'D', 'W', or 'O'."
+        continue
     fi
     
-    echo -en "$NORMAL"
-    echo -en "Use the$YELLOW "$HOST"$NORMAL ${GREEN}host${NORMAL} ? "
-    confirm
-}
+    echo -en "${INFO}Use the ${YELLOW}'$HOST'${RESET} host? [${GREEN}y${RESET}/${RED}n${RESET}]: "
+    read -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        break
+    fi
+done
 
-install() {
-    echo -e "\n${RED}START INSTALL PHASE${NORMAL}\n"
-    sleep 0.2
+#---------------------------#
+#   Recap of user choices   #
+#---------------------------#
 
-    # Create basic directories
-    echo -e "Creating folders:"
-    echo -e "    - ${MAGENTA}~/Downloads${NORMAL}"
-    echo -e "    - ${MAGENTA}~/Documents${NORMAL}"
-    echo -e "    - ${MAGENTA}~/Pictures/${NORMAL}"
-    echo -e "    - ${MAGENTA}~/Projects${NORMAL}\n"
-    mkdir -p ~/Downloads
-    mkdir -p ~/Documents
-    mkdir -p ~/Pictures
-    mkdir -p ~/Projects
-    sleep 0.2
+echo -e "\n${BLUE}═══════════════════════════════════════${RESET}"
+echo -e "${INFO}Installation Summary:"
+echo -e "    Username:   ${YELLOW}$username${RESET}"
+echo -e "    Host:       ${YELLOW}$HOST${RESET}"
+echo -e "${BLUE}═══════════════════════════════════════${RESET}\n"
 
-    # Get the hardware configuration
-    echo -e "Copying ${MAGENTA}/etc/nixos/hardware-configuration.nix${NORMAL} to ${MAGENTA}./hosts/${HOST}/${NORMAL}\n"
-    cp /etc/nixos/hardware-configuration.nix hosts/${HOST}/hardware-configuration.nix
-    sleep 0.2
+#-----------------------#
+#   Last Confirmation   #
+#-----------------------#
 
-    # Last Confirmation
-    echo -en "You are about to start the system build, do you want to proceed ? "
-    confirm
+echo -en "${INFO}You are about to build the system for host ${YELLOW}'$HOST'${RESET}. Proceed? [${GREEN}y${RESET}/${RED}n${RESET}]: "
+read -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "${INFO}Installation cancelled."
+    exit 0
+fi
 
-    # Using nh (nixos helper) to Build the system (flakes + home manager)
-    echo -e "\nBuilding the system...\n"
-    sudo nixos-rebuild switch --flake .#${HOST}
-}
+#---------------------#
+#   Change username   #
+#---------------------#
 
-main() {
-    init
+echo -e "${INFO}Changing username from ${YELLOW}${CURRENT_USERNAME}${RESET} to ${GREEN}${username}${RESET}"
+find ./hosts ./modules flake.nix -type f -exec sed -i -e "s/${CURRENT_USERNAME}/${username}/g" {} +
+echo -e "${OK}Username updated successfully"
 
-    print_header
+#------------------------------#
+#   Prepare the environment   #
+#------------------------------#
 
-    get_username
-    set_username
-    get_host
+echo -e "${INFO}Preparing the environment"
 
-    install
-}
+## Create common directories
+for dir in ~/Downloads ~/Documents ~/Pictures ~/Projects ~/Music; do
+    if [ ! -d "$dir" ]; then
+        echo -e "${INFO}Creating folder: ${MAGENTA}${dir}${RESET}"
+        mkdir -p "$dir"
+    fi
+done
 
-main && exit 0
+## Get the hardware configuration
+if [ ! -f /etc/nixos/hardware-configuration.nix ]; then
+    echo -e "${ERROR}${MAGENTA}/etc/nixos/hardware-configuration.nix${RESET} not found!"
+    echo -e "${INFO}Please run ${YELLOW}'nixos-generate-config'${RESET} first to generate hardware configuration."
+    exit 1
+fi
+
+echo -e "${INFO}Copying ${MAGENTA}/etc/nixos/hardware-configuration.nix${RESET} to ${MAGENTA}./hosts/${HOST}/${RESET}"
+cp /etc/nixos/hardware-configuration.nix hosts/${HOST}/hardware-configuration.nix
+echo -e "${OK}Hardware configuration copied"
+
+#------------------#
+#   Installation   #
+#------------------#
+
+echo -e "\n${INFO}Starting system build... this may take a while."
+echo -e "${MAGENTA}────────────────────────────────────────${RESET}\n"
+
+if sudo nixos-rebuild switch --flake .#${HOST}; then
+    echo -e "\n${MAGENTA}────────────────────────────────────────${RESET}"
+    echo -e "${OK}System build completed successfully!"
+    echo -e "${INFO}You can now reboot to apply the configuration"
+    echo -e "${INFO}Use ${YELLOW}'sudo reboot'${RESET} to restart your system"
+else
+    echo -e "\n${ERROR}System build failed!"
+    echo -e "${INFO}Please check the error messages above"
+    exit 1
+fi
