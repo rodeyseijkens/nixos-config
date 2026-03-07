@@ -31,6 +31,7 @@ in {
         "$mod CTRL,   Space,  exec,       walker-menu"
         "$mod SHIFT,  Escape, exec,       walker-menu power"
         "$mod,        W,      exec,       walker-menu wallpapers"
+        "$mod,        R,      exec,       walker-menu projects"
 
         # screenshot and recording
         ",            Print,  exec, walker-menu screenshot"
