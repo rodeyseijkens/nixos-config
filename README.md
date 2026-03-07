@@ -124,7 +124,7 @@ Nixos (EXPAND)
 - `ns` $\rightarrow$ `nom-shell --run zsh`
 - `nix-test` $\rightarrow$ `nh os test`
 - `nix-switch` $\rightarrow$ `nh os switch`
-- `nix-update` $\rightarrow$ `nix flake update --option access-tokens "github.com=$(gh auth token)"`
+- `nix-update` $\rightarrow$ `nix flake update --option access-tokens "github.com=$(gh auth token)" && ga flake.lock && gcm "chore: :package: update flake.lock"`
 - `nix-clean` $\rightarrow$ `nh clean all --keep 5`
 - `nix-search` $\rightarrow$ `nh search`
 </details>

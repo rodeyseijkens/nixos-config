@@ -13,7 +13,7 @@
       cat = "bat";
       nano = "micro";
       code = "code";
-      diff = "delta --diff-so-fancy --side-by-side";
+      diff = "git diff | diffnav";
       less = "bat";
       y = "yazi";
       py = "python";
@@ -33,7 +33,8 @@
       cdnix = "cd ~/nixos-config && code ~/nixos-config && clear";
       ns = "nom-shell --run zsh";
       nix-switch = "nh os switch";
-      nix-update = "nix flake update --option access-tokens \"github.com=$(gh auth token)\"";
+      nix-update = ''nix flake update --option access-tokens "github.com=$(sed -n 's#https://[^:]*:\([^@]*\)@github\.com#\1#p' /run/secrets/git-credentials | head -n1)"'';
+      nix-update-commit = "nix-update && git add flake.lock && git commit -m 'chore: :package: update flake.lock'";
       nix-clean = "nh clean all --keep 5";
       nix-search = "nh search";
       nix-test = "nh os test";
