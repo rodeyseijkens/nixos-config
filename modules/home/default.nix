@@ -32,6 +32,7 @@
     ./vscode/vscode.nix # vscode
     ./walker # walker launcher
     ./waybar # status bar
+    ./worktrunk.nix # git worktree management
     ./xdg-mimes.nix # xdg config
     ./zed-editor.nix # zed editor
     ./zsh # shell
