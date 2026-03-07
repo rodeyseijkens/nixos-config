@@ -12,7 +12,7 @@
         email = "me@rodey.nl";
       };
       init.defaultBranch = "main";
-      credential.helper = "store";
+      credential.helper = "sops";
       merge.conflictstyle = "diff3";
       diff.colorMoved = "default";
       push.autoSetupRemote = true;
@@ -44,6 +44,8 @@
     pkgs.github-copilot-cli # GitHub Copilot CLI
     pkgs.cz-cli # commitizen CLI tool
     pkgs.diffnav
+    pkgs.pre-commit
+    pkgs.gitleaks
     # pkgs.git-lfs # Git Large File Storage
   ];
 

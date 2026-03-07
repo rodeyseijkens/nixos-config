@@ -1,0 +1,43 @@
+# SOPS configuration for encrypted secrets
+#
+# Replace each placeholder with a real age recipient.
+# Host recipient command:
+#   nix shell nixpkgs#ssh-to-age -c sh -c 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+
+keys:
+  # Optional recovery/admin key (recommended)
+  - &admin age1j7nmulw6d2qflj4kscyq522dgjlpdm9dvt8r0zfcludyxx89v30stfqn9y
+
+  # Active host recipients
+  - &desktop age1rlkpjlkvw5p58snm3eswgtvyxg3l2s86hfyt8z7800x9vryt6gtsqxvtx4
+
+  # Add these once you have real keys (do not keep placeholders active in rules):
+  # - &desktop-work age1...
+  # - &desktop-office age1...
+
+creation_rules:
+  # Shared secrets: trusted hosts + admin recovery key
+  - path_regex: ^secrets/secrets\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *desktop
+
+  # Per-host secrets: only that host + admin recovery key
+  - path_regex: ^secrets/hosts/desktop\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *desktop
+
+  # Add host rules below once each host key is available:
+  # - path_regex: ^secrets/hosts/desktop-work\.yaml$
+  #   key_groups:
+  #     - age:
+  #         - *admin
+  #         - *desktop-work
+  # - path_regex: ^secrets/hosts/desktop-office\.yaml$
+  #   key_groups:
+  #     - age:
+  #         - *admin
+  #         - *desktop-office

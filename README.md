@@ -61,33 +61,33 @@ Hyprlock (EXPAND)
 
 ## 📓 Components
 
-|                             |                                   NixOS + Hyprland                                   |
-| --------------------------- | :----------------------------------------------------------------------------------: |
-| **Window Manager**          |                                 [Hyprland][Hyprland]                                 |
-| **Bar**                     |                                   [Waybar][Waybar]                                   |
-| **Application Launcher**    |                                   [Walker][Walker]                                   |
-| **Notification Daemon**     |                                   [swaync][swaync]                                   |
-| **Terminal Emulator**       |                                  [Ghostty][Ghostty]                                  |
-| **Shell**                   |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                          |
-| **Text Editor**             | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] |
-| **network management tool** | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]  |
-| **System resource monitor** |                                     [Btop][Btop]                                     |
-| **System Fetch**            |                                [Fastfetch][Fastfetch]                                |
-| **Browser**                 |                              [Zen Browser][zen-browser]                              |
-| **File Manager**            |                         [Nautilus][Nautilus] + [yazi][yazi]                          |
-| **Fonts**                   |                               [Maple Mono][Maple Mono]                               |
-| **Color Scheme**            |                             [Gruvbox Dark Hard][Gruvbox]                             |
-| **Cursor**                  |                        [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
-| **Icons**                   |                             [Papirus-Dark][Papirus-Dark]                             |
-| **Lockscreen**              |                                 [Hyprlock][Hyprlock]                                 |
-| **Image Viewer**            |                                 [viewnior][viewnior]                                 |
+|                               |                                   NixOS + Hyprland                                   |
+| ----------------------------- | :----------------------------------------------------------------------------------: |
+| **Window Manager**            |                                 [Hyprland][Hyprland]                                 |
+| **Bar**                       |                                   [Waybar][Waybar]                                   |
+| **Application Launcher**      |                                   [Walker][Walker]                                   |
+| **Notification Daemon**       |                                   [swaync][swaync]                                   |
+| **Terminal Emulator**         |                                  [Ghostty][Ghostty]                                  |
+| **Shell**                     |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                          |
+| **Text Editor**               | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] |
+| **network management tool**   | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]  |
+| **System resource monitor**   |                                     [Btop][Btop]                                     |
+| **System Fetch**              |                                [Fastfetch][Fastfetch]                                |
+| **Browser**                   |                              [Zen Browser][zen-browser]                              |
+| **File Manager**              |                         [Nautilus][Nautilus] + [yazi][yazi]                          |
+| **Fonts**                     |                               [Maple Mono][Maple Mono]                               |
+| **Color Scheme**              |                             [Gruvbox Dark Hard][Gruvbox]                             |
+| **Cursor**                    |                        [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
+| **Icons**                     |                             [Papirus-Dark][Papirus-Dark]                             |
+| **Lockscreen**                |                                 [Hyprlock][Hyprlock]                                 |
+| **Image Viewer**              |                                 [viewnior][viewnior]                                 |
 | **Pixel Art / Sprite Editor** |                              [LibreSprite][LibreSprite]                              |
-| **Media Player**            |                                      [mpv][mpv]                                      |
-| **Music Player**            |                                [Spicetify][Spicetify]                                |
-| **Screenshot Software**     |                                [grimblast][grimblast]                                |
-| **Screen Recording**        |                              [wf-recorder][wf-recorder]                              |
-| **Color Picker**            |                               [hyprpicker][hyprpicker]                               |
-| **Theme Manager**           |                                   [Stylix][Stylix]                                   |
+| **Media Player**              |                                      [mpv][mpv]                                      |
+| **Music Player**              |                                [Spicetify][Spicetify]                                |
+| **Screenshot Software**       |                                [grimblast][grimblast]                                |
+| **Screen Recording**          |                              [wf-recorder][wf-recorder]                              |
+| **Color Picker**              |                               [hyprpicker][hyprpicker]                               |
+| **Theme Manager**             |                                   [Stylix][Stylix]                                   |
 
 ## 📝 Shell aliases
 
@@ -343,6 +343,17 @@ screenshot.sh
 **Description:** This script provides screenshot functionality with options to copy to clipboard, save to file, or edit with Satty. It supports capturing specific areas or the entire output, and includes a timer function. Screenshots are saved to `~/Pictures/Screenshots/`.
 
 **Usage:** `screenshot {copy-area|copy-output|save-area|save-output|edit-area|edit-output|timer <seconds>}`
+
+</details>
+
+<details>
+<summary>
+secrets-helper.sh
+</summary>
+
+**Description:** Helper for sops-nix workflows. It can generate/print an admin recovery recipient, print host recipients, initialize git credentials in encrypted secrets, edit secret files, and update SOPS recipients.
+
+**Usage:** `secrets-helper {admin-key|host-key|git-init [username] [token]|edit <path>|updatekeys|updatekeys-file <path>}`
 
 </details>
 
@@ -715,6 +726,52 @@ This script will:
 4. Install `pnpm@latest`
 5. Install `@biomejs/biome`
 6. Install `opencode-ai@latest`
+7. Install `@kilocode/cli@latest`
+
+## 🔐 Secrets Management
+
+This configuration uses **sops-nix** for encrypted secrets management.
+
+- Shared secrets: `secrets/secrets.yaml`
+- Host-only secrets: `secrets/hosts/<host>.yaml`
+
+Secrets are encrypted with age recipients derived from host SSH keys.
+
+**Initial Setup:**
+
+1. After installation, generate age keys from your SSH host key:
+
+   ```bash
+   nix shell nixpkgs#ssh-to-age -c sh -c 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+   ```
+
+2. Add the generated age key to `.sops.yaml`
+
+3. Create and edit encrypted secrets:
+
+   ```bash
+   sops secrets/secrets.yaml
+   mkdir -p secrets/hosts
+   sops secrets/hosts/<host>.yaml
+   ```
+
+4. Store secrets in YAML format, e.g.:
+   ```yaml
+   git-credentials: |
+     https://username:REPLACE_ME@github.com
+   ```
+
+Secrets will be available at runtime via `/run/secrets/<secret-name>`. GitHub auth stays in `gh auth`. See `secrets/README.md` for full workflow, key rotation, verification, and pre-commit scanning.
+
+Helper script:
+
+```bash
+secrets-helper admin-key
+secrets-helper git-init [username] [token]
+secrets-helper edit secrets/secrets.yaml
+secrets-helper host-key
+secrets-helper updatekeys
+```
 
 # 👥 Credits
 

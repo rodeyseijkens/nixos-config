@@ -1,0 +1,24 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check-sops-files
+        name:  Check SOPS-encrypted secrets
+        entry: ./modules/home/scripts/scripts/check-sops-files.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: gitleaks
+        name: 󱓇 Scan for leaked secrets
+        entry: gitleaks
+        args:
+          - detect
+          - --no-git
+          - --source
+          - .
+          - --redact
+          - --exit-code
+          - "1"
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
