@@ -54,8 +54,6 @@ Hyprlock (EXPAND)
   - [desktop](hosts/desktop/) 🖥️ Desktop specific configuration
   - [desktop-office](hosts/desktop-office/) 🏢 Office desktop specific configuration
   - [desktop-work](hosts/desktop-work/) 🖥️ Work desktop specific configuration
-  - [laptop](hosts/laptop/) 💻 Laptop specific configuration
-  - [vm](hosts/vm/) 🗄️ VM specific configuration
 - [modules](modules) 🍱 modularized NixOS configurations
   - [core](modules/core/) ⚙️ Core NixOS configuration
   - [home](modules/home/) 🏠 my [Home-Manager](https://github.com/nix-community/home-manager) config
@@ -672,9 +670,9 @@ The following directories will be created:
 
 It will also automatically copy the hardware configuration from `/etc/nixos/hardware-configuration.nix` to `./hosts/${host}/hardware-configuration.nix` so that the hardware configuration used is yours and not the default one.
 
-#### 5. Choose a host (desktop / desktop-office / desktop-work / laptop / vm)
+#### 5. Choose a host (desktop / desktop-office / desktop-work)
 
-Now you will need to choose the host you want. It depends on whether you are using a desktop, office desktop, work desktop, laptop, or VM (although VM can be really buggy).
+Now you will need to choose the host you want. It depends on whether you are using a desktop, office desktop, or work desktop.
 
 #### 6. Build the system
 

@@ -57,7 +57,7 @@ set_username() {
 }
 
 get_host() {
-    echo -en "Choose a ${GREEN}host${NORMAL} - [${YELLOW}D${NORMAL}]esktop, Desktop-[${YELLOW}W${NORMAL}]ork, [${YELLOW}L${NORMAL}]aptop or [${YELLOW}V${NORMAL}]irtual machine: "
+    echo -en "Choose a ${GREEN}host${NORMAL} - [${YELLOW}D${NORMAL}]esktop, Desktop-[${YELLOW}W${NORMAL}]ork, Desktop-[${YELLOW}O${NORMAL}]ffice: "
     read -n 1 -r
     echo
 
@@ -67,12 +67,8 @@ get_host() {
         HOST='desktop-work'
     elif [[ $REPLY =~ ^[Oo]$ ]]; then
         HOST='desktop-office'
-    elif [[ $REPLY =~ ^[Ll]$ ]]; then
-        HOST='laptop'
-     elif [[ $REPLY =~ ^[Vv]$ ]]; then
-        HOST='vm'
     else
-        echo "Invalid choice. Please select 'D' for desktop, 'W' for desktop-work, 'O' for desktop-office, 'L' for laptop or 'V' for virtual machine."
+        echo "Invalid choice. Please select 'D' for desktop, 'W' for desktop-work, or 'O' for desktop-office."
         exit 1
     fi
     
