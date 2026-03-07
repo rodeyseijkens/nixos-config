@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   programs.git = {
     enable = true;
 
@@ -43,6 +47,7 @@
     pkgs.pre-commit
     pkgs.gitleaks
     pkgs.gen-commit # generate commit messages using llm
+    inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default # Git worktree management
     # pkgs.git-lfs # Git Large File Storage
   ];
 

@@ -88,6 +88,7 @@ Hyprlock (EXPAND)
 | **Screen Recording**          |                              [wf-recorder][wf-recorder]                              |
 | **Color Picker**              |                               [hyprpicker][hyprpicker]                               |
 | **Theme Manager**             |                                   [Stylix][Stylix]                                   |
+| **Git Worktree Manager**      |                                [Worktrunk][Worktrunk]                                |
 
 ## 📝 Shell aliases
 
@@ -255,6 +256,24 @@ gen-commit (package)
 - `gen-commit -c` — Auto-commit all changes
 - `gen-commit -p` — Print message only (no commit)
 - `gen-commit -s frontend` — Use 'frontend' as scope
+
+</details>
+
+<details>
+<summary>
+worktrunk (package)
+</summary>
+
+**Description:** `worktrunk` is provided as a flake input (see `inputs.worktrunk` in `flake.nix`) and adds a CLI for Git worktree management focused on parallel AI agent workflows.
+
+**Usage:** `wt <command>`
+
+**Common commands:**
+
+- `wt switch --create <branch>` — create a branch + worktree and switch into it
+- `wt list` — list worktrees with status
+- `wt merge main` — merge current worktree branch into `main`
+- `wt remove` — remove current worktree and switch back
 
 </details>
 
@@ -839,3 +858,4 @@ Other dotfiles that I learned / copy from:
 [Walker]: https://github.com/abenz1267/walker
 [Spicetify]: https://spicetify.app/
 [Fastfetch]: https://github.com/fastfetch-cli/fastfetch
+[Worktrunk]: https://worktrunk.dev/
