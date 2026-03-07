@@ -34,7 +34,6 @@ with lib; let
     "browser.newtabpage.activity-stream.topSitesRows" = 2;
     "browser.search.region" = "NL";
     "browser.startup.homepage" = "https://duckduckgo.com/";
-    "browser.startup.page" = 1;
     "browser.toolbars.bookmarks.visibility" = "always";
     "font.name.monospace.x-western" = "Maple Mono NF CN";
     "font.name.sans-serif.x-western" = "Maple Mono NF CN";
