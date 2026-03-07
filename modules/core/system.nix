@@ -35,6 +35,7 @@
   nixpkgs = {
     overlays = [
       inputs.nur.overlays.default
+      inputs.gen-commit.overlays.default
     ];
   };
 

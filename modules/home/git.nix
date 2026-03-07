@@ -1,8 +1,4 @@
-{
-  pkgs,
-  inputs,
-  ...
-}: {
+{pkgs, ...}: {
   programs.git = {
     enable = true;
 
@@ -46,6 +42,7 @@
     pkgs.diffnav
     pkgs.pre-commit
     pkgs.gitleaks
+    pkgs.gen-commit # generate commit messages using llm
     # pkgs.git-lfs # Git Large File Storage
   ];
 
@@ -75,8 +72,8 @@
     gcma = "git add --all && git commit -m";
     gcza = "git add --all && git cz";
     gcfua = "git add --all && git commit --fixup HEAD";
-    ggcm = "${inputs.gen-commit.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/gen-commit -c -a";
-    ggcmw = "${inputs.gen-commit.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/gen-commit -c -a -s";
+    ggcm = "gen-commit -c -a";
+    ggcmw = "gen-commit -c -a -s";
 
     # history
     gb = "git branch";

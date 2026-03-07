@@ -66,6 +66,7 @@
 
     gen-commit = {
       url = "github:rodeyseijkens/gen-commit";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     elephant.url = "github:abenz1267/elephant";
