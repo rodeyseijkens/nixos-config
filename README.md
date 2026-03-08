@@ -61,34 +61,34 @@ Hyprlock (EXPAND)
 
 ## 📓 Components
 
-|                               |                                   NixOS + Hyprland                                   |
-| ----------------------------- | :----------------------------------------------------------------------------------: |
-| **Window Manager**            |                                 [Hyprland][Hyprland]                                 |
-| **Bar**                       |                                   [Waybar][Waybar]                                   |
-| **Application Launcher**      |                                   [Walker][Walker]                                   |
-| **Notification Daemon**       |                                   [swaync][swaync]                                   |
-| **Terminal Emulator**         |                                  [Ghostty][Ghostty]                                  |
-| **Shell**                     |                         [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                          |
-| **Text Editor**               | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] |
-| **network management tool**   | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]  |
-| **System resource monitor**   |                                     [Btop][Btop]                                     |
-| **System Fetch**              |                                [Fastfetch][Fastfetch]                                |
-| **Browser**                   |                              [Zen Browser][zen-browser]                              |
-| **File Manager**              |                         [Nautilus][Nautilus] + [yazi][yazi]                          |
-| **Fonts**                     |                               [Maple Mono][Maple Mono]                               |
-| **Color Scheme**              |                             [Gruvbox Dark Hard][Gruvbox]                             |
-| **Cursor**                    |                        [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
-| **Icons**                     |                             [Papirus-Dark][Papirus-Dark]                             |
-| **Lockscreen**                |                                 [Hyprlock][Hyprlock]                                 |
-| **Image Viewer**              |                                 [viewnior][viewnior]                                 |
-| **Pixel Art / Sprite Editor** |                              [LibreSprite][LibreSprite]                              |
-| **Media Player**              |                                      [mpv][mpv]                                      |
-| **Music Player**              |                                [Spicetify][Spicetify]                                |
-| **Screenshot Software**       |                                [grimblast][grimblast]                                |
-| **Screen Recording**          |                              [wf-recorder][wf-recorder]                              |
-| **Color Picker**              |                               [hyprpicker][hyprpicker]                               |
-| **Theme Manager**             |                                   [Stylix][Stylix]                                   |
-| **Git Worktree Manager**      |                                [Worktrunk][Worktrunk]                                |
+|                               |                                            NixOS + Hyprland                                             |
+| ----------------------------- | :-----------------------------------------------------------------------------------------------------: |
+| **Window Manager**            |                                          [Hyprland][Hyprland]                                           |
+| **Bar**                       |                                            [Waybar][Waybar]                                             |
+| **Application Launcher**      |                                            [Walker][Walker]                                             |
+| **Notification Daemon**       |                                            [swaync][swaync]                                             |
+| **Terminal Emulator**         |                                           [Ghostty][Ghostty]                                            |
+| **Shell**                     |                                   [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                                   |
+| **Text Editor**               | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code] |
+| **network management tool**   |           [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]           |
+| **System resource monitor**   |                                              [Btop][Btop]                                               |
+| **System Fetch**              |                                         [Fastfetch][Fastfetch]                                          |
+| **Browser**                   |                                       [Zen Browser][zen-browser]                                        |
+| **File Manager**              |                                   [Nautilus][Nautilus] + [yazi][yazi]                                   |
+| **Fonts**                     |                                        [Maple Mono][Maple Mono]                                         |
+| **Color Scheme**              |                                      [Gruvbox Dark Hard][Gruvbox]                                       |
+| **Cursor**                    |                                 [Bibata-Modern-Ice][Bibata-Modern-Ice]                                  |
+| **Icons**                     |                                      [Papirus-Dark][Papirus-Dark]                                       |
+| **Lockscreen**                |                                          [Hyprlock][Hyprlock]                                           |
+| **Image Viewer**              |                                          [viewnior][viewnior]                                           |
+| **Pixel Art / Sprite Editor** |                                       [LibreSprite][LibreSprite]                                        |
+| **Media Player**              |                                               [mpv][mpv]                                                |
+| **Music Player**              |                                         [Spicetify][Spicetify]                                          |
+| **Screenshot Software**       |                                         [grimblast][grimblast]                                          |
+| **Screen Recording**          |                                       [wf-recorder][wf-recorder]                                        |
+| **Color Picker**              |                                        [hyprpicker][hyprpicker]                                         |
+| **Theme Manager**             |                                            [Stylix][Stylix]                                             |
+| **Git Worktree Manager**      |                                         [Worktrunk][Worktrunk]                                          |
 
 ## 📝 Shell aliases
 
@@ -438,7 +438,7 @@ walker-menu.sh
 
 **Description:** A Walker-based launcher/menu wrapper that exposes various project and system menus (apps, power, wallpapers, screenshots, reload services, system info and other helper menus used throughout the config). It centralises small interactive menus so other scripts and keybindings can call a single, consistent interface.
 
-**Usage:** `walker-menu <menu-name>` (e.g. `walker-menu apps`, `walker-menu power`, `walker-menu wallpapers`, `walker-menu screenshot`, `walker-menu record`, `walker-menu reload`, `walker-menu system`)
+**Usage:** `walker-menu <menu-name>` (e.g. `walker-menu apps`, `walker-menu projects`, `walker-menu power`, `walker-menu wallpapers`, `walker-menu screenshot`, `walker-menu record`, `walker-menu reload`, `walker-menu system`)
 
 </details>
 
@@ -515,6 +515,7 @@ Keybindings
 - `$mod, C, exec, hyprpicker -a`
 - `$mod, N, exec, swaync-client -t -sw`
 - `$mod, Space, exec, walker-menu apps`
+- `$mod, R, exec, walker-menu projects`
 - `$mod CTRL, Space, exec, walker-menu`
 - `$mod SHIFT, Escape, exec, walker-menu power`
 - `$mod, W, exec, walker-menu wallpapers`
@@ -859,3 +860,4 @@ Other dotfiles that I learned / copy from:
 [Spicetify]: https://spicetify.app/
 [Fastfetch]: https://github.com/fastfetch-cli/fastfetch
 [Worktrunk]: https://worktrunk.dev/
+[t3code]: https://github.com/rodeyseijkens/t3code-nix
