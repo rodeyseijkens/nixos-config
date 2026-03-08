@@ -30,6 +30,7 @@
     vscode.enable = true;
     cursor-editor.enable = true;
     zed-editor.enable = true;
+    t3code.enable = true;
 
     # File managers
     nautilus.enable = true;

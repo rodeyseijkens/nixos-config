@@ -26,6 +26,7 @@
     ./stylix.nix # stylix theme
     ./swaync/swaync.nix # notification deamon
     ./swayosd.nix # brightness / volume wiget
+    ./t3code.nix # t3code
     ./tigervnc.nix # remote desktop
     ./tiled.nix # tiled mapeditor
     ./viewnior.nix # image viewer

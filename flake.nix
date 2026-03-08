@@ -79,6 +79,11 @@
     };
 
     cursor-editor.url = "github:tomsch/cursor-nix";
+
+    t3code = {
+      url = "github:rodeyseijkens/t3code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # All outputs for the system (configs)
