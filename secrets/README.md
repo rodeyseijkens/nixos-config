@@ -1,110 +1,71 @@
-# Secrets Management with sops-nix
+# Secrets (Simple Guide)
 
-This directory contains encrypted secrets managed by [sops-nix](https://github.com/Mic92/sops-nix).
+This folder stores encrypted secrets for sops-nix.
 
-## File Layout
+## Quick Start (new host)
 
-- `secrets/secrets.yaml` → shared secrets
-- `secrets/hosts/<host>.yaml` → host-only secrets (decryptable by that host only)
-
-The recipient policy is defined in the repo-root `.sops.yaml`.
-
-## Initial Setup
-
-1. **Generate age recipients from each host SSH key**
+1. **Print this host recipient**
 
 ```bash
-nix shell nixpkgs#ssh-to-age -c sh -c 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
-```
-
-2. **Update `.sops.yaml` with real recipients**
-
-Replace all `age1..._here` placeholders (including optional admin recovery key).
-
-3. **Create encrypted secret files**
-
-```bash
- # Shared secrets
-sops secrets/secrets.yaml
-
- # Host-specific secrets (example for desktop-office)
-mkdir -p secrets/hosts
-sops secrets/hosts/desktop-office.yaml
-```
-
-4. **Add keys used by your Nix modules**
-
-`modules/core/secrets.nix` currently expects this key in `secrets/secrets.yaml`:
-
-```yaml
-git-credentials: |
-  https://username:REPLACE_ME@github.com
-```
-
-## Runtime Usage
-
-Secrets are exposed at `/run/secrets/<name>` with mode `0400`.
-
-Examples:
-
-- `/run/secrets/git-credentials`
-
-## Key Operations
-
-- **Edit secrets:** `sops secrets/secrets.yaml`
-- **Re-encrypt after recipient changes:** `sops updatekeys secrets/secrets.yaml`
-- **Re-encrypt all secret files:**
-
-  ```bash
-  find secrets -type f -name '*.yaml' -exec sops updatekeys {} \;
-  ```
-
-## Helper Script
-
-You can use the repo helper script:
-
-```bash
-secrets-helper admin-key
-secrets-helper git-init [username] [token]
-secrets-helper edit secrets/secrets.yaml
 secrets-helper host-key
-secrets-helper updatekeys
-secrets-helper updatekeys-file secrets/secrets.yaml
 ```
 
-`git-init` uses `gh auth token` automatically when available, unless you pass a token explicitly.
+2. **Add that recipient to `.sops.yaml`**
 
-If `ssh-to-age` or `sops` are missing, run via a nix shell:
+Add the printed `age1...` key to the correct host entry/rule.
+
+3. **Create or update shared secrets**
 
 ```bash
-nix shell nixpkgs#sops nixpkgs#ssh-to-age -c secrets-helper host-key
+secrets-helper git-init <github-username>
+secrets-helper edit secrets/secrets.yaml
 ```
 
-## Verify
+4. **Re-encrypt so this host can decrypt**
 
-After creating/updating secrets:
+```bash
+secrets-helper add-host secrets/secrets.yaml
+```
+
+`add-host` prompts for your admin `AGE-SECRET-KEY` (hidden input) and uses it only for that command.
+
+5. **Apply and verify**
 
 ```bash
 sudo nixos-rebuild test --flake .#<host>
 ls -l /run/secrets
 ```
 
-## Security Notes
+Expected: `/run/secrets/git-credentials` exists.
 
-- Commit only encrypted `.yaml` files.
-- Never keep plaintext backups (`*.dec`, `*.bak`) in this repo.
-- Keep at least one recovery recipient (admin age key) in `.sops.yaml`.
-
-## Secret Scanning
-
-This repo uses `pre-commit` with:
-
-- a local hook that rejects plaintext YAML under `secrets/`
-- `gitleaks` to catch accidental secret material elsewhere
-
-Install hooks once per clone:
+## Host-only Secrets (optional)
 
 ```bash
-pre-commit install
-pre-commit run --all-files
+mkdir -p secrets/hosts
+secrets-helper edit secrets/hosts/<host>.yaml
+secrets-helper add-host secrets/hosts/<host>.yaml
 ```
+
+## Daily Commands
+
+```bash
+secrets-helper edit secrets/secrets.yaml
+secrets-helper add-host secrets/secrets.yaml
+secrets-helper updatekeys-file secrets/secrets.yaml
+secrets-helper updatekeys
+```
+
+## Troubleshooting
+
+- Error: `0 successful groups required, got 0`
+  - Cause: file was not re-encrypted for this host recipient.
+  - Fix: add host recipient to `.sops.yaml`, then run `secrets-helper add-host secrets/secrets.yaml`.
+
+- `add-host` asks for admin key
+  - Use your private `AGE-SECRET-KEY-...` from your password manager.
+  - Admin key is only needed on machines that edit/rekey secrets.
+
+## Safety Rules
+
+- Commit only encrypted `secrets/*.yaml` files.
+- Do not keep plaintext backups in this repo.

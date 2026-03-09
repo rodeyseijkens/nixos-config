@@ -372,7 +372,7 @@ secrets-helper.sh
 
 **Description:** Helper for sops-nix workflows. It can generate/print an admin recovery recipient, print host recipients, initialize git credentials in encrypted secrets, edit secret files, and update SOPS recipients.
 
-**Usage:** `secrets-helper {admin-key|host-key|git-init [username] [token]|edit <path>|updatekeys|updatekeys-file <path>}`
+**Usage:** `secrets-helper {admin-key|host-key|add-host [path]|git-init [username] [token]|edit <path>|updatekeys|updatekeys-file <path>}`
 
 </details>
 
@@ -750,48 +750,52 @@ This script will:
 
 ## 🔐 Secrets Management
 
-This configuration uses **sops-nix** for encrypted secrets management.
+Use `secrets-helper` for all secrets workflows.
 
-- Shared secrets: `secrets/secrets.yaml`
-- Host-only secrets: `secrets/hosts/<host>.yaml`
+### Quick Start (new host)
 
-Secrets are encrypted with age recipients derived from host SSH keys.
-
-**Initial Setup:**
-
-1. After installation, generate age keys from your SSH host key:
+1. Print this host recipient:
 
    ```bash
-   nix shell nixpkgs#ssh-to-age -c sh -c 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+   secrets-helper host-key
    ```
 
-2. Add the generated age key to `.sops.yaml`
+2. Add the printed `age1...` recipient to `.sops.yaml`.
 
-3. Create and edit encrypted secrets:
+3. Create/update shared secrets:
 
    ```bash
-   sops secrets/secrets.yaml
-   mkdir -p secrets/hosts
-   sops secrets/hosts/<host>.yaml
+   secrets-helper git-init <github-username>
+   secrets-helper edit secrets/secrets.yaml
    ```
 
-4. Store secrets in YAML format, e.g.:
-   ```yaml
-   git-credentials: |
-     https://username:REPLACE_ME@github.com
+4. Re-encrypt so this host can decrypt (prompts for admin key):
+
+   ```bash
+   secrets-helper add-host secrets/secrets.yaml
    ```
 
-Secrets will be available at runtime via `/run/secrets/<secret-name>`. GitHub auth stays in `gh auth`. See `secrets/README.md` for full workflow, key rotation, verification, and pre-commit scanning.
+5. Apply and verify:
 
-Helper script:
+   ```bash
+   sudo nixos-rebuild test --flake .#<host>
+   ls -l /run/secrets
+   ```
+
+Expected: `/run/secrets/git-credentials` exists.
+
+### Daily Commands
 
 ```bash
-secrets-helper admin-key
-secrets-helper git-init [username] [token]
 secrets-helper edit secrets/secrets.yaml
-secrets-helper host-key
+secrets-helper add-host secrets/secrets.yaml
+secrets-helper updatekeys-file secrets/secrets.yaml
 secrets-helper updatekeys
 ```
+
+If you see `0 successful groups required, got 0`, add this host recipient to `.sops.yaml`, then run `secrets-helper add-host secrets/secrets.yaml`.
+
+For full details, see `secrets/README.md`.
 
 # 👥 Credits
 

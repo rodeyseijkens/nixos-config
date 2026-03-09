@@ -19,6 +19,12 @@ Usage:
   secrets-helper host-key
       Print this machine's age recipient derived from /etc/ssh/ssh_host_ed25519_key.pub
 
+  secrets-helper add-host [path]
+      Prompt for admin AGE secret key (hidden) and run updatekeys
+      - path optional: one file (for example: secrets/secrets.yaml)
+      - without path: all encrypted YAML files under <repo>/secrets
+      - host recipient must already exist in .sops.yaml
+
   secrets-helper updatekeys
       Re-encrypt all encrypted YAML files under <repo>/secrets using .sops.yaml
 
@@ -89,7 +95,7 @@ cmd_admin_key() {
   printf "%s\n" "$pub"
 }
 
-cmd_host_key() {
+host_recipient() {
   if [ ! -f /etc/ssh/ssh_host_ed25519_key.pub ]; then
     echo "Error: /etc/ssh/ssh_host_ed25519_key.pub not found." >&2
     echo "Run this on a NixOS host with OpenSSH host keys present." >&2
@@ -101,6 +107,49 @@ cmd_host_key() {
   else
     nix shell nixpkgs#ssh-to-age -c sh -c 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
   fi
+}
+
+cmd_host_key() {
+  host_recipient
+}
+
+prompt_admin_key_file() {
+  tty_path="/dev/tty"
+
+  if [ ! -r "$tty_path" ] || [ ! -w "$tty_path" ]; then
+    echo "Error: interactive terminal required to read admin key." >&2
+    exit 1
+  fi
+
+  printf "Paste admin AGE secret key (hidden): " > "$tty_path"
+  old_tty="$(stty -g < "$tty_path")"
+  trap 'stty "$old_tty" < "$tty_path" 2>/dev/null || true' INT TERM HUP
+  stty -echo < "$tty_path"
+
+  if ! IFS= read -r admin_key < "$tty_path"; then
+    stty "$old_tty" < "$tty_path"
+    trap - INT TERM HUP
+    printf "\n" > "$tty_path"
+    echo "Error: no key provided." >&2
+    exit 1
+  fi
+
+  stty "$old_tty" < "$tty_path"
+  trap - INT TERM HUP
+  printf "\n" > "$tty_path"
+
+  case "$admin_key" in
+    AGE-SECRET-KEY-*) ;;
+    *)
+      echo "Error: input does not look like an AGE secret key." >&2
+      exit 1
+      ;;
+  esac
+
+  tmp_key_file="$(mktemp)"
+  chmod 600 "$tmp_key_file"
+  printf "%s\n" "$admin_key" > "$tmp_key_file"
+  printf "%s\n" "$tmp_key_file"
 }
 
 cmd_updatekeys() {
@@ -140,6 +189,46 @@ cmd_updatekeys_file() {
 
   echo "Updating recipients: $file"
   run_sops updatekeys -y "$file"
+}
+
+cmd_add_host() {
+  if [ "$#" -gt 1 ]; then
+    echo "Error: add-host accepts zero or one argument: [path]" >&2
+    usage
+    exit 1
+  fi
+
+  root="$(find_repo_root || true)"
+  if [ -z "$root" ]; then
+    echo "Error: could not find repo root (expected .sops.yaml and ./secrets)." >&2
+    echo "Run this command from inside your nixos-config repository." >&2
+    exit 1
+  fi
+
+  recipient="$(host_recipient)"
+  if ! grep -Fq "$recipient" "$root/.sops.yaml"; then
+    echo "Error: this host recipient is not present in $root/.sops.yaml" >&2
+    echo "Add it to .sops.yaml and rerun add-host." >&2
+    echo "Host recipient: $recipient" >&2
+    exit 1
+  fi
+
+  key_file="$(prompt_admin_key_file)"
+  trap '[ -n "${key_file:-}" ] && rm -f "$key_file"' EXIT INT TERM HUP
+
+  if [ "$#" -eq 1 ]; then
+    target="$1"
+    if [ ! -f "$target" ] && [ -f "$root/$target" ]; then
+      target="$root/$target"
+    fi
+    SOPS_AGE_KEY_FILE="$key_file" cmd_updatekeys_file "$target"
+  else
+    SOPS_AGE_KEY_FILE="$key_file" cmd_updatekeys
+  fi
+
+  rm -f "$key_file"
+  trap - EXIT INT TERM HUP
+  echo "Done."
 }
 
 cmd_edit() {
@@ -235,6 +324,10 @@ case "$cmd" in
     ;;
   host-key)
     cmd_host_key
+    ;;
+  add-host)
+    shift
+    cmd_add_host "$@"
     ;;
   updatekeys)
     cmd_updatekeys
