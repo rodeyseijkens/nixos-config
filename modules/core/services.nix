@@ -3,6 +3,10 @@
     devmon.enable = true;
     gvfs.enable = true;
     udisks2.enable = true;
+    openssh = {
+      enable = true;
+      generateHostKeys = true;
+    };
     gnome.gnome-keyring.enable = true;
     dbus.enable = true;
     fstrim.enable = true;

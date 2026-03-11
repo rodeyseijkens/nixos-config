@@ -11,10 +11,7 @@ keys:
   # Active host recipients
   - &desktop age1rlkpjlkvw5p58snm3eswgtvyxg3l2s86hfyt8z7800x9vryt6gtsqxvtx4
   - &desktop-work age12nl4rq3hwgs7jvjqmxww0q52mkrgxz84fwrj0pfex2y8qh9crfrsp24uky
-
-  # Add these once you have real keys (do not keep placeholders active in rules):
-
-  # - &desktop-office age1...
+  - &desktop-office age1vfu7n8rtaql6pq2yf588w0a984mf8l2y2f2vl667vxl5x87k5u9sqrvpst
 
 creation_rules:
   # Shared secrets: trusted hosts + admin recovery key
@@ -24,6 +21,7 @@ creation_rules:
           - *admin
           - *desktop
           - *desktop-work
+          - *desktop-office
 
   # Per-host secrets: only that host + admin recovery key
   - path_regex: ^secrets/hosts/desktop\.yaml$
@@ -38,9 +36,8 @@ creation_rules:
           - *admin
           - *desktop-work
 
-  # Add host rules below once each host key is available:
-  # - path_regex: ^secrets/hosts/desktop-office\.yaml$
-  #   key_groups:
-  #     - age:
-  #         - *admin
-  #         - *desktop-office
+  - path_regex: ^secrets/hosts/desktop-office\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *desktop-office
