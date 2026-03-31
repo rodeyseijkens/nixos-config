@@ -11,7 +11,7 @@ keys:
   # Active host recipients
   - &desktop age1rlkpjlkvw5p58snm3eswgtvyxg3l2s86hfyt8z7800x9vryt6gtsqxvtx4
   - &desktop-work age12nl4rq3hwgs7jvjqmxww0q52mkrgxz84fwrj0pfex2y8qh9crfrsp24uky
-  - &desktop-office age1vfu7n8rtaql6pq2yf588w0a984mf8l2y2f2vl667vxl5x87k5u9sqrvpst
+  - &desktop-office age1kdrdxg2jzlc5xf0c09jglfglh300d7mtysz6dlhfypcqthhpwurslhlyh4
 
 creation_rules:
   # Shared secrets: trusted hosts + admin recovery key

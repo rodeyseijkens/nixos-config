@@ -3,14 +3,16 @@
   powerManagement.cpuFreqGovernor = "performance";
 
   boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/nvme0n1";
+  boot.loader.grub.device = "nodev";
+  boot.loader.grub.efiSupport = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
   networking.firewall.allowedTCPPortsCustom = [];
 
   # Driver Options
   drivers = {
-    amdgpu.enable = false;
-    nvidiagpu.enable = true;
+    amdgpu.enable = true;
+    nvidiagpu.enable = false;
   };
 
   services = {
