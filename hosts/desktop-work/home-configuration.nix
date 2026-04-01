@@ -12,6 +12,7 @@
       "3, monitor:DP-3"
       "4, monitor:DP-3"
       "5, monitor:DP-3"
+      "8, monitor:DP-2"
       "9, monitor:DP-2, default:true"
       "10, monitor:DP-2"
     ];
