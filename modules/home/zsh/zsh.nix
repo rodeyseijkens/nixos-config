@@ -174,6 +174,10 @@
       # Add Volta to the path
       export VOLTA_HOME="$HOME/.volta"
       export PATH="$VOLTA_HOME/bin:$PATH"
+
+      # Load ni config
+      export NI_DEFAULT_AGENT="pnpm" # default "prompt"
+      export NI_GLOBAL_AGENT="pnpm"
     '';
   };
 
