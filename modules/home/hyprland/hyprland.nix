@@ -4,7 +4,7 @@
   ...
 }: {
   home.packages = with pkgs; [
-    swww
+    awww
     inputs.hypr-contrib.packages.${pkgs.stdenv.hostPlatform.system}.grimblast
     inputs.hyprpicker.packages.${pkgs.stdenv.hostPlatform.system}.hyprpicker
     hyprpolkitagent

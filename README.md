@@ -425,7 +425,7 @@ toggle-waybar.sh
 wall-change.sh 
 </summary>
 
-**Description:** This script changes the wallpaper using swww with random transition effects (either any transition type or a wipe transition with 135-degree angle).
+**Description:** This script changes the wallpaper using awww with random transition effects (either any transition type or a wipe transition with 135-degree angle).
 
 **Usage:** `wall-change <wallpaper_path>`
 
