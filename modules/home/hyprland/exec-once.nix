@@ -5,6 +5,7 @@ in {
     settings = {
       # autostart
       exec-once = [
+        "wl-clip-persist --clipboard regular"
         "wl-paste --type text --watch cliphist store" # Saves text
         "wl-paste --type image --watch cliphist store" # Saves images
         "dbus-update-activation-environment --all --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
