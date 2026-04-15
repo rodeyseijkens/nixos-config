@@ -8,6 +8,14 @@
     inputs.worktrunk.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
+  xdg.configFile."worktrunk/config.toml".text = ''
+    [[pre-start]]
+    copy = "wt step copy-ignored"
+
+    [[pre-start]]
+    install = "ni"
+  '';
+
   # worktrunk shell integration for zsh
   #
   # Completions require zsh's completion system (compinit). If completions don't work:
