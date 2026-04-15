@@ -69,7 +69,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    worktrunk.url = "github:max-sixty/worktrunk";
+    worktrunk.url = "github:max-sixty/worktrunk?ref=v0.37.0";
 
     elephant.url = "github:abenz1267/elephant";
 
