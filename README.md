@@ -177,6 +177,7 @@ Git (EXPAND)
 **History / branches:**
 
 - `gb` → `git branch`
+- `gsb` → `git switch`
 - `gch` → `git checkout`
 - `gchb` → `git checkout -b`
 - `grb` → `git rebase`
