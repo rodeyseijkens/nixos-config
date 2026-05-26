@@ -167,6 +167,9 @@
     "kilo-code.new.agentManagerOpen",
     "kilo-code.new.agentManager.showTerminal"
   ],
+  "chat.disableAIFeatures": true,
   "kilo-code.new.browserAutomation.enabled": true,
-  "kilo-code.new.autocomplete.enableAutoTrigger": false
+  "kilo-code.new.autocomplete.enableAutoTrigger": true,
+  "kilo-code.new.autocomplete.enableSmartInlineTaskKeybinding": true,
+  "kilo-code.new.showTaskTimeline": false
 }
