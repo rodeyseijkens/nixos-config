@@ -20,7 +20,7 @@ in {
         "$mod SHIFT,  F,      fullscreen, 1"
         "$mod SHIFT,  T,      exec,       toggle-float"
         "$mod,        P,      pseudo,"
-        "$mod,        X,      togglesplit,"
+        "$mod,        X,      layoutmsg, togglesplit"
         "$mod,        O,      exec,       toggle-opacity"
 
         # utilities and scripts
