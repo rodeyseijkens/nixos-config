@@ -6,5 +6,19 @@
   {
     "command": "workbench.action.terminal.killAll",
     "key": "ctrl+alt+meta+delete"
+  },
+  {
+    "key": "ctrl+shift+j",
+    "command": "-workbench.action.search.toggleQueryDetails",
+    "when": "inSearchEditor || searchViewletFocus"
+  },
+  {
+    "key": "ctrl+alt+j",
+    "command": "workbench.action.terminal.toggleTerminal",
+    "when": "terminal.active"
+  },
+  {
+    "key": "ctrl+shift+j",
+    "command": "kilo-code.new.focusChatInput"
   }
 ]
