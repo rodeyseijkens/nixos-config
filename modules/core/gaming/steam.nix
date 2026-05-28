@@ -35,7 +35,10 @@ in {
 
       gamescope = {
         enable = true;
-        capSysNice = true;
+        # Workaround for nixpkgs issue #523200 / bubblewrap 0.11.2.
+        # With Steam gamescope sessions enabled, capSysNice=true makes Steam
+        # try setuid bubblewrap, which now fails to start.
+        capSysNice = false;
         args = [
           "--rt"
           "--expose-wayland"
