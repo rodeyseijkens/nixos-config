@@ -1,4 +1,6 @@
 {pkgs, ...}: {
+  virtualisation.docker.enable = true;
+
   services = {
     devmon.enable = true;
     gvfs.enable = true;

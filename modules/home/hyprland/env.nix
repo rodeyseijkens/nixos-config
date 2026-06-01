@@ -40,7 +40,6 @@ in {
         "WLR_DRM_NO_ATOMIC, 1"
         "WLR_NO_HARDWARE_CURSORS, 1"
         # Application specific settings
-        "SSH_AUTH_SOCK, /run/user/1000/keyring/ssh"
         "DIRENV_LOG_FORMAT, "
         "EDITOR,${editor}"
         # Set terminal and xdg_terminal_emulator

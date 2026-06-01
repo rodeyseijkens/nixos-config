@@ -32,6 +32,9 @@
     zed-editor.enable = true;
     t3code.enable = false;
 
+    # DevPod
+    devpod.enable = true;
+
     # File managers
     nautilus.enable = true;
 

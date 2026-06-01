@@ -6,6 +6,7 @@
     ./btop.nix # resouces monitor
     ./cursor-editor.nix # cursor editor
     ./3d-printing.nix # 3D printing slicers
+    ./devpod.nix # devpod development environments
     ./fastfetch.nix # fetch tool
     ./fzf.nix # fuzzy finder
     ./ghostty.nix # terminal
