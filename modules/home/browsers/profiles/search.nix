@@ -11,7 +11,7 @@
             params = [
               {
                 name = "model";
-                value = "gemini-2.5-flash";
+                value = "gpt-5.4-mini";
               }
               {
                 name = "q";
