@@ -171,5 +171,9 @@
   "kilo-code.new.browserAutomation.enabled": true,
   "kilo-code.new.autocomplete.enableAutoTrigger": true,
   "kilo-code.new.autocomplete.enableSmartInlineTaskKeybinding": true,
-  "kilo-code.new.showTaskTimeline": false
+  "kilo-code.new.showTaskTimeline": false,
+  "kilo-code.new.agentWorkStyle": "skipped",
+  "conventionalCommits.promptFooter": false,
+  "conventionalCommits.promptBody": false,
+  "conventionalCommits.gitmoji": false
 }

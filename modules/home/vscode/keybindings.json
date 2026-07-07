@@ -20,5 +20,29 @@
   {
     "key": "ctrl+shift+j",
     "command": "kilo-code.new.focusChatInput"
+  },
+  {
+    "key": "ctrl+k l",
+    "command": "-quokka.createFile",
+    "when": "!quokka.isLiveShareClient && !terminalFocus"
+  },
+  {
+    "key": "ctrl+k l",
+    "command": "workbench.action.editor.changeLanguageMode",
+    "when": "!notebookEditorFocused"
+  },
+  {
+    "key": "ctrl+k m",
+    "command": "-workbench.action.editor.changeLanguageMode",
+    "when": "!notebookEditorFocused"
+  },
+  {
+    "key": "ctrl+k m",
+    "command": "-notebook.cell.changeLanguage",
+    "when": "notebookCellEditable && notebookEditable && notebookEditorFocused"
+  },
+  {
+    "key": "ctrl+k m",
+    "command": "workbench.action.moveEditorToNewWindow"
   }
 ]
