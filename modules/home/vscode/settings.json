@@ -15,7 +15,7 @@
   "explorer.confirmDragAndDrop": false,
   "explorer.openEditors.visible": 0,
   "explorer.fileNesting.enabled": true,
-  "extensions.autoUpdate": false,
+  "extensions.autoUpdate": "off",
   "files.autoSave": "onWindowChange",
   "terminal.integrated.fontFamily": "'Maple Mono', 'SymbolsNerdFont'",
   "terminal.integrated.tabs.enabled": false,
