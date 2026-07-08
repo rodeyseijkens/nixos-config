@@ -33,6 +33,7 @@
     satty # snapshot editing tool - for screenshot.sh
     imagemagick # image manipulation tool
     viu # image viewer for terminal
+    herdr # terminal agent multiplexer
 
     ## CLI fun
     cbonsai # terminal screensaver

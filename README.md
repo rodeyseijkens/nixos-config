@@ -68,6 +68,7 @@ Hyprlock (EXPAND)
 | **Application Launcher**      |                                            [Walker][Walker]                                             |
 | **Notification Daemon**       |                                            [swaync][swaync]                                             |
 | **Terminal Emulator**         |                                           [Ghostty][Ghostty]                                            |
+| **Terminal Agent Multiplexer**|                                            [herdr][herdr]                                               |
 | **Shell**                     |                                   [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                                   |
 | **Text Editor**               | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code] |
 | **network management tool**   |           [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]           |
@@ -865,4 +866,5 @@ Other dotfiles that I learned / copy from:
 [Spicetify]: https://spicetify.app/
 [Fastfetch]: https://github.com/fastfetch-cli/fastfetch
 [Worktrunk]: https://worktrunk.dev/
+[herdr]: https://herdr.dev/
 [t3code]: https://github.com/rodeyseijkens/t3code-nix
