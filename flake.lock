@@ -1320,7 +1320,6 @@
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "stylix": "stylix",
-        "t3code": "t3code",
         "walker": "walker",
         "worktrunk": "worktrunk",
         "zen-browser": "zen-browser"
@@ -1571,26 +1570,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "t3code": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1783325284,
-        "narHash": "sha256-YUiMHt+gCxVa7jQnIOGtqOoQo2vmgepxxCNWCWqkwYI=",
-        "owner": "rodeyseijkens",
-        "repo": "t3code-nix",
-        "rev": "282897a8ede209a6b989c9c8c75157d079525590",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rodeyseijkens",
-        "repo": "t3code-nix",
         "type": "github"
       }
     },

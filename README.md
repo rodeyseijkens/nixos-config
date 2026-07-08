@@ -61,35 +61,35 @@ Hyprlock (EXPAND)
 
 ## 📓 Components
 
-|                               |                                            NixOS + Hyprland                                             |
-| ----------------------------- | :-----------------------------------------------------------------------------------------------------: |
-| **Window Manager**            |                                          [Hyprland][Hyprland]                                           |
-| **Bar**                       |                                            [Waybar][Waybar]                                             |
-| **Application Launcher**      |                                            [Walker][Walker]                                             |
-| **Notification Daemon**       |                                            [swaync][swaync]                                             |
-| **Terminal Emulator**         |                                           [Ghostty][Ghostty]                                            |
-| **Terminal Agent Multiplexer**|                                            [herdr][herdr]                                               |
-| **Shell**                     |                                   [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                                   |
-| **Text Editor**               | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code] |
-| **network management tool**   |           [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]           |
-| **System resource monitor**   |                                              [Btop][Btop]                                               |
-| **System Fetch**              |                                         [Fastfetch][Fastfetch]                                          |
-| **Browser**                   |                                       [Zen Browser][zen-browser]                                        |
-| **File Manager**              |                                   [Nautilus][Nautilus] + [yazi][yazi]                                   |
-| **Fonts**                     |                                        [Maple Mono][Maple Mono]                                         |
-| **Color Scheme**              |                                      [Gruvbox Dark Hard][Gruvbox]                                       |
-| **Cursor**                    |                                 [Bibata-Modern-Ice][Bibata-Modern-Ice]                                  |
-| **Icons**                     |                                      [Papirus-Dark][Papirus-Dark]                                       |
-| **Lockscreen**                |                                          [Hyprlock][Hyprlock]                                           |
-| **Image Viewer**              |                                          [viewnior][viewnior]                                           |
-| **Pixel Art / Sprite Editor** |                                       [LibreSprite][LibreSprite]                                        |
-| **Media Player**              |                                               [mpv][mpv]                                                |
-| **Music Player**              |                                         [Spicetify][Spicetify]                                          |
-| **Screenshot Software**       |                                         [grimblast][grimblast]                                          |
-| **Screen Recording**          |                                       [wf-recorder][wf-recorder]                                        |
-| **Color Picker**              |                                        [hyprpicker][hyprpicker]                                         |
-| **Theme Manager**             |                                            [Stylix][Stylix]                                             |
-| **Git Worktree Manager**      |                                         [Worktrunk][Worktrunk]                                          |
+|                                |                                            NixOS + Hyprland                                             |
+| ------------------------------ | :-----------------------------------------------------------------------------------------------------: |
+| **Window Manager**             |                                          [Hyprland][Hyprland]                                           |
+| **Bar**                        |                                            [Waybar][Waybar]                                             |
+| **Application Launcher**       |                                            [Walker][Walker]                                             |
+| **Notification Daemon**        |                                            [swaync][swaync]                                             |
+| **Terminal Emulator**          |                                           [Ghostty][Ghostty]                                            |
+| **Terminal Agent Multiplexer** |                                             [herdr][herdr]                                              |
+| **Shell**                      |                                   [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                                   |
+| **Text Editor**                | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code] |
+| **network management tool**    |           [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]           |
+| **System resource monitor**    |                                              [Btop][Btop]                                               |
+| **System Fetch**               |                                         [Fastfetch][Fastfetch]                                          |
+| **Browser**                    |                                       [Zen Browser][zen-browser]                                        |
+| **File Manager**               |                                   [Nautilus][Nautilus] + [yazi][yazi]                                   |
+| **Fonts**                      |                                        [Maple Mono][Maple Mono]                                         |
+| **Color Scheme**               |                                      [Gruvbox Dark Hard][Gruvbox]                                       |
+| **Cursor**                     |                                 [Bibata-Modern-Ice][Bibata-Modern-Ice]                                  |
+| **Icons**                      |                                      [Papirus-Dark][Papirus-Dark]                                       |
+| **Lockscreen**                 |                                          [Hyprlock][Hyprlock]                                           |
+| **Image Viewer**               |                                          [viewnior][viewnior]                                           |
+| **Pixel Art / Sprite Editor**  |                                       [LibreSprite][LibreSprite]                                        |
+| **Media Player**               |                                               [mpv][mpv]                                                |
+| **Music Player**               |                                         [Spicetify][Spicetify]                                          |
+| **Screenshot Software**        |                                         [grimblast][grimblast]                                          |
+| **Screen Recording**           |                                       [wf-recorder][wf-recorder]                                        |
+| **Color Picker**               |                                        [hyprpicker][hyprpicker]                                         |
+| **Theme Manager**              |                                            [Stylix][Stylix]                                             |
+| **Git Worktree Manager**       |                                         [Worktrunk][Worktrunk]                                          |
 
 ## 📝 Shell aliases
 
@@ -867,4 +867,4 @@ Other dotfiles that I learned / copy from:
 [Fastfetch]: https://github.com/fastfetch-cli/fastfetch
 [Worktrunk]: https://worktrunk.dev/
 [herdr]: https://herdr.dev/
-[t3code]: https://github.com/rodeyseijkens/t3code-nix
+[t3code]: https://t3.codes

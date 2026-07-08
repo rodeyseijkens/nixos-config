@@ -2,7 +2,6 @@
   pkgs,
   lib,
   config,
-  inputs,
   ...
 }:
 with lib; let
@@ -10,8 +9,6 @@ with lib; let
 in {
   options.modules.t3code = {enable = mkEnableOption "t3code";};
   config = mkIf cfg.enable {
-    home.packages = [
-      inputs.t3code.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ];
+    home.packages = [pkgs.t3code];
   };
 }
