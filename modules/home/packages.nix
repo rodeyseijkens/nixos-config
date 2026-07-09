@@ -34,6 +34,7 @@
     imagemagick # image manipulation tool
     viu # image viewer for terminal
     herdr # terminal agent multiplexer
+    ripgrep # fast grep replacement
 
     ## CLI fun
     cbonsai # terminal screensaver
