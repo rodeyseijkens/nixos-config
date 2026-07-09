@@ -747,8 +747,7 @@ This script will:
 3. Install `@antfu/ni@latest`
 4. Install `pnpm@latest`
 5. Install `@biomejs/biome`
-6. Install `opencode-ai@latest`
-7. Install `@kilocode/cli@latest`
+6. Install `@kilocode/cli@latest`
 
 ## 🔐 Secrets Management
 
