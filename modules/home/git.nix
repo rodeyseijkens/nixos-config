@@ -60,6 +60,9 @@
     # status/log
     gs = "git status";
     gd = "git diff | diffnav";
+    gdu = "git diff | diffnav";
+    gda = "git diff HEAD | diffnav";
+    gds = "git diff --cached | diffnav";
     glog = "git log --oneline --decorate --graph";
     glol = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'";
     glola = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all";
