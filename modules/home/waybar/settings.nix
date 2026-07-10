@@ -6,6 +6,7 @@
     cyan = config.lib.stylix.colors.withHashtag.base0C;
     magenta = config.lib.stylix.colors.withHashtag.base0E;
     orange = config.lib.stylix.colors.withHashtag.base0F;
+    gray = config.lib.stylix.colors.withHashtag.base03;
   };
 in {
   programs.waybar.settings.mainBar = with custom; {
@@ -29,7 +30,6 @@ in {
       "memory"
       "disk"
       "pulseaudio"
-      "network"
       "battery"
       "custom/notification"
     ];
@@ -37,10 +37,9 @@ in {
       calendar = {
         format = {today = "<span color='${green}'><b>{}</b></span>";};
       };
-      format = "  {:%H:%M}";
+      format = "<span foreground='${gray}'></span> {0:%d/%m} <span foreground='${gray}'></span> {0:%H:%M}";
       tooltip = "true";
       tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
-      format-alt = "  {:%d/%m}";
     };
     "hyprland/workspaces" = {
       active-only = false;
@@ -72,8 +71,8 @@ in {
       separate-outputs = true;
     };
     cpu = {
-      format = "<span foreground='${green}'> </span> {usage}%";
-      format-alt = "<span foreground='${green}'> </span> {avg_frequency} GHz";
+      format = "<span foreground='${green}'></span> {usage}%";
+      format-alt = "<span foreground='${green}'></span> {avg_frequency} GHz";
       interval = 2;
       on-click-right = "hyprctl dispatch exec '[float; center; size 950 650] ghostty -e btop'";
     };
@@ -90,11 +89,11 @@ in {
       on-click-right = "hyprctl dispatch exec '[float; center; size 950 650] ghostty -e btop'";
     };
     network = {
-      format-wifi = "<span foreground='${magenta}'> </span> {signalStrength}%";
-      format-ethernet = "<span foreground='${magenta}'>󰀂 </span>";
+      format-wifi = "<span foreground='${magenta}'></span> {signalStrength}%";
+      format-ethernet = "<span foreground='${magenta}'>󰀂</span>";
       tooltip-format = "Connected to {essid} {ifname} via {gwaddr}";
       format-linked = "{ifname} (No IP)";
-      format-disconnected = "<span foreground='${magenta}'>󰖪 </span>";
+      format-disconnected = "<span foreground='${magenta}'>󰖪</span>";
     };
     tray = {
       icon-size = 20;
@@ -104,7 +103,7 @@ in {
       format = "{icon} {volume}%";
       format-muted = "<span foreground='${blue}'> </span> {volume}%";
       format-icons = {
-        default = ["<span foreground='${blue}'> </span>"];
+        default = ["<span foreground='${blue}'></span>"];
       };
       scroll-step = 2;
       on-click = "pamixer -t";
