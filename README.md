@@ -91,6 +91,29 @@ Hyprlock (EXPAND)
 | **Theme Manager**              |                                            [Stylix][Stylix]                                             |
 | **Git Worktree Manager**       |                                         [Worktrunk][Worktrunk]                                          |
 
+
+## 🧩 herdr plugins
+
+Plugins are installed by herdr itself (e.g. `herdr plugin install persiyanov/herdr-reviewr`) and live under
+`~/.config/herdr/plugins/`. Only the plugin config is managed by nix:
+[reviewr-config.toml](modules/home/herdr/reviewr-config.toml) is symlinked to
+`~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml`, matching the same
+out-of-store symlink pattern as the herdr config itself.
+
+**Installed plugins:**
+
+| Plugin                                                       | Action                                        |
+| ------------------------------------------------------------ | --------------------------------------------- |
+| [herdr-reviewr](https://github.com/persiyanov/herdr-reviewr) | Native terminal code-review sidebar (v0.10.0) |
+
+**Herdr config:** `modules/home/herdr/config.toml`
+- Theme: My custom Gruvb0x
+- Prefix: `ctrl+i`
+
+**reviewr-config.toml keybinds (added to herdr config):**
+- `prefix+shift+r` — toggle reviewr sidebar
+
+
 ## 📝 Shell aliases
 
 <details>
@@ -155,7 +178,10 @@ Git (EXPAND)
 **Status/Log:**
 
 - `gs` → `git status`
-- `gd` → `git diff`
+- `gd` → `git diff | diffnav`
+- `gdu` → `git diff | diffnav`
+- `gda` → `git diff HEAD | diffnav`
+- `gds` → `git diff --cached | diffnav`
 - `glog` → `git log --oneline --decorate --graph`
 - `glol` → `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'`
 - `glola` → `git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all`
