@@ -1,0 +1,28 @@
+# herdr-reviewr configuration
+# Place this file at ~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml
+#
+# Theme names match herdr's wherever both ship a palette, so a value copied from
+# herdr's config.toml resolves to the same palette in reviewr.
+# Supported: catppuccin (default), catppuccin-latte, catppuccin-frappe,
+# catppuccin-macchiato, dracula, nord, gruvbox, gruvbox-light, one-dark,
+# one-light, solarized, solarized-light, github-light, monokai, tokyo-night,
+# tokyo-night-day, rose-pine, rose-pine-dawn.
+theme = "gruvbox"
+
+# Where the worktree (vs project) sidebar auto-opens from. "split" attaches a
+# right-side pane; "tab" opens a new tab; "overlay" / "zoomed" are not gated
+# here. See specs/tui.md.
+toggle_placement = "split"
+
+# "right" or "down" — which side of the focused pane the split sidebar lives on.
+toggle_direction = "right"
+
+# When true (default), reviewr auto-opens the sidebar on `herdr worktree create`
+# for a matching layout. Set false to keep the sidebar out of the way until you
+# open it explicitly.
+auto_open = true
+
+# Base-branch candidates, tried in order, when a workspace has no explicit base
+# ref. Strings only; an empty or unparseable list falls back to the default
+# (origin/main, origin/master, main, master).
+# base_branches = ["origin/main", "origin/master", "main", "master"]
