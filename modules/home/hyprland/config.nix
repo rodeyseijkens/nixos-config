@@ -25,7 +25,7 @@
     windowrules = [
       "workspace 8, match:class ^(spotify)$"
       "workspace 9, match:class ^(steam)$"
-      "workspace 10, match:title (?i).*legcord.*"
+      "workspace 10, match:class ^(legcord)$"
 
       # Keyring Dialog on workspace 1
       "workspace 1, match:title (?i).*keyring.*"
@@ -74,7 +74,7 @@ in {
       description = "Window rules (Hyprland) to apply per-host. If empty, fallback defaults are used.";
       example = [
         "workspace 8, match:class (?i)spotify"
-        "workspace 10, match:title (?i)legcord"
+        "workspace 10, match:class ^(legcord)$"
       ];
     };
   };
