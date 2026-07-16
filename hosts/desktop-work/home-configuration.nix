@@ -60,6 +60,7 @@
     vscode.enable = true;
     cursor-editor.enable = true;
     zed-editor.enable = true;
+    helix-editor.enable = true;
     t3code.enable = false;
 
     # DevPod

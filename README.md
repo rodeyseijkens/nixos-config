@@ -70,7 +70,8 @@ Hyprlock (EXPAND)
 | **Terminal Emulator**          |                                           [Ghostty][Ghostty]                                            |
 | **Terminal Agent Multiplexer** |                                             [herdr][herdr]                                              |
 | **Shell**                      |                                   [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                                   |
-| **Text Editor**                | [VSCode][VSCode] + [Neovim][Neovim] + [micro][micro] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code] |
+| **Text Editor (GUI)**          |                       [VSCode][VSCode] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code]                        |
+| **Text Editor (Terminal)**     |              [Neovim][Neovim] + [micro][micro] + [Helix][Helix]              |
 | **network management tool**    |           [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]           |
 | **System resource monitor**    |                                              [Btop][Btop]                                               |
 | **System Fetch**               |                                         [Fastfetch][Fastfetch]                                          |
@@ -893,3 +894,4 @@ Other dotfiles that I learned / copy from:
 [Worktrunk]: https://worktrunk.dev/
 [herdr]: https://herdr.dev/
 [t3code]: https://t3.codes
+[Helix]: https://github.com/helix-editor/helix

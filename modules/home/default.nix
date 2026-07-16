@@ -13,6 +13,7 @@
     ./git.nix # version control
     ./gnome.nix # gnome apps
     ./gtk.nix # gtk theme
+    ./helix # helix editor
     ./herdr # terminal agent multiplexer (gruvbox theme)
     ./hyprland # window manager
     ./legcord # discord client with gruvbox
