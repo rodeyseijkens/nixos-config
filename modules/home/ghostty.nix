@@ -22,7 +22,6 @@
 
       # Theme
       theme = "gruvbox";
-      background-opacity = 0.66;
 
       cursor-style = "bar";
       cursor-style-blink = false;
