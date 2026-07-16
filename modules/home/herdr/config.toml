@@ -1,3 +1,4 @@
+
 # Gruvb0x — Rodey's gruvbox-material-dark-hard variant of herdr's built-in gruvbox theme.
 # Base palette is gruvbox-dark (Pavel Pertsev), recoloured to match the Rodey Gruvb0x
 # base16 scheme defined in modules/core/stylix.nix (gruvbox-material-dark-hard with
@@ -10,7 +11,7 @@
 
 # Show first-run notification setup on startup.
 # Missing also shows onboarding; set false after you've chosen.
-# onboarding = true
+onboarding = false
 
 [theme]
 # Built-in themes: catppuccin, terminal, tokyo-night, dracula, nord,
