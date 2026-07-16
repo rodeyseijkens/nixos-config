@@ -36,6 +36,12 @@
     settings = {
       gui = {
         mouseEvents = false;
+        showCommandLog = false;
+        sidePanels = [
+          [ "files" "worktrees" "submodules" ]
+          [ "commits" "reflog" ]
+          [ "stash" ]
+        ];
       };
     };
   };
