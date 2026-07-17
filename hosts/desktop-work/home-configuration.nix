@@ -62,6 +62,7 @@
     zed-editor.enable = true;
     helix-editor.enable = true;
     t3code.enable = false;
+    handy.enable = true;
 
     # DevPod
     devpod.enable = true;

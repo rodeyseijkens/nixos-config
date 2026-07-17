@@ -91,9 +91,28 @@ Hyprlock (EXPAND)
 | **Color Picker**               |                                        [hyprpicker][hyprpicker]                                         |
 | **Theme Manager**              |                                            [Stylix][Stylix]                                             |
 | **Git Worktree Manager**       |                                         [Worktrunk][Worktrunk]                                          |
+| **Speech-to-text**              |                            [Handy][Handy] (via [numtide/llm-agents.nix][llm-agents])                    |
 
 
-## 🧩 herdr plugins
+## 🎙️ Handy (speech-to-text)
+
+[Handy][Handy] is installed as a pre-built binary from [numtide/llm-agents.nix][llm-agents] (pulled from `cache.numtide.com` — no local build). It's enabled via the `modules.handy` option and only on `desktop-work` and `desktop-office`.
+
+Configuration lives in `modules/home/handy.nix` and does three things:
+
+- Adds `inputs.llm-agents.packages.${system}.handy` to `home.packages`
+- Starts a `handy.service` systemd user unit on `graphical-session.target` (auto-restart on failure)
+- Requires `wtype` (in `modules/core/nh.nix`) for Wayland text injection — without it Handy falls back to `enigo` which has limited Hyprland support
+
+The user is in the `input` group (see `modules/core/user.nix`) so the rdev hotkey feature can access `/dev/uinput`.
+
+Toggle per-host in `hosts/<host>/home-configuration.nix`:
+
+```nix
+modules.handy.enable = true;
+```
+
+
 
 Plugins are installed by herdr itself (e.g. `herdr plugin install persiyanov/herdr-reviewr`) and live under
 `~/.config/herdr/plugins/`. Only the plugin config is managed by nix:
@@ -895,3 +914,5 @@ Other dotfiles that I learned / copy from:
 [herdr]: https://herdr.dev/
 [t3code]: https://t3.codes
 [Helix]: https://github.com/helix-editor/helix
+[Handy]: https://handy.computer/
+[llm-agents]: https://github.com/numtide/llm-agents.nix

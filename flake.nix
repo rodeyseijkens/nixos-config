@@ -79,6 +79,12 @@
     };
 
     cursor-editor.url = "github:tomsch/cursor-nix";
+
+    # Cached binaries for LLM agents and dev tools (incl. handy).
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # All outputs for the system (configs)

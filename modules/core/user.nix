@@ -28,7 +28,12 @@
   users.users.${username} = {
     isNormalUser = true;
     description = "${username}";
-    extraGroups = ["networkmanager" "wheel"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      # Required for Handy to access /dev/uinput (virtual input devices)
+      "input"
+    ];
     shell = pkgs.zsh;
   };
 

@@ -28,6 +28,9 @@ in {
         "$mod,        C,      exec,       hyprpicker -a"
         "$mod,        N,      exec,       swaync-client -t -sw"
         "$mod,        Space,  exec,       walker-menu apps"
+
+        # Toggle Handy speech-to-text (USR2 toggles recording in the binary)
+        "$mod,        period, exec,       sh -c 'pkill -USR2 -x handy || pkill -USR2 -x .handy-wrapped'"
         "$mod CTRL,   Space,  exec,       walker-menu"
         "$mod SHIFT,  Escape, exec,       walker-menu power"
         "$mod,        W,      exec,       walker-menu wallpapers"

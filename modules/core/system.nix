@@ -43,6 +43,9 @@
     wget
     git
     ntfs3g
+    # Wayland virtual keyboard — required by Handy (and useful for other
+    # automation) for text injection since enigo has limited Wayland support.
+    wtype
   ];
 
   time.timeZone = lib.mkDefault "Europe/Amsterdam";

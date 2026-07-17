@@ -13,6 +13,7 @@
     ./git.nix # version control
     ./gnome.nix # gnome apps
     ./gtk.nix # gtk theme
+    ./handy.nix # offline speech-to-text
     ./helix # helix editor
     ./herdr # terminal agent multiplexer (gruvbox theme)
     ./hyprland # window manager
