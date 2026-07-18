@@ -14,8 +14,6 @@
       };
       init.defaultBranch = "main";
       credential.helper = "sops";
-      merge.conflictstyle = "diff3";
-      diff.colorMoved = "default";
       push.autoSetupRemote = true;
     };
   };
@@ -26,7 +24,6 @@
     options = {
       line-numbers = true;
       side-by-side = true;
-      diff-so-fancy = true;
       navigate = true;
     };
   };
@@ -34,14 +31,15 @@
   programs.lazygit = {
     enable = true;
     settings = {
+      git.pagers = [
+        {
+          colorArg = "always";
+          pager = "delta --dark --paging=never";
+        }
+      ];
       gui = {
         mouseEvents = false;
         showCommandLog = false;
-        sidePanels = [
-          [ "files" "worktrees" "submodules" ]
-          [ "commits" "reflog" ]
-          [ "stash" ]
-        ];
       };
     };
   };
