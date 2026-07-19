@@ -7,6 +7,7 @@
   pl_left_square = "░▒▓";
   pl_right_square = "▓▒░";
   pl_right_sharp = "";
+  pl_left_sharp = "";
   arrow_right = "→";
   arrow_left = "←";
 
@@ -39,15 +40,19 @@ in {
         "$directory"
         "[${pl_right_sharp}](fg:color_blue bg:color_green)"
         "$git_branch"
-        "[${pl_right_sharp}](fg:color_green bg:color_bg1)"
-        "$git_status"
-        # "[${pl_right_sharp}](fg:color_bg1 bg:color_orange)"
-        # "$nix_shell"
-        "[${pl_right_sharp}](fg:color_bg1 bg:color_bg4)"
-        "$time"
-        "[${pl_right_sharp} ](fg:color_bg4)"
+        "[${pl_right_sharp}](fg:color_green)"
         "$line_break"
         "$character"
+      ]);
+
+      right_format = lib.mkForce (lib.concatStrings [
+        # "[${pl_right_sharp}](fg:color_bg1 bg:color_orange)"
+        # "$nix_shell"
+        "[${pl_left_sharp}](fg:color_bg1)"
+        "$git_status"
+        "[${pl_left_sharp}](fg:color_bg4 bg:color_bg1)"
+        "$time"
+        "[${pl_right_square} ](fg:color_bg4)"
       ]);
 
       # os = {
