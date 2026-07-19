@@ -9,7 +9,7 @@
 
     settings = {
       font-family = [
-        "Maple Mono"
+        "Maple Mono NF CN"
       ];
       font-size = 12;
       font-feature = [

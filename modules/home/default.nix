@@ -23,8 +23,9 @@
     ./nautilus.nix # file manager
     ./nvim.nix # neovim editor
     ./obs-studio.nix # screen recorder
-    ./p10k/p10k.nix # zsh theme
     ./packages.nix # other packages
+    ./spicetify.nix # spotify client
+    ./starship.nix # prompt
     ./scripts/scripts.nix # personal scripts
     ./spicetify.nix # spotify client
     ./stylix.nix # stylix theme

@@ -69,9 +69,9 @@ Hyprlock (EXPAND)
 | **Notification Daemon**        |                                            [swaync][swaync]                                             |
 | **Terminal Emulator**          |                                           [Ghostty][Ghostty]                                            |
 | **Terminal Agent Multiplexer** |                                             [herdr][herdr]                                              |
-| **Shell**                      |                                   [zsh][zsh] + [oh-my-zsh][oh-my-zsh]                                   |
-| **Text Editor (GUI)**          |                       [VSCode][VSCode] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code]                        |
-| **Text Editor (Terminal)**     |              [Neovim][Neovim] + [micro][micro] + [Helix][Helix]              |
+| **Shell**                      |                             [zsh][zsh] + [Starship][Starship]                                           |
+| **Text Editor (GUI)**          |                       [VSCode][VSCode] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code]               |
+| **Text Editor (Terminal)**     |                          [Neovim][Neovim] + [micro][micro] + [Helix][Helix]                             |
 | **network management tool**    |           [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]           |
 | **System resource monitor**    |                                              [Btop][Btop]                                               |
 | **System Fetch**               |                                         [Fastfetch][Fastfetch]                                          |
@@ -91,7 +91,7 @@ Hyprlock (EXPAND)
 | **Color Picker**               |                                        [hyprpicker][hyprpicker]                                         |
 | **Theme Manager**              |                                            [Stylix][Stylix]                                             |
 | **Git Worktree Manager**       |                                         [Worktrunk][Worktrunk]                                          |
-| **Speech-to-text**              |                            [Handy][Handy] (via [numtide/llm-agents.nix][llm-agents])                    |
+| **Speech-to-text**             |                            [Handy][Handy] (via [numtide/llm-agents.nix][llm-agents])                    |
 
 
 ## 🎙️ Handy (speech-to-text)
@@ -885,7 +885,7 @@ Other dotfiles that I learned / copy from:
 [Nautilus]: https://apps.gnome.org/Nautilus/
 [yazi]: https://github.com/sxyazi/yazi
 [zsh]: https://www.zsh.org/
-[oh-my-zsh]: https://ohmyz.sh/
+[Starship]: https://starship.rs/
 [Hyprlock]: https://github.com/hyprwm/hyprlock
 [mpv]: https://github.com/mpv-player/mpv
 [VSCode]: https://code.visualstudio.com/
