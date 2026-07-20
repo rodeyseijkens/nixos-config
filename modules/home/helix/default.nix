@@ -12,13 +12,21 @@ in {
     programs.helix = {
       enable = true;
       defaultEditor = true;
-      settings.editor = {
-        cursorline = true;
-        true-color = true;
-        auto-format = true;
-        indent-guides.render = true;
-        file-picker.hidden = true;
-        lsp.display-inlay-hints = true;
+      settings = {
+        editor = {
+          cursorline = true;
+          true-color = true;
+          auto-format = true;
+          indent-guides.render = true;
+          file-picker.hidden = true;
+          lsp.display-inlay-hints = true;
+        };
+        keys.insert = {
+          C-h = "move_char_left";
+          C-j = "move_line_down";
+          C-k = "move_line_up";
+          C-l = "move_char_right";
+        };
       };
 
       extraPackages = with pkgs; [
@@ -109,7 +117,10 @@ in {
           name = "typescript";
           auto-format = true;
           language-servers = [
-            {name = "typescript-language-server"; except-features = ["format"];}
+            {
+              name = "typescript-language-server";
+              except-features = ["format"];
+            }
             "biome"
           ];
         }
@@ -117,7 +128,10 @@ in {
           name = "javascript";
           auto-format = true;
           language-servers = [
-            {name = "typescript-language-server"; except-features = ["format"];}
+            {
+              name = "typescript-language-server";
+              except-features = ["format"];
+            }
             "biome"
           ];
         }
@@ -125,7 +139,10 @@ in {
           name = "tsx";
           auto-format = true;
           language-servers = [
-            {name = "typescript-language-server"; except-features = ["format"];}
+            {
+              name = "typescript-language-server";
+              except-features = ["format"];
+            }
             "tailwindcss-ls"
             "biome"
           ];
@@ -134,7 +151,10 @@ in {
           name = "jsx";
           auto-format = true;
           language-servers = [
-            {name = "typescript-language-server"; except-features = ["format"];}
+            {
+              name = "typescript-language-server";
+              except-features = ["format"];
+            }
             "tailwindcss-ls"
             "biome"
           ];
@@ -143,7 +163,10 @@ in {
           name = "json";
           auto-format = true;
           language-servers = [
-            {name = "vscode-json-language-server"; except-features = ["format"];}
+            {
+              name = "vscode-json-language-server";
+              except-features = ["format"];
+            }
             "biome"
           ];
         }
@@ -151,7 +174,10 @@ in {
           name = "css";
           auto-format = true;
           language-servers = [
-            {name = "vscode-css-language-server"; except-features = ["format"];}
+            {
+              name = "vscode-css-language-server";
+              except-features = ["format"];
+            }
             "tailwindcss-ls"
             "biome"
           ];
