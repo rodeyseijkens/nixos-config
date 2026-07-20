@@ -71,5 +71,6 @@
     obs-studio.enable = true;
     printing3d.enable = true;
     tiled.enable = true;
+    handy.enable = true;
   };
 }
