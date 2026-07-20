@@ -9,10 +9,19 @@ with lib; let
 in {
   options.modules.helix-editor = {enable = mkEnableOption "helix-editor";};
   config = mkIf cfg.enable {
+    # themed by programs.helix.themes.gruvb0x below, not by stylix
+    stylix.targets.helix.enable = false;
+
+    # Layer a user runtime query so JSX tag brackets use @punctuation.special
+    # (themed yellow) instead of @punctuation.bracket (themed purple).
+    xdg.configFile."helix/runtime/queries/tsx/highlights.scm".source =
+      ./theme/languages/js-ts.scm;
+
     programs.helix = {
       enable = true;
       defaultEditor = true;
       settings = {
+        theme = "gruvb0x";
         editor = {
           cursorline = true;
           true-color = true;
@@ -28,6 +37,20 @@ in {
           C-l = "move_char_right";
         };
       };
+
+      themes.gruvb0x = let
+        stylixColors = config.lib.stylix.colors.withHashtag;
+        parts = [
+          ./theme/base.nix
+          ./theme/semantic-colors.nix
+          ./theme/ui.nix
+          ./theme/languages/c.nix
+          ./theme/languages/css.nix
+          ./theme/languages/js-ts.nix
+          ./theme/languages/mark-up-down.nix
+        ];
+      in
+        foldl' recursiveUpdate {} (map (f: import f {inherit stylixColors;}) parts);
 
       extraPackages = with pkgs; [
         typescript-language-server
