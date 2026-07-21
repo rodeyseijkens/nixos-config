@@ -52,7 +52,7 @@ in {
         "$git_status"
         "[${pl_left_sharp}](fg:color_bg4 bg:color_bg1)"
         "$time"
-        "[${pl_right_square} ](fg:color_bg4)"
+        "[${pl_right_square}](fg:color_bg4)"
       ]);
 
       # os = {
