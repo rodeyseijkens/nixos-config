@@ -12,6 +12,5 @@ in {
     home.packages = with pkgs; [
       legcord
     ];
-    xdg.configFile."legcord/themes/gruvbox.theme.css".source = ./gruvbox.css;
   };
 }
