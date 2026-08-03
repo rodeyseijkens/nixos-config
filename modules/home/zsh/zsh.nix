@@ -167,6 +167,11 @@
     '';
   };
 
+  home.sessionVariables = {
+    VOLTA_HOME = "${config.home.homeDirectory}/.volta";
+  };
+  home.sessionPath = [ "${config.home.homeDirectory}/.volta/bin" ];
+
   programs.zoxide = {
     enable = true;
     enableZshIntegration = true;
