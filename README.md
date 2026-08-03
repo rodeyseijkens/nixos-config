@@ -759,41 +759,42 @@ Lastly, it will build the system using [nh](https://github.com/viperML/nh), whic
 
 # 🔧 Troubleshooting & Extra Info
 
-### Volta
+### Mise
 
-**Description:** Volta is a JavaScript tool manager that allows you to easily install and switch between different versions of Node.js, npm, and other JavaScript command-line tools.
+**Description:** [Mise](https://mise.jdx.dev/) is a polyglot tool version manager (successor to asdf/rtx). It manages Node.js, pnpm, global npm packages, and many other dev tools. Installed declaratively via Home Manager and activated on shell startup.
 
-**Issue:** Tool installed via Volta but not available in PATH
+**Issue:** Tool installed via Mise but not available in PATH
 
 **Solution:**
 
-1. Remove the Volta directory from your home folder:
+1. Remove the local Mise data and re-resolve tools:
    ```bash
-   rm -rf ~/.volta
+   rm -rf ~/.local/share/mise ~/.cache/mise
+   mise install
    ```
-2. Reinstall the tool using Volta:
+2. If a global tool is missing entirely, reinstall it:
    ```bash
-   volta install <tool-name>
+   mise use -g <tool>@<version>
    ```
-
-This will reset Volta's local configuration and properly reinstall the tool with correct PATH integration.
+3. Open a new shell so the activation hook re-runs.
 
 **Helper Script:**
 
-There is a helper script available to reset Volta and install common packages:
+There is a helper script available to install the baseline global tools:
 
 ```bash
-volta-install-pkgs
+mise-install-pkgs
 ```
 
 This script will:
 
-1. Remove `~/.volta`
-2. Install `node@latest`
-3. Install `@antfu/ni@latest`
-4. Install `pnpm@latest`
-5. Install `@biomejs/biome`
-6. Install `@kilocode/cli@latest`
+1. Install `node@latest`
+2. Install `pnpm@latest`
+3. Install `@antfu/ni@latest` (npm)
+4. Install `@biomejs/biome` (npm)
+5. Install `@kilocode/cli@latest` (npm)
+
+**Fallback:** Legacy projects that still pin via Volta can keep using it; `volta` remains on `PATH` alongside Mise. The two coexist; Volta shims take precedence for overlapping tool names.
 
 ## 🔐 Secrets Management
 

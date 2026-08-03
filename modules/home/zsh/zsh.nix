@@ -167,8 +167,18 @@
     '';
   };
 
+  programs.mise = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
   home.sessionVariables = {
     VOLTA_HOME = "${config.home.homeDirectory}/.volta";
+    MISE_NPM_PACKAGE_MANAGER = "pnpm";
+    # mise forces all_compile=true on NixOS/Alpine by default, which builds
+    # Node/Python/etc. from source on every install. Force prebuilt binaries
+    # so installs stay fast and don't need a C toolchain.
+    MISE_ALL_COMPILE = "0";
   };
   home.sessionPath = [ "${config.home.homeDirectory}/.volta/bin" ];
 

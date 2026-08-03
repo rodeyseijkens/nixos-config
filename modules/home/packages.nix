@@ -50,6 +50,7 @@
 
     # Node.js
     volta
+    mise
 
     ## Python
     python3

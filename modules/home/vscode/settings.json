@@ -162,7 +162,6 @@
     "https://json-schema.org/": true,
     "https://biomejs.dev": true
   },
-  "biome.lsp.bin": "/home/rodey/.volta/bin/biome",
   "terminal.integrated.commandsToSkipShell": [
     "kilo-code.new.agentManagerOpen",
     "kilo-code.new.agentManager.showTerminal"
