@@ -31,6 +31,12 @@ in {
           C-k = "move_line_up";
           C-l = "move_char_right";
         };
+        keys.normal = {
+          A-up = ["extend_to_line_bounds" "delete_selection" "move_line_up" "paste_before"];
+          A-k = ["extend_to_line_bounds" "delete_selection" "move_line_up" "paste_before"];
+          A-down = ["extend_to_line_bounds" "delete_selection" "paste_after"];
+          A-j = ["extend_to_line_bounds" "delete_selection" "paste_after"];
+        };
       };
 
       extraPackages = with pkgs; [
