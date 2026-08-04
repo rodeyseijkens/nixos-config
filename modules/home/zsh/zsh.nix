@@ -180,7 +180,7 @@
     # so installs stay fast and don't need a C toolchain.
     MISE_ALL_COMPILE = "0";
   };
-  home.sessionPath = [ "${config.home.homeDirectory}/.volta/bin" ];
+  home.sessionPath = ["${config.home.homeDirectory}/.volta/bin"];
 
   programs.zoxide = {
     enable = true;
