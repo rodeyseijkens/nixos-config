@@ -6,6 +6,10 @@
 }:
 with lib; let
   cfg = config.modules.helix-editor;
+  lspAiServers =
+    if config.modules.lsp-ai.enable
+    then ["lsp-ai"]
+    else [];
 in {
   options.modules.helix-editor = {enable = mkEnableOption "helix-editor";};
   config = mkIf cfg.enable {
@@ -44,6 +48,7 @@ in {
         bash-language-server
         shfmt
         tailwindcss-language-server
+        lsp-ai
       ];
 
       languages.language-server = {
@@ -110,87 +115,125 @@ in {
           command = lib.getExe pkgs.tailwindcss-language-server;
           args = ["--stdio"];
         };
+
+        lsp-ai = {
+          command = "${config.home.homeDirectory}/.local/bin/lsp-ai-kilo";
+          config = {
+            memory = {file_store = {};};
+            models = {
+              kilo = {
+                type = "open_ai";
+                chat_endpoint = config.modules.lsp-ai.endpoint;
+                model = config.modules.lsp-ai.model;
+                auth_token_env_var_name = config.modules.lsp-ai.apiKeyEnvVar;
+              };
+            };
+            completion = {
+              model = "kilo";
+              parameters = {
+                max_context = config.modules.lsp-ai.maxContext;
+                max_tokens = config.modules.lsp-ai.maxTokens;
+              };
+            };
+          };
+        };
       };
 
       languages.language = [
         {
           name = "typescript";
           auto-format = true;
-          language-servers = [
-            {
-              name = "typescript-language-server";
-              except-features = ["format"];
-            }
-            "biome"
-          ];
+          language-servers =
+            [
+              {
+                name = "typescript-language-server";
+                except-features = ["format"];
+              }
+              "biome"
+            ]
+            ++ lspAiServers;
         }
         {
           name = "javascript";
           auto-format = true;
-          language-servers = [
-            {
-              name = "typescript-language-server";
-              except-features = ["format"];
-            }
-            "biome"
-          ];
+          language-servers =
+            [
+              {
+                name = "typescript-language-server";
+                except-features = ["format"];
+              }
+              "biome"
+            ]
+            ++ lspAiServers;
         }
         {
           name = "tsx";
           auto-format = true;
-          language-servers = [
-            {
-              name = "typescript-language-server";
-              except-features = ["format"];
-            }
-            "tailwindcss-ls"
-            "biome"
-          ];
+          language-servers =
+            [
+              {
+                name = "typescript-language-server";
+                except-features = ["format"];
+              }
+              "tailwindcss-ls"
+              "biome"
+            ]
+            ++ lspAiServers;
         }
         {
           name = "jsx";
           auto-format = true;
-          language-servers = [
-            {
-              name = "typescript-language-server";
-              except-features = ["format"];
-            }
-            "tailwindcss-ls"
-            "biome"
-          ];
+          language-servers =
+            [
+              {
+                name = "typescript-language-server";
+                except-features = ["format"];
+              }
+              "tailwindcss-ls"
+              "biome"
+            ]
+            ++ lspAiServers;
         }
         {
           name = "json";
           auto-format = true;
-          language-servers = [
-            {
-              name = "vscode-json-language-server";
-              except-features = ["format"];
-            }
-            "biome"
-          ];
+          language-servers =
+            [
+              {
+                name = "vscode-json-language-server";
+                except-features = ["format"];
+              }
+              "biome"
+            ]
+            ++ lspAiServers;
         }
         {
           name = "css";
           auto-format = true;
-          language-servers = [
-            {
-              name = "vscode-css-language-server";
-              except-features = ["format"];
-            }
-            "tailwindcss-ls"
-            "biome"
-          ];
+          language-servers =
+            [
+              {
+                name = "vscode-css-language-server";
+                except-features = ["format"];
+              }
+              "tailwindcss-ls"
+              "biome"
+            ]
+            ++ lspAiServers;
         }
         {
           name = "html";
           auto-format = true;
-          language-servers = ["vscode-html-language-server" "tailwindcss-ls"];
+          language-servers =
+            ["vscode-html-language-server" "tailwindcss-ls"]
+            ++ lspAiServers;
         }
         {
           name = "nix";
           auto-format = true;
-          language-servers = ["nil"];
+          language-servers =
+            ["nil"]
+            ++ lspAiServers;
           formatter = {
             command = lib.getExe pkgs.alejandra;
           };
@@ -198,12 +241,16 @@ in {
         {
           name = "python";
           auto-format = true;
-          language-servers = ["ruff" "basedpyright"];
+          language-servers =
+            ["ruff" "basedpyright"]
+            ++ lspAiServers;
         }
         {
           name = "toml";
           auto-format = true;
-          language-servers = ["taplo"];
+          language-servers =
+            ["taplo"]
+            ++ lspAiServers;
           formatter = {
             command = lib.getExe pkgs.taplo;
             args = ["fmt" "-"];
@@ -212,17 +259,23 @@ in {
         {
           name = "yaml";
           auto-format = true;
-          language-servers = ["yaml-language-server"];
+          language-servers =
+            ["yaml-language-server"]
+            ++ lspAiServers;
         }
         {
           name = "markdown";
           auto-format = true;
-          language-servers = ["marksman"];
+          language-servers =
+            ["marksman"]
+            ++ lspAiServers;
         }
         {
           name = "bash";
           auto-format = true;
-          language-servers = ["bash-language-server"];
+          language-servers =
+            ["bash-language-server"]
+            ++ lspAiServers;
           formatter = {
             command = lib.getExe pkgs.shfmt;
             args = ["-i" "2"];
