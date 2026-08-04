@@ -61,57 +61,37 @@ Hyprlock (EXPAND)
 
 ## 📓 Components
 
-|                                |                                            NixOS + Hyprland                                             |
-| ------------------------------ | :-----------------------------------------------------------------------------------------------------: |
-| **Window Manager**             |                                          [Hyprland][Hyprland]                                           |
-| **Bar**                        |                                            [Waybar][Waybar]                                             |
-| **Application Launcher**       |                                            [Walker][Walker]                                             |
-| **Notification Daemon**        |                                            [swaync][swaync]                                             |
-| **Terminal Emulator**          |                                           [Ghostty][Ghostty]                                            |
-| **Terminal Agent Multiplexer** |                                             [herdr][herdr]                                              |
-| **Shell**                      |                             [zsh][zsh] + [Starship][Starship]                                           |
-| **Text Editor (GUI)**          |                       [VSCode][VSCode] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code]               |
-| **Text Editor (Terminal)**     |                          [Neovim][Neovim] + [micro][micro] + [Helix][Helix]                             |
-| **network management tool**    |           [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet]           |
-| **System resource monitor**    |                                              [Btop][Btop]                                               |
-| **System Fetch**               |                                         [Fastfetch][Fastfetch]                                          |
-| **Browser**                    |                                       [Zen Browser][zen-browser]                                        |
-| **File Manager**               |                                   [Nautilus][Nautilus] + [yazi][yazi]                                   |
-| **Fonts**                      |                                        [Maple Mono][Maple Mono]                                         |
-| **Color Scheme**               |                                      [Gruvbox Dark Hard][Gruvbox]                                       |
-| **Cursor**                     |                                 [Bibata-Modern-Ice][Bibata-Modern-Ice]                                  |
-| **Icons**                      |                                      [Papirus-Dark][Papirus-Dark]                                       |
-| **Lockscreen**                 |                                          [Hyprlock][Hyprlock]                                           |
-| **Image Viewer**               |                                          [viewnior][viewnior]                                           |
-| **Pixel Art / Sprite Editor**  |                                       [LibreSprite][LibreSprite]                                        |
-| **Media Player**               |                                               [mpv][mpv]                                                |
-| **Music Player**               |                                         [Spicetify][Spicetify]                                          |
-| **Screenshot Software**        |                                         [grimblast][grimblast]                                          |
-| **Screen Recording**           |                                       [wf-recorder][wf-recorder]                                        |
-| **Color Picker**               |                                        [hyprpicker][hyprpicker]                                         |
-| **Theme Manager**              |                                            [Stylix][Stylix]                                             |
-| **Git Worktree Manager**       |                                         [Worktrunk][Worktrunk]                                          |
-| **Speech-to-text**             |                            [Handy][Handy] (via [numtide/llm-agents.nix][llm-agents])                    |
-
-
-## 🎙️ Handy (speech-to-text)
-
-[Handy][Handy] is installed as a pre-built binary from [numtide/llm-agents.nix][llm-agents] (pulled from `cache.numtide.com` — no local build). It's enabled via the `modules.handy` option and only on `desktop-work` and `desktop-office`.
-
-Configuration lives in `modules/home/handy.nix` and does three things:
-
-- Adds `inputs.llm-agents.packages.${system}.handy` to `home.packages`
-- Starts a `handy.service` systemd user unit on `graphical-session.target` (auto-restart on failure)
-- Requires `wtype` (in `modules/core/nh.nix`) for Wayland text injection — without it Handy falls back to `enigo` which has limited Hyprland support
-
-The user is in the `input` group (see `modules/core/user.nix`) so the rdev hotkey feature can access `/dev/uinput`.
-
-Toggle per-host in `hosts/<host>/home-configuration.nix`:
-
-```nix
-modules.handy.enable = true;
-```
-
+|                                |                                  NixOS + Hyprland                                   |
+| ------------------------------ | :---------------------------------------------------------------------------------: |
+| **Window Manager**             |                                [Hyprland][Hyprland]                                 |
+| **Bar**                        |                                  [Waybar][Waybar]                                   |
+| **Application Launcher**       |                                  [Walker][Walker]                                   |
+| **Notification Daemon**        |                                  [swaync][swaync]                                   |
+| **Terminal Emulator**          |                                 [Ghostty][Ghostty]                                  |
+| **Terminal Agent Multiplexer** |                                   [herdr][herdr]                                    |
+| **Shell**                      |                          [zsh][zsh] + [Starship][Starship]                          |
+| **Text Editor (GUI)**          |         [VSCode][VSCode] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code]         |
+| **Text Editor (Terminal)**     |                 [Neovim][Neovim] + [micro][micro] + [Helix][Helix]                  |
+| **network management tool**    | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
+| **System resource monitor**    |                                    [Btop][Btop]                                     |
+| **System Fetch**               |                               [Fastfetch][Fastfetch]                                |
+| **Browser**                    |                             [Zen Browser][zen-browser]                              |
+| **File Manager**               |                         [Nautilus][Nautilus] + [yazi][yazi]                         |
+| **Fonts**                      |                              [Maple Mono][Maple Mono]                               |
+| **Color Scheme**               |                            [Gruvbox Dark Hard][Gruvbox]                             |
+| **Cursor**                     |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
+| **Icons**                      |                            [Papirus-Dark][Papirus-Dark]                             |
+| **Lockscreen**                 |                                [Hyprlock][Hyprlock]                                 |
+| **Image Viewer**               |                                [viewnior][viewnior]                                 |
+| **Pixel Art / Sprite Editor**  |                             [LibreSprite][LibreSprite]                              |
+| **Media Player**               |                                     [mpv][mpv]                                      |
+| **Music Player**               |                               [Spicetify][Spicetify]                                |
+| **Screenshot Software**        |                               [grimblast][grimblast]                                |
+| **Screen Recording**           |                             [wf-recorder][wf-recorder]                              |
+| **Color Picker**               |                              [hyprpicker][hyprpicker]                               |
+| **Theme Manager**              |                                  [Stylix][Stylix]                                   |
+| **Git Worktree Manager**       |                               [Worktrunk][Worktrunk]                                |
+| **Speech-to-text**             |              [Handy][Handy] (via [numtide/llm-agents.nix][llm-agents])              |
 
 
 Plugins are installed by herdr itself (e.g. `herdr plugin install persiyanov/herdr-reviewr`) and live under
@@ -132,8 +112,6 @@ out-of-store symlink pattern as the herdr config itself.
 
 **reviewr-config.toml keybinds (added to herdr config):**
 - `prefix+shift+r` — toggle reviewr sidebar
-
-
 ## 📝 Shell aliases
 
 <details>
@@ -800,6 +778,11 @@ This script will:
 
 Use `secrets-helper` for all secrets workflows.
 
+<details>
+<summary>
+Secrets Management (EXPAND)
+</summary>
+
 ### Quick Start (new host)
 
 1. Print this host recipient:
@@ -844,6 +827,188 @@ secrets-helper updatekeys
 If you see `0 successful groups required, got 0`, add this host recipient to `.sops.yaml`, then run `secrets-helper add-host secrets/secrets.yaml`.
 
 For full details, see `secrets/README.md`.
+
+</details>
+
+
+## 🎙️ Handy (speech-to-text)
+
+[Handy][Handy] is installed as a pre-built binary from [numtide/llm-agents.nix][llm-agents] (pulled from `cache.numtide.com` — no local build). It's enabled via the `modules.handy` option and only on `desktop-work` and `desktop-office`.
+
+<details>
+<summary>
+Handy Configuration (EXPAND)
+</summary>
+
+Configuration lives in `modules/home/handy.nix` and does three things:
+
+- Adds `inputs.llm-agents.packages.${system}.handy` to `home.packages`
+- Starts a `handy.service` systemd user unit on `graphical-session.target` (auto-restart on failure)
+- Requires `wtype` (in `modules/core/nh.nix`) for Wayland text injection — without it Handy falls back to `enigo` which has limited Hyprland support
+
+The user is in the `input` group (see `modules/core/user.nix`) so the rdev hotkey feature can access `/dev/uinput`.
+
+Toggle per-host in `hosts/<host>/home-configuration.nix`:
+
+```nix
+modules.handy.enable = true;
+```
+
+</details>
+
+
+## 🤖 LSP-AI with Kilo Gateway
+
+[lsp-ai](https://github.com/SilasMarvin/lsp-ai) is configured to use [Kilo Gateway](https://api.kilo.ai) as an OpenAI-compatible backend. The language server is installed via the `modules.lsp-ai` home-manager module and wired into Helix.
+
+<details>
+<summary>
+LSP-AI Configuration (EXPAND)
+</summary>
+
+### Prerequisites
+
+- A Kilo Gateway API key
+- sops-nix already configured in this repo
+
+### Module Options
+
+| Option                        | Default                                                 | Description                          |
+| ----------------------------- | ------------------------------------------------------- | ------------------------------------ |
+| `modules.lsp-ai.enable`       | `false`                                                 | Enable the lsp-ai module             |
+| `modules.lsp-ai.model`        | `"codestral-latest"`                                    | Kilo Gateway model ID                |
+| `modules.lsp-ai.endpoint`     | `"https://api.kilo.ai/api/gateway/v1/chat/completions"` | Chat completions endpoint            |
+| `modules.lsp-ai.apiKeyEnvVar` | `"KILOCODE_API_KEY"`                                    | Environment variable for the API key |
+| `modules.lsp-ai.maxContext`   | `4096`                                                  | Maximum context tokens               |
+| `modules.lsp-ai.maxTokens`    | `128`                                                   | Maximum completion tokens            |
+
+### Enable the Module
+
+In your host's `home-configuration.nix`:
+
+```nix
+modules.lsp-ai.enable = true;
+```
+
+### Change the Model
+
+Edit `modules/home/lsp-ai/default.nix` or override the option in your host config:
+
+```nix
+modules.lsp-ai.model = "openai/gpt-4o";
+```
+
+Available models can be listed with:
+
+```bash
+curl https://api.kilo.ai/api/gateway/v1/models
+```
+
+### Setup the Kilo API Key with sops
+
+The API key is stored encrypted in `secrets/secrets.yaml` and materialized at runtime by sops-nix at `/run/secrets/kilo-api-key`.
+
+#### 1. Add the secret
+
+```bash
+secrets-helper edit secrets/secrets.yaml
+```
+
+Add the `kilo-api-key` field with your real key:
+
+```yaml
+kilo-api-key: "your-real-kilo-api-key"
+```
+
+Save and exit. `secrets-helper` will automatically re-encrypt the file for all configured hosts.
+
+#### 2. Verify the secret is available
+
+After applying the config (`nh os switch` or `sudo nixos-rebuild test --flake .#<host>`):
+
+```bash
+ls -l /run/secrets/kilo-api-key
+```
+
+Expected: file exists with mode `0400`.
+
+#### 3. Rebuild
+
+```bash
+sudo nixos-rebuild switch --flake .#<host>
+```
+
+The lsp-ai wrapper script reads the key from `/run/secrets/kilo-api-key` and exports it as `KILOCODE_API_KEY` before launching the language server.
+
+### How It Works
+
+1. `modules/core/secrets.nix` exposes `kilo-api-key` from `secrets/secrets.yaml` via sops-nix.
+2. `modules/home/lsp-ai/default.nix` creates a wrapper script at `~/.local/bin/lsp-ai-kilo`.
+3. The wrapper reads `/run/secrets/kilo-api-key` and exports `KILOCODE_API_KEY`.
+4. Helix launches `lsp-ai-kilo` instead of the raw `lsp-ai` binary.
+5. lsp-ai reads the key from the environment variable specified by `auth_token_env_var_name`.
+
+### Editor Setup
+
+#### Helix
+
+lsp-ai is automatically added to all configured language servers when `modules.lsp-ai.enable` is `true`. The wrapper script ensures the API key is injected at runtime.
+
+#### VS Code / Kilo Code
+
+lsp-ai is not configured for VS Code in this setup.
+
+### Verify the Endpoint
+
+#### List Models
+
+```bash
+curl https://api.kilo.ai/api/gateway/v1/models
+```
+
+Expected: `200 OK` with a JSON array of models.
+
+#### Test Chat Completions
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $KILOCODE_API_KEY" \
+  -H "Content-Type: application/json" \
+  https://api.kilo.ai/api/gateway/v1/chat/completions \
+  -d '{
+    "model": "codestral-latest",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Reply with exactly: connection successful"
+      }
+    ],
+    "max_tokens": 20
+  }'
+```
+
+Expected: `200 OK` with an assistant message in the response.
+
+### Troubleshooting
+
+| Error                                          | Cause                                                           | Solution                                                                                    |
+| ---------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `401 Unauthorized`                             | API key is missing, invalid, or not exported                    | Verify `/run/secrets/kilo-api-key` exists after rebuild                                     |
+| `403 Forbidden`                                | The key lacks access to the selected model                      | Check your Kilo Gateway plan and model access                                               |
+| `404 Not Found`                                | The endpoint path or model ID is incorrect                      | Confirm the endpoint URL and model ID with `curl https://api.kilo.ai/api/gateway/v1/models` |
+| `400 Bad Request`                              | The request format or model-specific parameters are unsupported | Check the Kilo Gateway docs for model-specific requirements                                 |
+| Empty completions                              | The model may not support the selected completion mode          | Ensure `chat_endpoint` is set and the model supports chat completions                       |
+| `Warning: /run/secrets/kilo-api-key not found` | Secret not added or host not re-encrypted                       | Run `secrets-helper add-host secrets/secrets.yaml` and rebuild                              |
+
+### Security
+
+- The API key is stored encrypted in `secrets/secrets.yaml` via sops.
+- The secret is materialized at `/run/secrets/kilo-api-key` at runtime with mode `0400`.
+- No key appears in source files, logs, test fixtures, or documentation.
+- The lsp-ai wrapper script reads the key from the sops-managed secret and exports it only for the lsp-ai process.
+
+</details>
+<br/>
 
 # 👥 Credits
 
