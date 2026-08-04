@@ -46,13 +46,11 @@
 
   home.packages = [
     pkgs.gh
-    pkgs.github-copilot-cli # GitHub Copilot CLI
-    pkgs.cz-cli # commitizen CLI tool
     pkgs.diffnav
     pkgs.pre-commit
     pkgs.gitleaks
     pkgs.gen-commit # generate commit messages using llm
-    # pkgs.git-lfs # Git Large File Storage
+    pkgs.git-lfs # Git Large File Storage
   ];
 
   programs.zsh.shellAliases = {
@@ -79,10 +77,8 @@
     gcm = "git commit -m";
     gca = "git commit --amend --no-edit";
     gcaa = "git add --all && git commit --amend --no-edit";
-    gcz = "git cz";
     gcfu = "git commit --fixup HEAD";
     gcma = "git add --all && git commit -m";
-    gcza = "git add --all && git cz";
     gcfua = "git add --all && git commit --fixup HEAD";
     ggcm = "gen-commit -c -a";
     ggcmw = "gen-commit -c -a -s";
@@ -103,18 +99,6 @@
     gps = "git push";
     gpsf = "git push --force";
     gpso = "git push origin";
-    gpst = "git push --follow-tags";
     gcl = "git clone";
-
-    # misc
-    gtag = "git tag -ma";
-    gm = "git merge";
-    gsp = "git stash push -m";
-    gsl = "git stash list | sed -E 's/stash@\\{([0-9]+)\\}: (WIP on |On )?([^:]+): (.*)/\\x1b[44;37m \\1 \\x1b[0m\\x1b[34;48;5;238m\\xee\\x82\\xb0\\x1b[0m\\x1b[48;5;238;37m \\xee\\x82\\xa0 \\3 \\x1b[0m\\x1b[38;5;238m\\xee\\x82\\xb0\\x1b[0m \\4/'";
   };
-
-  programs.zsh.initContent = ''
-    # Function for git stash apply with parameter support
-    gsa() { git stash apply "stash@{''${1:-0}}"; }
-  '';
 }
