@@ -39,6 +39,12 @@ in {
           owner = username;
           mode = "0400";
         };
+
+        kilo-api-key = {
+          sopsFile = sharedSecretsFile;
+          owner = username;
+          mode = "0400";
+        };
       })
 
       # Host-specific secret example (create secrets/hosts/<host>.yaml first)
