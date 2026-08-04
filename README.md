@@ -94,24 +94,6 @@ Hyprlock (EXPAND)
 | **Speech-to-text**             |              [Handy][Handy] (via [numtide/llm-agents.nix][llm-agents])              |
 
 
-Plugins are installed by herdr itself (e.g. `herdr plugin install persiyanov/herdr-reviewr`) and live under
-`~/.config/herdr/plugins/`. Only the plugin config is managed by nix:
-[reviewr-config.toml](modules/home/herdr/reviewr-config.toml) is symlinked to
-`~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml`, matching the same
-out-of-store symlink pattern as the herdr config itself.
-
-**Installed plugins:**
-
-| Plugin                                                       | Action                                        |
-| ------------------------------------------------------------ | --------------------------------------------- |
-| [herdr-reviewr](https://github.com/persiyanov/herdr-reviewr) | Native terminal code-review sidebar (v0.10.0) |
-
-**Herdr config:** `modules/home/herdr/config.toml`
-- Theme: My custom Gruvb0x
-- Prefix: `ctrl+i`
-
-**reviewr-config.toml keybinds (added to herdr config):**
-- `prefix+shift+r` — toggle reviewr sidebar
 ## 📝 Shell aliases
 
 <details>
@@ -193,10 +175,8 @@ Git (EXPAND)
 - `gcm` → `git commit -m`
 - `gca` → `git commit --amend --no-edit`
 - `gcaa` → `git add --all && git commit --amend --no-edit`
-- `gcz` → `git cz`
 - `gcfu` → `git commit --fixup HEAD`
 - `gcma` → `git add --all && git commit -m`
-- `gcza` → `git add --all && git cz`
 - `gcfua` → `git add --all && git commit --fixup HEAD`
 
 **History / branches:**
@@ -217,13 +197,10 @@ Git (EXPAND)
 - `gps` → `git push`
 - `gpsf` → `git push --force`
 - `gpso` → `git push origin`
-- `gpst` → `git push --follow-tags`
 - `gcl` → `git clone`
 
 **Misc:**
 
-- `gtag` → `git tag -ma`
-- `gm` → `git merge`
 - `ggcm` → `gen-commit -c -a`
 - `ggcmw` → `gen-commit -c -a -s`
 
@@ -773,6 +750,27 @@ This script will:
 5. Install `@kilocode/cli@latest` (npm)
 
 **Fallback:** Legacy projects that still pin via Volta can keep using it; `volta` remains on `PATH` alongside Mise. The two coexist; Volta shims take precedence for overlapping tool names.
+
+## 🤖 Herdr Plugins
+
+Plugins are installed by herdr itself (e.g. `herdr plugin install persiyanov/herdr-reviewr`) and live under
+`~/.config/herdr/plugins/`. Only the plugin config is managed by nix:
+[reviewr-config.toml](modules/home/herdr/reviewr-config.toml) is symlinked to
+`~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml`, matching the same
+out-of-store symlink pattern as the herdr config itself.
+
+**Installed plugins:**
+
+| Plugin                                                       | Action                                        |
+| ------------------------------------------------------------ | --------------------------------------------- |
+| [herdr-reviewr](https://github.com/persiyanov/herdr-reviewr) | Native terminal code-review sidebar (v0.10.0) |
+
+**Herdr config:** `modules/home/herdr/config.toml`
+- Theme: My custom Gruvb0x
+- Prefix: `ctrl+i`
+
+**reviewr-config.toml keybinds (added to herdr config):**
+- `prefix+shift+r` — toggle reviewr sidebar
 
 ## 🔐 Secrets Management
 
