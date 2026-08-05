@@ -61,6 +61,10 @@
     cursor-editor.enable = true;
     zed-editor.enable = true;
     helix-editor.enable = true;
+    lsp-ai = {
+      enable = true;
+      organizationId = "7f68f5e0-629e-4d41-b73e-e7530295e851";
+    };
     t3code.enable = false;
     handy.enable = true;
 
