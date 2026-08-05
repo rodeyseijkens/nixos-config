@@ -16,6 +16,7 @@
       diff = "git diff | diffnav";
       less = "bat";
       y = "yazi";
+      sf = "superfile";
       py = "python";
       ipy = "ipython";
       dsize = "du -hs";

@@ -76,7 +76,7 @@ Hyprlock (EXPAND)
 | **System resource monitor**    |                                    [Btop][Btop]                                     |
 | **System Fetch**               |                               [Fastfetch][Fastfetch]                                |
 | **Browser**                    |                             [Zen Browser][zen-browser]                              |
-| **File Manager**               |                         [Nautilus][Nautilus] + [yazi][yazi]                         |
+| **File Manager**               |            [Nautilus][Nautilus] + [yazi][yazi] + [superfile][superfile]             |
 | **Fonts**                      |                              [Maple Mono][Maple Mono]                               |
 | **Color Scheme**               |                            [Gruvbox Dark Hard][Gruvbox]                             |
 | **Cursor**                     |                       [Bibata-Modern-Ice][Bibata-Modern-Ice]                        |
@@ -109,6 +109,7 @@ Utils (EXPAND)
 - `diff` $\rightarrow$ `delta --diff-so-fancy --side-by-side`
 - `less` $\rightarrow$ `bat`
 - `y` $\rightarrow$ `yazi`
+- `sf` $\rightarrow$ `superfile`
 - `dsize` $\rightarrow$ `du -hs`
 - `pdf` $\rightarrow$ `tdf`
 - `open` $\rightarrow$ `xdg-open`
@@ -1048,6 +1049,7 @@ Other dotfiles that I learned / copy from:
 [Btop]: https://github.com/aristocratos/btop
 [Nautilus]: https://apps.gnome.org/Nautilus/
 [yazi]: https://github.com/sxyazi/yazi
+[superfile]: https://github.com/Mulelish/superfile
 [zsh]: https://www.zsh.org/
 [Starship]: https://starship.rs/
 [Hyprlock]: https://github.com/hyprwm/hyprlock

@@ -26,6 +26,7 @@
     wl-clipboard # clipboard utils for wayland (wl-copy, wl-paste)
     xdg-utils # utilities for desktop integration
     yazi # terminal file manager
+    superfile # terminal file manager
     yt-dlp-light # audio/video downloader
     onefetch # git repository information tool
     gifsicle # gif utility - for record.sh
