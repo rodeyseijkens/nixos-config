@@ -41,18 +41,14 @@ in {
         "[${pl_right_sharp}](fg:color_blue bg:color_green)"
         "$git_branch"
         "[${pl_right_sharp}](fg:color_green)"
-        "$line_break"
-        "$character"
-      ]);
-
-      right_format = lib.mkForce (lib.concatStrings [
-        # "[${pl_right_sharp}](fg:color_bg1 bg:color_orange)"
-        # "$nix_shell"
+        "$fill"
         "[${pl_left_sharp}](fg:color_bg1)"
         "$git_status"
         "[${pl_left_sharp}](fg:color_bg4 bg:color_bg1)"
         "$time"
         "[${pl_right_square}](fg:color_bg4)"
+        "$line_break"
+        "$character"
       ]);
 
       # os = {
@@ -112,17 +108,17 @@ in {
 
       git_status = {
         style = "bg:color_bg1";
-        format = "[[($all_status $ahead_behind)](fg:color_fg0 bg:color_bg1)]($style)";
-        conflicted = "[  $count](fg:color_red bg:color_bg1)";
+        format = "[[($all_status$ahead_behind )](fg:color_fg0 bg:color_bg1)]($style)";
+        conflicted = "[   $count](fg:color_red bg:color_bg1)";
         stashed = "";
-        modified = "[  $count](fg:color_blue bg:color_bg1)";
-        staged = "[  $count](fg:color_green bg:color_bg1)";
-        renamed = "[  $count](fg:color_yellow bg:color_bg1)";
-        deleted = "[  $count](fg:color_red bg:color_bg1)";
-        untracked = "[  $count](fg:color_bg3 bg:color_bg1)";
-        ahead = "[  $count](fg:color_green bg:color_bg1)";
-        behind = "[  $count](fg:color_red bg:color_bg1)";
-        diverged = "[ $ahead_count  $behind_count](fg:color_purple bg:color_bg1)";
+        modified = "[   $count](fg:color_blue bg:color_bg1)";
+        staged = "[   $count](fg:color_green bg:color_bg1)";
+        renamed = "[   $count](fg:color_yellow bg:color_bg1)";
+        deleted = "[   $count](fg:color_red bg:color_bg1)";
+        untracked = "[   $count](fg:color_bg3 bg:color_bg1)";
+        ahead = "[   $count](fg:color_green bg:color_bg1)";
+        behind = "[   $count](fg:color_red bg:color_bg1)";
+        diverged = "[  $ahead_count  $behind_count](fg:color_purple bg:color_bg1)";
       };
 
       nix_shell = {
@@ -140,6 +136,10 @@ in {
       };
 
       line_break.disabled = false;
+
+      fill = {
+        symbol = " ";
+      };
 
       character = {
         disabled = false;
