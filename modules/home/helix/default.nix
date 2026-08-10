@@ -16,6 +16,28 @@ in {
     programs.helix = {
       enable = true;
       defaultEditor = true;
+
+      ignores = [
+        "node_modules/"
+        "target/"
+        "dist/"
+        "build/"
+        "out/"
+        "venv/"
+        "tmp/"
+        "__pycache__/"
+        "coverage/"
+        "logs/"
+        "*.log"
+        ".next/"
+        ".vercel/"
+        ".turbo/"
+        ".cache/"
+        "!.env"
+        "!.env.*"
+        "!.envrc"
+      ];
+
       settings = {
         editor = {
           cursorline = true;
@@ -23,6 +45,7 @@ in {
           auto-format = true;
           indent-guides.render = true;
           file-picker.hidden = true;
+          file-picker.git-ignore = false;
           lsp.display-inlay-hints = true;
         };
         keys.insert = {
