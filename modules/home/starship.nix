@@ -20,6 +20,10 @@ in {
     settings = {
       palette = lib.mkForce "gruvb0x_dark";
 
+      # Blank line before prompts is handled by a zsh precmd hook that skips
+      # the first prompt, so the shell starts without a leading empty line.
+      add_newline = false;
+
       palettes.gruvb0x_dark = lib.mkForce {
         color_fg0 = stylixColors.base07;
         color_fg1 = stylixColors.base00;

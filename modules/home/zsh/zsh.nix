@@ -107,6 +107,27 @@
     '';
 
     initContent = ''
+      # Blank line before each prompt except the first one and right after
+      # clearing the screen (starship's add_newline is disabled to avoid a
+      # leading blank line at shell start)
+      autoload -Uz add-zsh-hook
+      _skip_prompt_newline=1
+      _precmd_newline() {
+        if (( _skip_prompt_newline )); then
+          _skip_prompt_newline=0
+        else
+          print ""
+        fi
+      }
+      add-zsh-hook precmd _precmd_newline
+
+      # Suppress the blank line when the screen is cleared. Ctrl+L (the
+      # clear-screen widget) is unaffected since it doesn't run precmd.
+      clear() {
+        command clear "$@"
+        _skip_prompt_newline=1
+      }
+
       DISABLE_AUTO_UPDATE=true
       DISABLE_MAGIC_FUNCTIONS=true
       export "MICRO_TRUECOLOR=1"
