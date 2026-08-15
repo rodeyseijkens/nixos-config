@@ -55,7 +55,6 @@
         "shift+home=unbind"
         "ctrl+shift+left=unbind"
         "ctrl+shift+right=unbind"
-        "shift+enter=text:\n"
         "ctrl+shift+p=unbind"
       ];
     };
