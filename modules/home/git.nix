@@ -31,10 +31,10 @@
   programs.lazygit = {
     enable = true;
     settings = {
-      git.pagers = [
+      git.diffRenderers = [
         {
           colorArg = "always";
-          pager = "delta --dark --paging=never";
+          command = "delta --dark --paging=never";
         }
       ];
       gui = {
