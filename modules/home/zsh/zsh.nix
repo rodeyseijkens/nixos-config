@@ -185,6 +185,24 @@
       # Load ni config
       export NI_DEFAULT_AGENT="pnpm" # default "prompt"
       export NI_GLOBAL_AGENT="pnpm"
+
+      # Translate npm/npx to the ni command family so the right package
+      # manager (per lockfile) is always used.
+      npm() {
+        local sub="$1"
+        shift
+        case "$sub" in
+          i|install|add)              ni "$@" ;;
+          run|run-script|start|test|stop|restart) nr "$@" ;;
+          ci)                         nci "$@" ;;
+          un|uninstall|rm|remove)     nun "$@" ;;
+          update|upgrade|up)          nup "$@" ;;
+          exec)                       nlx "$@" ;;
+          dd|dedupe)                  nd "$@" ;;
+          *)                          ni "$@" ;;
+        esac
+      }
+      npx() { nlx "$@"; }
     '';
   };
 
