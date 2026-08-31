@@ -23,6 +23,7 @@
 
   modules = {
     # Browser
+    defaultBrowser = "google-chrome";
     zen-browser.enable = true;
     google-chrome.enable = true;
 

@@ -1,5 +1,9 @@
-{...}: let
-  browser = "zen-beta";
+{
+  config,
+  lib,
+  ...
+}: let
+  browser = config.modules.defaultBrowser;
   terminal = "ghostty";
   filebrowser = "nautilus";
 in {
@@ -24,7 +28,7 @@ in {
         "$mod,        O,      exec,       toggle-opacity"
 
         # utilities and scripts
-        "$mod SHIFT,  B,      exec,       toggle-waybar"
+        "$mod SHIFT,  W,      exec,       toggle-waybar"
         "$mod,        C,      exec,       hyprpicker -a"
         "$mod,        N,      exec,       swaync-client -t -sw"
         "$mod,        Space,  exec,       walker-menu apps"
@@ -121,6 +125,10 @@ in {
 
         "$mod,  mouse_down, workspace, e-1"
         "$mod,  mouse_up, workspace, e+1"
+      ]
+      ++ lib.optionals (config.modules.defaultBrowser == "google-chrome") [
+        # secondary browser binding: chrome is default, super+shift+b opens zen
+        "$mod SHIFT,  B,      exec,       zen-beta"
       ];
 
       # mouse binding
