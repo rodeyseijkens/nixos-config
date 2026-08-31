@@ -15,6 +15,7 @@ in {
       commandLineArgs = [
         "--enable-features=UseOzonePlatform"
         "--ozone-platform=wayland"
+        "--profile-directory=Default"
       ];
       # extensions = [
       #   {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
