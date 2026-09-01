@@ -16,16 +16,16 @@
       "9, monitor:DP-3, default:true"
       "10, monitor:DP-3"
     ];
-    windowrules = [
-      "workspace 10, match:class ^(google-chrome)$"
-    ];
   };
 
   modules = {
     # Browser
     defaultBrowser = "google-chrome";
     zen-browser.enable = true;
-    google-chrome.enable = true;
+    google-chrome = {
+      enable = true;
+      initialSpawnWorkspace = "10";
+    };
 
     # Code editors
     vscode.enable = true;
