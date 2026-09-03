@@ -1,5 +1,9 @@
 {...}: {
-  wayland.windowManager.hyprland.settings.windowrule = [
-    "center true, match:float true, match:title ^(Steam)$"
+  wayland.windowManager.hyprland.settings.window_rule = [
+    {
+      match.float = true;
+      match.title = "^(Steam)$";
+      center = true;
+    }
   ];
 }

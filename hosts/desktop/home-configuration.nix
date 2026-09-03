@@ -16,8 +16,14 @@
       "10, monitor:DP-2"
     ];
     windowrules = [
-      "workspace 5, match:class ^(dota2)$"
-      "workspace 5, match:class ^(steam_app_3164500)$"
+      {
+        match.class = "^(dota2)$";
+        workspace = "5";
+      }
+      {
+        match.class = "^(steam_app_3164500)$";
+        workspace = "5";
+      }
     ];
   };
 
