@@ -45,7 +45,7 @@ in rec {
     locked = true;
     repeating = true;
   };
-  bindMouse = bindWith {mouse = true;};
+  bindMouse = bindWith { };  # mouse: prefix in key suffices
   bindRelease = bindWith {release = true;};
 
   # Dispatch helpers — return mkLuaInline values
