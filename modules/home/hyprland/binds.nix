@@ -120,10 +120,8 @@ in {
 
       # window tabbed grouping
       (bind "SUPER SHIFT, G" togglegroup)
-      (bind "SUPER ALT, left" (changegroupactive "b"))
-      (bind "SUPER ALT, right" (changegroupactive "f"))
-      (bind "SUPER ALT, h" (changegroupactive "b"))
-      (bind "SUPER ALT, l" (changegroupactive "f"))
+      (bind "SUPER, Tab" (changegroupactive "f"))
+      (bind "SUPER SHIFT, Tab" (changegroupactive "b"))
 
       # media and volume controls
       (bind ", XF86AudioPlay" (exec "playerctl play-pause"))
