@@ -117,10 +117,10 @@ in {
             numlock_by_default = true;
             follow_mouse = 0;
             float_switch_override_focus = 0;
-            mouse_refocus = 0;
+            mouse_refocus = false;
             accel_profile = "flat";
             sensitivity = 0.8; # -1.0 - 1.0, 0 means no modification.
-            force_no_accel = 0;
+            force_no_accel = false;
             touchpad = {
               natural_scroll = true;
             };
