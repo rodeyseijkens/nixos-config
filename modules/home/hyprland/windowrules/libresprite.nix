@@ -1,5 +1,8 @@
 {...}: {
-  wayland.windowManager.hyprland.settings.windowrule = [
-    "tile true, match:class ^(libresprite)$"
+  wayland.windowManager.hyprland.settings.window_rule = [
+    {
+      match.class = "^(libresprite)$";
+      tile = true;
+    }
   ];
 }

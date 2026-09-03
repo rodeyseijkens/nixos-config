@@ -1,5 +1,8 @@
 {...}: {
-  wayland.windowManager.hyprland.settings.windowrule = [
-    "float true, match:class ^(com.saivert.pwvucontrol)$"
+  wayland.windowManager.hyprland.settings.window_rule = [
+    {
+      match.class = "^(com.saivert.pwvucontrol)$";
+      float = true;
+    }
   ];
 }

@@ -1,5 +1,8 @@
 {...}: {
-  wayland.windowManager.hyprland.settings.windowrule = [
-    "opacity 1.0 override 1.0 override, match:class (evince)"
+  wayland.windowManager.hyprland.settings.window_rule = [
+    {
+      match.class = "(evince)";
+      opacity = "1.0 override 1.0 override";
+    }
   ];
 }
