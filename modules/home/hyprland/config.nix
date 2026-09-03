@@ -4,6 +4,8 @@
   options,
   ...
 }: let
+  inherit (import ./hyprland-util.nix { inherit lib; }) bind exec killactive submap;
+
   # Color helper functions
   rgb = color: "rgb(${color})";
   rgba = color: alpha: "rgba(${color}${alpha})";
@@ -23,12 +25,22 @@
       "10"
     ];
     windowrules = [
-      "workspace 8, match:class ^(spotify)$"
-      "workspace 9, match:class ^(steam)$"
-      "workspace 10, match:class ^(legcord)$"
-
-      # Keyring Dialog on workspace 1
-      "workspace 1, match:title (?i).*keyring.*"
+      {
+        match.class = "^(spotify)$";
+        workspace = "8";
+      }
+      {
+        match.class = "^(steam)$";
+        workspace = "9";
+      }
+      {
+        match.class = "^(legcord)$";
+        workspace = "10";
+      }
+      {
+        match.title = "(?i).*keyring.*";
+        workspace = "1";
+      }
     ];
   };
 
@@ -41,6 +53,12 @@
       windowrules = config.monitors.hyprland.windowrules;
     }
     else defaultMonitorConfig;
+
+  # Split monitor lines and strip "monitor = " prefix for Lua config
+  parseMonitorLines = lines: let
+    individual = builtins.filter (s: s != "") (lib.splitString "\n" lines);
+  in
+    map (line: lib.removePrefix "monitor = " line) individual;
 in {
   imports = [./windowrules];
 
@@ -69,158 +87,157 @@ in {
     };
 
     windowrules = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
+      type = lib.types.listOf lib.types.attrs;
       default = [];
-      description = "Window rules (Hyprland) to apply per-host. If empty, fallback defaults are used.";
+      description = "Window rules (Hyprland Lua format) to apply per-host.";
       example = [
-        "workspace 8, match:class (?i)spotify"
-        "workspace 10, match:class ^(legcord)$"
+        {
+          match.class = "(?i)spotify";
+          workspace = "8";
+        }
+        {
+          match.class = "^(legcord)$";
+          workspace = "10";
+        }
       ];
     };
   };
 
   config = {
     wayland.windowManager.hyprland = {
-      configType = "hyprlang";
+      configType = "lua";
 
       settings = {
-        "$mod" = "SUPER";
+        monitor = parseMonitorLines monitorConfig.monitors;
 
-        input = {
-          kb_layout = "us";
-          kb_options = "grp:alt_caps_toggle";
-          numlock_by_default = true;
-          follow_mouse = 0;
-          float_switch_override_focus = 0;
-          mouse_refocus = 0;
-          accel_profile = "flat";
-          sensitivity = 0.8; # -1.0 - 1.0, 0 means no modification.
-          force_no_accel = 0;
-          touchpad = {
-            natural_scroll = true;
+        config = {
+          input = {
+            kb_layout = "us";
+            kb_options = "grp:alt_caps_toggle";
+            numlock_by_default = true;
+            follow_mouse = 0;
+            float_switch_override_focus = 0;
+            mouse_refocus = 0;
+            accel_profile = "flat";
+            sensitivity = 0.8; # -1.0 - 1.0, 0 means no modification.
+            force_no_accel = 0;
+            touchpad = {
+              natural_scroll = true;
+            };
           };
-        };
 
-        general = lib.mkForce {
-          layout = "dwindle";
-          gaps_in = 5;
-          gaps_out = 10;
-          border_size = 2;
-          "col.active_border" = rgba config.lib.stylix.colors.base0D "FF";
-          "col.inactive_border" = rgba config.lib.stylix.colors.base0D "00";
-        };
+          general = lib.mkForce {
+            layout = "dwindle";
+            gaps_in = 5;
+            gaps_out = 10;
+            border_size = 2;
+            "col.active_border" = rgba config.lib.stylix.colors.base0D "FF";
+            "col.inactive_border" = rgba config.lib.stylix.colors.base0D "00";
+          };
 
-        misc = {
-          font_family = "Maple Mono";
-          disable_autoreload = true;
-          disable_hyprland_logo = true;
-          always_follow_on_dnd = true;
-          layers_hog_keyboard_focus = true;
-          animate_manual_resizes = false;
-          enable_swallow = true;
-          focus_on_activate = true;
-          middle_click_paste = false;
-        };
+          misc = {
+            font_family = "Maple Mono";
+            disable_autoreload = true;
+            disable_hyprland_logo = true;
+            always_follow_on_dnd = true;
+            layers_hog_keyboard_focus = true;
+            animate_manual_resizes = false;
+            enable_swallow = true;
+            focus_on_activate = true;
+            middle_click_paste = false;
+          };
 
-        dwindle = {
-          force_split = 2;
-          special_scale_factor = 1.0;
-          split_width_multiplier = 1.0;
-          use_active_for_splits = true;
-          preserve_split = "yes";
-        };
+          dwindle = {
+            force_split = 2;
+            special_scale_factor = 1.0;
+            split_width_multiplier = 1.0;
+            use_active_for_splits = true;
+            preserve_split = "yes";
+          };
 
-        master = {
-          new_status = "master";
-          special_scale_factor = 1;
-        };
+          master = {
+            new_status = "master";
+            special_scale_factor = 1;
+          };
 
-        decoration = {
-          rounding = 0;
+          decoration = {
+            rounding = 0;
 
-          blur = {
+            blur = {
+              enabled = true;
+              size = 2;
+              passes = 2;
+              brightness = 1;
+              contrast = 1.400;
+              ignore_opacity = true;
+              noise = 0;
+              new_optimizations = true;
+              xray = true;
+              popups = true;
+            };
+
+            shadow = lib.mkForce {
+              enabled = true;
+              range = 20;
+              render_power = 3;
+              offset = "0 2";
+              color = rgba config.lib.stylix.colors.base00 "55";
+            };
+          };
+
+          animations = {
             enabled = true;
-            size = 2;
-            passes = 2;
-            brightness = 1;
-            contrast = 1.400;
-            ignore_opacity = true;
-            noise = 0;
-            new_optimizations = true;
-            xray = true;
-            popups = true;
+
+            bezier = [
+              "fluent_decel,  0,    0.2,  0.4,  1"
+              "easeOutCirc,   0,    0.55, 0.45, 1"
+              "easeOutCubic,  0.33, 1,    0.68, 1"
+              "fade_curve,    0,    0.55, 0.45, 1"
+            ];
+
+            animation = [
+              "windowsIn,   0, 4, easeOutCubic, popin 20%"
+              "windowsOut,  0, 4, fluent_decel, popin 80%"
+              "windowsMove, 1, 2, fluent_decel, slide"
+              "fadeIn,      1, 3,   fade_curve"
+              "fadeOut,     1, 3,   fade_curve"
+              "fadeSwitch,  0, 1,   easeOutCirc"
+              "fadeShadow,  1, 10,  easeOutCirc"
+              "fadeDim,     1, 4,   fluent_decel"
+              "workspaces,  1, 4,   easeOutCubic, fade"
+            ];
           };
 
-          shadow = lib.mkForce {
-            enabled = true;
-            range = 20;
-            render_power = 3;
-            offset = "0 2";
-            color = rgba config.lib.stylix.colors.base00 "55";
+          group = {
+            groupbar = lib.mkForce {
+              "col.active" = rgba config.lib.stylix.colors.base00 "FF";
+              "col.inactive" = rgba config.lib.stylix.colors.base00 "55";
+            };
           };
-        };
 
-        animations = {
-          enabled = true;
+          cursor = {
+            inactive_timeout = 5;
+            no_hardware_cursors = true;
+          };
 
-          bezier = [
-            "fluent_decel,  0,    0.2,  0.4,  1"
-            "easeOutCirc,   0,    0.55, 0.45, 1"
-            "easeOutCubic,  0.33, 1,    0.68, 1"
-            "fade_curve,    0,    0.55, 0.45, 1"
-          ];
+          # workspace
+          workspace = monitorConfig.workspaces;
 
-          animation = [
-            # name, enable, speed, curve, style
-
-            # Windows
-            "windowsIn,   0, 4, easeOutCubic, popin 20%" # window open
-            "windowsOut,  0, 4, fluent_decel, popin 80%" # window close.
-            "windowsMove, 1, 2, fluent_decel, slide" # everything in between, moving, dragging, resizing.
-
-            # Fade
-            "fadeIn,      1, 3,   fade_curve" # fade in (open) -> layers and windows
-            "fadeOut,     1, 3,   fade_curve" # fade out (close) -> layers and windows
-            "fadeSwitch,  0, 1,   easeOutCirc" # fade on changing activewindow and its opacity
-            "fadeShadow,  1, 10,  easeOutCirc" # fade on changing activewindow for shadows
-            "fadeDim,     1, 4,   fluent_decel" # the easing of the dimming of inactive windows
-            "workspaces,  1, 4,   easeOutCubic, fade" # styles: slide, slidevert, fade, slidefade, slidefadevert
-          ];
-        };
-
-        group = {
-          groupbar = lib.mkForce {
-            "col.active" = rgba config.lib.stylix.colors.base00 "FF";
-            "col.inactive" = rgba config.lib.stylix.colors.base00 "55";
+          xwayland = {
+            force_zero_scaling = true;
           };
         };
 
-        cursor = {
-          inactive_timeout = 5;
-          no_hardware_cursors = true;
-        };
+        # workspace window rules (Lua format)
+        window_rule = defaultMonitorConfig.windowrules ++ monitorConfig.windowrules;
 
-        # workspace
-        workspace = monitorConfig.workspaces;
-
-        # workspace window rules
-        windowrule = defaultMonitorConfig.windowrules ++ monitorConfig.windowrules;
+        # Clean submap (converted from extraConfig)
+        bind = [
+          (bind "SUPER SHIFT CTRL, HOME" (submap "clean"))
+          (bind "SUPER SHIFT CTRL, Q" killactive)
+          (bind "SUPER SHIFT CTRL, HOME" (submap "reset"))
+        ];
       };
-
-      extraConfig = "
-        ${monitorConfig.monitors}
-
-        xwayland {
-          force_zero_scaling = true
-        }
-
-        # Special Keybind disabler
-        bind = $mod SHIFT CTRL, HOME, submap, clean
-        submap = clean
-        bind = $mod SHIFT CTRL, Q, killactive,
-        bind = $mod SHIFT CTRL, HOME, submap, reset
-        submap = reset
-      ";
     };
   };
 }
