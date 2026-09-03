@@ -3,139 +3,144 @@
   lib,
   ...
 }: let
+  inherit (import ./hyprland-util.nix { inherit lib; })
+    bind bindFlags bindLocked bindRepeat bindLockedRepeat bindMouse
+    exec execRaw killactive fullscreenToggle fullscreenMaximize
+    movefocus movewindow focusWorkspace moveToWorkspace moveToWorkspaceStr
+    resizeactive moveactive pseudo layoutmsg togglegroup changegroupactive
+    dragWindow resizeWindow
+    ;
+
   browser = config.modules.defaultBrowser;
   terminal = "ghostty";
   filebrowser = "nautilus";
+
+  inherit (lib.generators) mkLuaInline;
 in {
-  wayland.windowManager.hyprland = {
-    settings = {
-      bind = [
-        # applications
-        "$mod,        Return, exec,       [float; center; size (monitor_w*0.5) (monitor_h*0.5)] ${terminal}"
-        "$mod SHIFT,  Return, exec,       ${terminal}"
-        "$mod ALT,    Return, exec,       [fullscreen] ${terminal}"
-        "$mod,        B,      exec,       ${browser}"
-        "$mod,        E,      exec,       ${filebrowser}"
-        "$mod SHIFT,  D,      exec,       legcord & steam"
+  wayland.windowManager.hyprland.settings = {
+    bind = [
+      # applications
+      (bind "SUPER, Return" (exec "[float; center; size 50% 50%] ${terminal}"))
+      (bind "SUPER SHIFT, Return" (exec "${terminal}"))
+      (bind "SUPER ALT, Return" (exec "[fullscreen] ${terminal}"))
+      (bind "SUPER, B" (exec "${browser}"))
+      (bind "SUPER, E" (exec "${filebrowser}"))
+      (bind "SUPER SHIFT, D" (exec "legcord & steam"))
 
-        # window management
-        "$mod,        Q,      killactive,"
-        "$mod,        F,      fullscreen, 0"
-        "$mod SHIFT,  F,      fullscreen, 1"
-        "$mod SHIFT,  T,      exec,       toggle-float"
-        "$mod,        P,      pseudo,"
-        "$mod,        X,      layoutmsg, togglesplit"
-        "$mod,        O,      exec,       toggle-opacity"
+      # window management
+      (bind "SUPER, Q" killactive)
+      (bind "SUPER, F" fullscreenToggle)
+      (bind "SUPER SHIFT, F" fullscreenMaximize)
+      (bind "SUPER SHIFT, T" (exec "toggle-float"))
+      (bind "SUPER, P" pseudo)
+      (bind "SUPER, X" (layoutmsg "togglesplit"))
+      (bind "SUPER, O" (exec "toggle-opacity"))
 
-        # utilities and scripts
-        "$mod SHIFT,  W,      exec,       toggle-waybar"
-        "$mod,        C,      exec,       hyprpicker -a"
-        "$mod,        N,      exec,       swaync-client -t -sw"
-        "$mod,        Space,  exec,       walker-menu apps"
+      # utilities and scripts
+      (bind "SUPER SHIFT, W" (exec "toggle-waybar"))
+      (bind "SUPER, C" (exec "hyprpicker -a"))
+      (bind "SUPER, N" (exec "swaync-client -t -sw"))
+      (bind "SUPER, Space" (exec "walker-menu apps"))
 
-        # Toggle Handy speech-to-text (USR2 toggles recording in the binary)
-        "$mod,        period, exec,       sh -c 'pkill -USR2 -x handy || pkill -USR2 -x .handy-wrapped'"
-        "$mod CTRL,   Space,  exec,       walker-menu"
-        "$mod SHIFT,  Escape, exec,       walker-menu power"
-        "$mod,        W,      exec,       walker-menu wallpapers"
-        "$mod,        R,      exec,       walker-menu projects"
+      (bind "SUPER, period" (execRaw "sh -c 'pkill -USR2 -x handy || pkill -USR2 -x .handy-wrapped'"))
+      (bind "SUPER CTRL, Space" (exec "walker-menu"))
+      (bind "SUPER SHIFT, Escape" (exec "walker-menu power"))
+      (bind "SUPER, W" (exec "walker-menu wallpapers"))
+      (bind "SUPER, R" (exec "walker-menu projects"))
 
-        # screenshot and recording
-        ",            Print,  exec, walker-menu screenshot"
-        "$mod,        Print,  exec, screenshot copy-output"
-        "$mod SHIFT,  Print,  exec, screenshot edit-output"
-        "ALT,         Print,  exec, sh -c 'pgrep -x wf-recorder >/dev/null && record stop || walker-menu record'"
+      # screenshot and recording
+      (bind ", Print" (exec "walker-menu screenshot"))
+      (bind "SUPER, Print" (exec "screenshot copy-output"))
+      (bind "SUPER SHIFT, Print" (exec "screenshot edit-output"))
+      (bind "ALT, Print" (execRaw "sh -c 'pgrep -x wf-recorder >/dev/null && record stop || walker-menu record'"))
 
-        # switch focus
-        "$mod,  left,   movefocus,  l"
-        "$mod,  right,  movefocus,  r"
-        "$mod,  up,     movefocus,  u"
-        "$mod,  down,   movefocus,  d"
-        "$mod,  h,      movefocus,  l"
-        "$mod,  j,      movefocus,  d"
-        "$mod,  k,      movefocus,  u"
-        "$mod,  l,      movefocus,  r"
+      # switch focus
+      (bind "SUPER, left" (movefocus "l"))
+      (bind "SUPER, right" (movefocus "r"))
+      (bind "SUPER, up" (movefocus "u"))
+      (bind "SUPER, down" (movefocus "d"))
+      (bind "SUPER, h" (movefocus "l"))
+      (bind "SUPER, j" (movefocus "d"))
+      (bind "SUPER, k" (movefocus "u"))
+      (bind "SUPER, l" (movefocus "r"))
 
-        # switch workspace
-        "$mod,  1,  workspace,  1"
-        "$mod,  2,  workspace,  2"
-        "$mod,  3,  workspace,  3"
-        "$mod,  4,  workspace,  4"
-        "$mod,  5,  workspace,  5"
-        "$mod,  6,  workspace,  6"
-        "$mod,  7,  workspace,  7"
-        "$mod,  8,  workspace,  8"
-        "$mod,  9,  workspace,  9"
-        "$mod,  0,  workspace,  10"
+      # switch workspace
+      (bind "SUPER, 1" (focusWorkspace 1))
+      (bind "SUPER, 2" (focusWorkspace 2))
+      (bind "SUPER, 3" (focusWorkspace 3))
+      (bind "SUPER, 4" (focusWorkspace 4))
+      (bind "SUPER, 5" (focusWorkspace 5))
+      (bind "SUPER, 6" (focusWorkspace 6))
+      (bind "SUPER, 7" (focusWorkspace 7))
+      (bind "SUPER, 8" (focusWorkspace 8))
+      (bind "SUPER, 9" (focusWorkspace 9))
+      (bind "SUPER, 0" (focusWorkspace 10))
 
-        # same as above, but move to the workspace
-        "$mod SHIFT,  1,  movetoworkspacesilent,  1" # movetoworkspacesilent
-        "$mod SHIFT,  2,  movetoworkspacesilent,  2"
-        "$mod SHIFT,  3,  movetoworkspacesilent,  3"
-        "$mod SHIFT,  4,  movetoworkspacesilent,  4"
-        "$mod SHIFT,  5,  movetoworkspacesilent,  5"
-        "$mod SHIFT,  6,  movetoworkspacesilent,  6"
-        "$mod SHIFT,  7,  movetoworkspacesilent,  7"
-        "$mod SHIFT,  8,  movetoworkspacesilent,  8"
-        "$mod SHIFT,  9,  movetoworkspacesilent,  9"
-        "$mod SHIFT,  0,  movetoworkspacesilent,  10"
-        "$mod CTRL,   c,  movetoworkspace,        empty"
+      (bind "SUPER SHIFT, 1" (moveToWorkspace 1))
+      (bind "SUPER SHIFT, 2" (moveToWorkspace 2))
+      (bind "SUPER SHIFT, 3" (moveToWorkspace 3))
+      (bind "SUPER SHIFT, 4" (moveToWorkspace 4))
+      (bind "SUPER SHIFT, 5" (moveToWorkspace 5))
+      (bind "SUPER SHIFT, 6" (moveToWorkspace 6))
+      (bind "SUPER SHIFT, 7" (moveToWorkspace 7))
+      (bind "SUPER SHIFT, 8" (moveToWorkspace 8))
+      (bind "SUPER SHIFT, 9" (moveToWorkspace 9))
+      (bind "SUPER SHIFT, 0" (moveToWorkspace 10))
+      (bind "SUPER CTRL, c" (moveToWorkspaceStr "empty"))
 
-        # window control
-        "$mod SHIFT,  left,   movewindow,  l"
-        "$mod SHIFT,  right,  movewindow,  r"
-        "$mod SHIFT,  up,     movewindow,  u"
-        "$mod SHIFT,  down,   movewindow,  d"
-        "$mod SHIFT,  h,      movewindow,  l"
-        "$mod SHIFT,  j,      movewindow,  d"
-        "$mod SHIFT,  k,      movewindow,  u"
-        "$mod SHIFT,  l,      movewindow,  r"
+      # window movement
+      (bind "SUPER SHIFT, left" (movewindow "l"))
+      (bind "SUPER SHIFT, right" (movewindow "r"))
+      (bind "SUPER SHIFT, up" (movewindow "u"))
+      (bind "SUPER SHIFT, down" (movewindow "d"))
+      (bind "SUPER SHIFT, h" (movewindow "l"))
+      (bind "SUPER SHIFT, j" (movewindow "d"))
+      (bind "SUPER SHIFT, k" (movewindow "u"))
+      (bind "SUPER SHIFT, l" (movewindow "r"))
 
-        "$mod CTRL, left,   resizeactive, -80 0"
-        "$mod CTRL, right,  resizeactive, 80 0"
-        "$mod CTRL, up,     resizeactive, 0 -80"
-        "$mod CTRL, down,   resizeactive, 0 80"
-        "$mod CTRL, h,      resizeactive, -80 0"
-        "$mod CTRL, j,      resizeactive, 0 80"
-        "$mod CTRL, k,      resizeactive, 0 -80"
-        "$mod CTRL, l,      resizeactive, 80 0"
+      # resize active window
+      (bind "SUPER CTRL, left" (resizeactive (-80) 0))
+      (bind "SUPER CTRL, right" (resizeactive 80 0))
+      (bind "SUPER CTRL, up" (resizeactive 0 (-80)))
+      (bind "SUPER CTRL, down" (resizeactive 0 80))
+      (bind "SUPER CTRL, h" (resizeactive (-80) 0))
+      (bind "SUPER CTRL, j" (resizeactive 0 80))
+      (bind "SUPER CTRL, k" (resizeactive 0 (-80)))
+      (bind "SUPER CTRL, l" (resizeactive 80 0))
 
-        "$mod ALT,  left,   moveactive, -80 0"
-        "$mod ALT,  right,  moveactive, 80 0"
-        "$mod ALT,  up,     moveactive, 0 -80"
-        "$mod ALT,  down,   moveactive, 0 80"
-        "$mod ALT,  h,      moveactive, -80 0"
-        "$mod ALT,  j,      moveactive, 0 80"
-        "$mod ALT,  k,      moveactive, 0 -80"
-        "$mod ALT,  l,      moveactive, 80 0"
+      # move active window (not changing workspace)
+      (bind "SUPER ALT, left" (moveactive (-80) 0))
+      (bind "SUPER ALT, right" (moveactive 80 0))
+      (bind "SUPER ALT, up" (moveactive 0 (-80)))
+      (bind "SUPER ALT, down" (moveactive 0 80))
+      (bind "SUPER ALT, h" (moveactive (-80) 0))
+      (bind "SUPER ALT, j" (moveactive 0 80))
+      (bind "SUPER ALT, k" (moveactive 0 (-80)))
+      (bind "SUPER ALT, l" (moveactive 80 0))
 
-        # window tabbed grouping
-        "$mod SHIFT,  G,      togglegroup" # toggle tabbed group
-        "$mod ALT,    left,   changegroupactive,  b" # change active tab back
-        "$mod ALT,    right,  changegroupactive,  f" # change active tab forward
-        "$mod ALT,    h,      changegroupactive,  b" # change active tab back
-        "$mod ALT,    l,      changegroupactive,  f" # change active tab forward
+      # window tabbed grouping
+      (bind "SUPER SHIFT, G" togglegroup)
+      (bind "SUPER ALT, left" (changegroupactive "b"))
+      (bind "SUPER ALT, right" (changegroupactive "f"))
+      (bind "SUPER ALT, h" (changegroupactive "b"))
+      (bind "SUPER ALT, l" (changegroupactive "f"))
 
-        # media and volume controls
-        # ",XF86AudioMute,exec, pamixer -t"
-        ",XF86AudioPlay,  exec, playerctl play-pause"
-        ",XF86AudioNext,  exec, playerctl next"
-        ",XF86AudioPrev,  exec, playerctl previous"
-        ",XF86AudioStop,  exec, playerctl stop"
+      # media and volume controls
+      (bind ", XF86AudioPlay" (exec "playerctl play-pause"))
+      (bind ", XF86AudioNext" (exec "playerctl next"))
+      (bind ", XF86AudioPrev" (exec "playerctl previous"))
+      (bind ", XF86AudioStop" (exec "playerctl stop"))
 
-        "$mod,  mouse_down, workspace, e-1"
-        "$mod,  mouse_up, workspace, e+1"
-      ]
-      ++ lib.optionals (config.modules.defaultBrowser == "google-chrome") [
-        # secondary browser binding: chrome is default, super+shift+b opens zen
-        "$mod SHIFT,  B,      exec,       zen-beta"
-      ];
+      # scroll through workspaces
+      (bind "SUPER, mouse_down" (mkLuaInline ''hl.dsp.focus({ workspace = "e-1" })''))
+      (bind "SUPER, mouse_up" (mkLuaInline ''hl.dsp.focus({ workspace = "e+1" })''))
 
-      # mouse binding
-      bindm = [
-        "$mod,        mouse:274,  movewindow"
-        "$mod SHIFT,  mouse:274,  resizewindow"
-      ];
-    };
+      # mouse bindings
+      (bindMouse "SUPER, mouse:274" dragWindow)
+      (bindMouse "SUPER SHIFT, mouse:274" resizeWindow)
+    ]
+    ++ lib.optionals (config.modules.defaultBrowser == "google-chrome") [
+      (bind "SUPER SHIFT, B" (exec "zen-beta"))
+    ];
   };
 }
