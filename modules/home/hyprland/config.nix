@@ -235,7 +235,7 @@ in {
         bind = [
           (bind "SUPER SHIFT CTRL, HOME" (submap "clean"))
           (bind "SUPER SHIFT CTRL, Q" killactive)
-          (bind "SUPER SHIFT CTRL, HOME" (submap "reset"))
+          (bind "SUPER SHIFT CTRL, Escape" (submap "reset"))
         ];
       };
     };
