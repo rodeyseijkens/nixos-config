@@ -65,7 +65,7 @@ in {
     };
 
     # Run audio setup on login
-    wayland.windowManager.hyprland.settings.exec_once = lib.mkAfter [
+    modules.hyprland.startup = lib.mkAfter [
       "~/.config/scripts/audio-setup.sh"
     ];
   };

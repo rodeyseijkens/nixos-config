@@ -8,11 +8,11 @@
 in {
   home.packages = with pkgs; [swayosd];
 
-  wayland.windowManager.hyprland.settings = {
-    exec_once = [
-      "swayosd-server"
-    ];
+  modules.hyprland.startup = [
+    "swayosd-server"
+  ];
 
+  wayland.windowManager.hyprland.settings = {
     bind = [
       (bind ", XF86AudioMute" (exec "swayosd-client --output-volume mute-toggle"))
       (bindLocked ", XF86MonBrightnessUp" (exec "swayosd-client --brightness raise 5%+"))
