@@ -40,10 +40,38 @@
 
     parentFlake = toString ../.;
 
-    check-hypr = pkgs.writeShellScriptBin "check-hypr" ''
-      set -euo pipefail
-      CONFIG=''${1:?usage: check-hypr <hyprland.lua>}
-      exec ${pkgs.lua}/bin/lua ${./check-hypr.lua} "''${CONFIG}"
+    # Type-check the generated config against the real hl.meta.lua schema
+    # using lua-language-server. No mocks — uses Hyprland's own type annotations.
+    # Catches: undefined fields (e.g. hl.exec_once), type mismatches, etc.
+luals-check-hypr = pkgs.writeShellScriptBin "luals-check-hypr" ''
+      set -uo pipefail
+      CONFIG=''${1:?usage: luals-check-hypr <hyprland.lua> <hl.meta.lua>}
+      SCHEMA=''${2:?usage: luals-check-hypr <hyprland.lua> <hl.meta.lua>}
+
+      WORKDIR="/tmp/hypr-luals-$(basename "$CONFIG" | sed 's/\.lua//')"
+      rm -rf "$WORKDIR"
+      mkdir -p "$WORKDIR"
+      chmod 755 "$WORKDIR"
+      cp -fL "$CONFIG" "$WORKDIR/hyprland.lua"
+      chmod 644 "$WORKDIR/hyprland.lua"
+      cp -fL "$SCHEMA" "$WORKDIR/hl.meta.lua"
+      DIR=$(dirname "$CONFIG")
+      for f in "$DIR"/*.lua; do
+        [ -f "$f" ] && cp -fL "$f" "$WORKDIR/" 2>/dev/null
+      done
+
+      cat > "$WORKDIR/.luarc.json" <<EOF
+      {"workspace.library": ["."], "diagnostics.severity.undefined-field": "Warning"}
+      EOF
+
+      OUT=$(${pkgs.lua-language-server}/bin/lua-language-server --check "$WORKDIR" 2>&1 || true)
+
+      UNDEF=$(echo "$OUT" | grep -c 'Undefined field' || true)
+      if [ "$UNDEF" -gt 0 ]; then
+        echo "$OUT" | grep -F "$WORKDIR" | grep 'Undefined field'
+        exit 1
+      fi
+      exit 0
     '';
 
     validate-hypr = pkgs.writeShellScriptBin "validate-hypr" ''
@@ -72,15 +100,20 @@
 
       STATUS=0
 
-      echo "==> Runtime check (arity/type against real hl API)..."
-      if ! check-hypr "''${CONFIG}"; then
+      echo "==> Type check against real hl.meta.lua (lua-language-server)..."
+      set +e
+      LUALSOUT=$(luals-check-hypr "''${CONFIG}" "''${SCHEMA}" 2>&1)
+      RC=$?
+      set -e
+      if [ -n "''${LUALSOUT}" ]; then
+        echo "''${LUALSOUT}"
+      fi
+      if [ "''${RC}" -ne 0 ]; then
         STATUS=1
       fi
 
       echo "==> Validating with hyprvalidate (using live hyprland schema)..."
-      # Filter known false positives from schema gaps:
-      #   animations.animation, animations.bezier — vararg directives not in flat key space
-      #   workspace — valid config key, missing from HL.ConfigOpt stub
+      set +e
       ISSUES=$(hyprvalidate check "''${CONFIG_DIR}" --stub "''${SCHEMA}" 2>&1 \
         | grep "\[" \
         | grep -v "'animations\\.animation' is not a known" \
@@ -91,6 +124,7 @@
         echo "''${ISSUES}"
         STATUS=1
       fi
+      set -e
 
       if [ "''${STATUS}" -eq 0 ]; then
         echo ""
@@ -108,15 +142,14 @@
     packages.${system}.hyprvalidate = hyprvalidate;
 
     devShells.${system}.default = pkgs.mkShell {
-      packages = [ hyprvalidate pkgs.lua validate-hypr check-hypr ];
+      packages = [ hyprvalidate pkgs.lua validate-hypr luals-check-hypr pkgs.lua-language-server ];
       shellHook = ''
         echo "Hyprland Lua config test environment"
         echo ""
         echo "Commands:"
-        echo "  validate-hypr [host]   build hyprland + config + run both checks (default: desktop)"
-        echo "  check-hypr <file>      runtime arity/type check against the real hl API"
-        echo "  hyprvalidate --help    hyprvalidate tool"
-        echo "  luac -p <file>         Lua syntax check"
+        echo "  validate-hypr [host]    build hyprland + config + run ALL checks (default: desktop)"
+        echo "  luals-check-hypr <cfg> <schema>  type-check against real hl.meta.lua (no mocks)"
+        echo "  hyprvalidate --help     hyprvalidate tool"
         echo ""
         echo "Available hosts: desktop, desktop-work, desktop-office"
       '';
