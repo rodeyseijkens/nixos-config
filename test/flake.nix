@@ -40,6 +40,12 @@
 
     parentFlake = toString ../.;
 
+    check-hypr = pkgs.writeShellScriptBin "check-hypr" ''
+      set -euo pipefail
+      CONFIG=''${1:?usage: check-hypr <hyprland.lua>}
+      exec ${pkgs.lua}/bin/lua ${./check-hypr.lua} "''${CONFIG}"
+    '';
+
     validate-hypr = pkgs.writeShellScriptBin "validate-hypr" ''
       set -euo pipefail
       HOST=''${1:-desktop}
@@ -62,6 +68,15 @@
         echo "ERROR: hyprland config not found at ''${CONFIG_DIR}"
         exit 1
       fi
+      CONFIG="''${CONFIG_DIR}/hyprland.lua"
+
+      STATUS=0
+
+      echo "==> Runtime check (arity/type against real hl API)..."
+      if ! check-hypr "''${CONFIG}"; then
+        STATUS=1
+      fi
+
       echo "==> Validating with hyprvalidate (using live hyprland schema)..."
       # Filter known false positives from schema gaps:
       #   hl.exec_once — valid function, missing from stubs
@@ -74,25 +89,34 @@
         | grep -v "'workspace' is not a known" \
         | grep -v "hl.exec_once: 'exec_once' is not a member" \
         || true)
-      if [ -z "''${ISSUES}" ]; then
-        echo "No issues found."
-      else
+      if [ -n "''${ISSUES}" ]; then
         echo "''${ISSUES}"
+        STATUS=1
+      fi
+
+      if [ "''${STATUS}" -eq 0 ]; then
+        echo ""
+        echo "All checks passed."
+      else
+        echo ""
+        echo "Checks failed."
       fi
       echo ""
-      echo "Config:  file://''${CONFIG_DIR}/hyprland.lua"
+      echo "Config:  file://''${CONFIG}"
       echo "Schema:  file://''${SCHEMA}"
+      exit "''${STATUS}"
     '';
   in {
     packages.${system}.hyprvalidate = hyprvalidate;
 
     devShells.${system}.default = pkgs.mkShell {
-      packages = [ hyprvalidate pkgs.lua validate-hypr ];
+      packages = [ hyprvalidate pkgs.lua validate-hypr check-hypr ];
       shellHook = ''
         echo "Hyprland Lua config test environment"
         echo ""
         echo "Commands:"
-        echo "  validate-hypr [host]   build hyprland + config + validate (default: desktop)"
+        echo "  validate-hypr [host]   build hyprland + config + run both checks (default: desktop)"
+        echo "  check-hypr <file>      runtime arity/type check against the real hl API"
         echo "  hyprvalidate --help    hyprvalidate tool"
         echo "  luac -p <file>         Lua syntax check"
         echo ""
