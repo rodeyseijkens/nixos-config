@@ -14,6 +14,11 @@ if not config_path then
   os.exit(2)
 end
 
+-- Make require() find sibling Lua files (e.g. extraLuaFiles like startup.lua)
+-- that Hyprland would load from the same config directory.
+local config_dir = config_path:match("^(.*[/\\])") or "./"
+package.path = config_dir .. "?.lua;" .. config_dir .. "?/init.lua;" .. package.path
+
 local findings = {}
 
 local function add(name, msg)
@@ -84,9 +89,6 @@ local hl = {
 
   -- bind(keys, dispatcher, opts?): at least 2 args.
   bind = fn("hl.bind", { min = 2 }),
-
-  -- exec_once(cmd)
-  exec_once = fn("hl.exec_once", { min = 1 }),
 
   -- exec_cmd(cmd, rules?)
   exec_cmd = fn("hl.exec_cmd", { min = 1 }),

@@ -79,7 +79,6 @@
 
       echo "==> Validating with hyprvalidate (using live hyprland schema)..."
       # Filter known false positives from schema gaps:
-      #   hl.exec_once — valid function, missing from stubs
       #   animations.animation, animations.bezier — vararg directives not in flat key space
       #   workspace — valid config key, missing from HL.ConfigOpt stub
       ISSUES=$(hyprvalidate check "''${CONFIG_DIR}" --stub "''${SCHEMA}" 2>&1 \
@@ -87,7 +86,6 @@
         | grep -v "'animations\\.animation' is not a known" \
         | grep -v "'animations\\.bezier' is not a known" \
         | grep -v "'workspace' is not a known" \
-        | grep -v "hl.exec_once: 'exec_once' is not a member" \
         || true)
       if [ -n "''${ISSUES}" ]; then
         echo "''${ISSUES}"
