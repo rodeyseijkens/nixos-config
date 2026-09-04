@@ -7,14 +7,14 @@
       monitor = DP-3, 2560x1440@165, 0x0, 1
     '';
     workspaces = [
-      "1, monitor:DP-3, default:true"
-      "2, monitor:DP-3"
-      "3, monitor:DP-3"
-      "4, monitor:DP-3"
-      "5, monitor:DP-3"
-      "8, monitor:DP-2"
-      "9, monitor:DP-2, default:true"
-      "10, monitor:DP-2"
+      { workspace = "1"; monitor = "DP-3"; default = true; }
+      { workspace = "2"; monitor = "DP-3"; }
+      { workspace = "3"; monitor = "DP-3"; }
+      { workspace = "4"; monitor = "DP-3"; }
+      { workspace = "5"; monitor = "DP-3"; }
+      { workspace = "8"; monitor = "DP-2"; }
+      { workspace = "9"; monitor = "DP-2"; default = true; }
+      { workspace = "10"; monitor = "DP-2"; }
     ];
   };
 

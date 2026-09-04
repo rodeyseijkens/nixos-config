@@ -16,13 +16,28 @@
       monitor = , preferred, auto, 1
     '';
     workspaces = [
-      "1, default:true"
-      "2"
-      "3"
-      "4"
-      "5"
-      "9"
-      "10"
+      {
+        workspace = "1";
+        default = true;
+      }
+      {
+        workspace = "2";
+      }
+      {
+        workspace = "3";
+      }
+      {
+        workspace = "4";
+      }
+      {
+        workspace = "5";
+      }
+      {
+        workspace = "9";
+      }
+      {
+        workspace = "10";
+      }
     ];
     windowrules = [
       {
@@ -54,11 +69,50 @@
     }
     else defaultMonitorConfig;
 
-  # Split monitor lines and strip "monitor = " prefix for Lua config
+  # Parse old-style monitor lines into the Lua hl.monitor table format.
+  # Input (hyprlang):  monitor = DP-2, 2560x1440@165, -2560x0, 1
+  # Output (Lua):      { output = "DP-2"; mode = "2560x1440@165"; position = "-2560x0"; scale = 1; }
   parseMonitorLines = lines: let
     individual = builtins.filter (s: s != "") (lib.splitString "\n" lines);
+    # Strip the "monitor = " prefix
+    stripped = map (line: lib.removePrefix "monitor = " line) individual;
+    # Split a monitor line on commas, respecting position like "-2560x0"
+    # and optional key/value pairs (transform, vrr, disabled, ...)
+    parseLine = line: let
+      parts = map lib.trim (lib.splitString "," line);
+      head = builtins.head parts;
+      rest = builtins.tail parts;
+      base = {
+        output = head;
+        mode = getNth 0 rest;
+        position = getNth 1 rest;
+        scale = getNth 2 rest;
+      } // (parseOptionalMonitorArgs (lib.drop 3 rest));
+      # Safely get the nth element or null if out of bounds.
+      getNth = n: xs:
+        if builtins.length xs > n then builtins.elemAt xs n else null;
+    in
+      lib.filterAttrs (_: v: v != null) base;
   in
-    map (line: lib.removePrefix "monitor = " line) individual;
+    map parseLine stripped;
+
+  # Parse optional monitor args (e.g. "transform, 3" / "vrr, 1" / "disabled") into fields.
+  parseOptionalMonitorArgs = args: let
+    go = acc: xs:
+      if builtins.length xs == 0 then acc
+      else
+        let
+          key = builtins.elemAt xs 0;
+          hasVal = builtins.length xs >= 2;
+          val =
+            if hasVal
+            then builtins.fromJSON (builtins.elemAt xs 1)
+            else true;
+          remaining =
+            if hasVal then lib.drop 2 xs else lib.drop 1 xs;
+        in go (acc // { ${key} = val; }) remaining;
+  in
+    go {} args;
 in {
   imports = [./windowrules];
 
@@ -77,12 +131,19 @@ in {
     };
 
     workspaces = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
+      type = lib.types.listOf lib.types.attrs;
       default = [];
-      description = "Workspace to monitor assignments";
+      description = "Workspace to monitor assignments (Hyprland Lua workspace_rule format).";
       example = [
-        "1, monitor:DP-3"
-        "2, monitor:DP-3"
+        {
+          workspace = "1";
+          monitor = "DP-3";
+          default = true;
+        }
+        {
+          workspace = "2";
+          monitor = "DP-3";
+        }
       ];
     };
 
@@ -220,13 +281,13 @@ in {
             no_hardware_cursors = true;
           };
 
-          # workspace
-          workspace = monitorConfig.workspaces;
-
           xwayland = {
             force_zero_scaling = true;
           };
         };
+
+        # workspace to monitor assignments (Lua hl.workspace_rule format)
+        workspace_rule = monitorConfig.workspaces;
 
         # workspace window rules (Lua format)
         window_rule = defaultMonitorConfig.windowrules ++ monitorConfig.windowrules;
