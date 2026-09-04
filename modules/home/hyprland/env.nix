@@ -1,52 +1,47 @@
 {...}: let
   terminal = "ghostty";
   editor = "code";
+
+  # Build a two-argument hl.env call: hl.env("NAME", "value").
+  # The home-manager module renders { _args = [name value] } as
+  # hl.env(name, value); a plain "NAME, value" string would be passed
+  # as a single argument and rejected by Hyprland.
+  env = name: value: {
+    _args = [name value];
+  };
 in {
-  wayland.windowManager.hyprland = {
-    settings = {
-      env = [
-        "NIXOS_OZONE_WL, 1"
-        "NIXPKGS_ALLOW_UNFREE, 1"
-        "XDG_CURRENT_DESKTOP, Hyprland"
-        "XDG_SESSION_TYPE, wayland"
-        "XDG_SESSION_DESKTOP, Hyprland"
-        "GDK_BACKEND, wayland, x11"
-        "CLUTTER_BACKEND, wayland"
-        "QT_QPA_PLATFORM=wayland;xcb"
-        "QT_WAYLAND_DISABLE_WINDOWDECORATION, 1"
-        "QT_AUTO_SCREEN_SCALE_FACTOR, 1"
-        "QT_QPA_PLATFORMTHEME, qt5ct"
-        "QT_STYLE_OVERRIDE, kvantum"
-        "DISABLE_QT5_COMPAT, 0"
-        "SDL_VIDEODRIVER, x11"
-        "MOZ_ENABLE_WAYLAND, 1"
-        # This is to make electron apps start in wayland
-        "ELECTRON_OZONE_PLATFORM_HINT,wayland"
-        "ANKI_WAYLAND, 1"
-        # Disabling this by default as it can result in inop cfg
-        # Added card2 in case this gets enabled. For better coverage
-        # This is mostly needed by Hybrid laptops.
-        # but if you have multiple discrete GPUs this will set order
-        #"AQ_DRM_DEVICES,/dev/dri/card0:/dev/dri/card1:/dev/card2"
-        "GDK_SCALE,1"
-        "QT_SCALE_FACTOR,1"
-        "GTK_THEME, Colloid-Green-Dark-Gruvbox"
-        # Graphics drivers settings
-        "__GL_GSYNC_ALLOWED, 0"
-        "__GL_VRR_ALLOWED, 0"
-        # WLR (wlroots) settings
-        "WLR_BACKEND, vulkan"
-        "WLR_RENDERER, vulkan"
-        "WLR_DRM_NO_ATOMIC, 1"
-        "WLR_NO_HARDWARE_CURSORS, 1"
-        # Application specific settings
-        "DIRENV_LOG_FORMAT, "
-        "EDITOR,${editor}"
-        # Set terminal and xdg_terminal_emulator
-        # To prevent yazi from starting xterm
-        "TERMINAL,${terminal}"
-        "XDG_TERMINAL_EMULATOR,${terminal}"
-      ];
-    };
+  wayland.windowManager.hyprland.settings = {
+    env = [
+      (env "NIXOS_OZONE_WL" "1")
+      (env "NIXPKGS_ALLOW_UNFREE" "1")
+      (env "XDG_CURRENT_DESKTOP" "Hyprland")
+      (env "XDG_SESSION_TYPE" "wayland")
+      (env "XDG_SESSION_DESKTOP" "Hyprland")
+      (env "GDK_BACKEND" "wayland,x11")
+      (env "CLUTTER_BACKEND" "wayland")
+      (env "QT_QPA_PLATFORM" "wayland;xcb")
+      (env "QT_WAYLAND_DISABLE_WINDOWDECORATION" "1")
+      (env "QT_AUTO_SCREEN_SCALE_FACTOR" "1")
+      (env "QT_QPA_PLATFORMTHEME" "qt5ct")
+      (env "QT_STYLE_OVERRIDE" "kvantum")
+      (env "DISABLE_QT5_COMPAT" "0")
+      (env "SDL_VIDEODRIVER" "x11")
+      (env "MOZ_ENABLE_WAYLAND" "1")
+      (env "ELECTRON_OZONE_PLATFORM_HINT" "wayland")
+      (env "ANKI_WAYLAND" "1")
+      (env "GDK_SCALE" "1")
+      (env "QT_SCALE_FACTOR" "1")
+      (env "GTK_THEME" "Colloid-Green-Dark-Gruvbox")
+      (env "__GL_GSYNC_ALLOWED" "0")
+      (env "__GL_VRR_ALLOWED" "0")
+      (env "WLR_BACKEND" "vulkan")
+      (env "WLR_RENDERER" "vulkan")
+      (env "WLR_DRM_NO_ATOMIC" "1")
+      (env "WLR_NO_HARDWARE_CURSORS" "1")
+      (env "DIRENV_LOG_FORMAT" "")
+      (env "EDITOR" editor)
+      (env "TERMINAL" terminal)
+      (env "XDG_TERMINAL_EMULATOR" terminal)
+    ];
   };
 }
