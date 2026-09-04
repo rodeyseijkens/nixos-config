@@ -4,7 +4,7 @@
   options,
   ...
 }: let
-  inherit (import ./hyprland-util.nix { inherit lib; }) bind exec killactive submap;
+  inherit (import ./hyprland-util.nix { inherit lib; }) bind exec closeactive submap curve;
 
   # Color helper functions
   rgb = color: "rgb(${color})";
@@ -248,25 +248,6 @@ in {
 
           animations = {
             enabled = true;
-
-            bezier = [
-              "fluent_decel,  0,    0.2,  0.4,  1"
-              "easeOutCirc,   0,    0.55, 0.45, 1"
-              "easeOutCubic,  0.33, 1,    0.68, 1"
-              "fade_curve,    0,    0.55, 0.45, 1"
-            ];
-
-            animation = [
-              "windowsIn,   0, 4, easeOutCubic, popin 20%"
-              "windowsOut,  0, 4, fluent_decel, popin 80%"
-              "windowsMove, 1, 2, fluent_decel, slide"
-              "fadeIn,      1, 3,   fade_curve"
-              "fadeOut,     1, 3,   fade_curve"
-              "fadeSwitch,  0, 1,   easeOutCirc"
-              "fadeShadow,  1, 10,  easeOutCirc"
-              "fadeDim,     1, 4,   fluent_decel"
-              "workspaces,  1, 4,   easeOutCubic, fade"
-            ];
           };
 
           group = {
@@ -292,12 +273,118 @@ in {
         # workspace window rules (Lua format)
         window_rule = defaultMonitorConfig.windowrules ++ monitorConfig.windowrules;
 
-        # Clean submap (converted from extraConfig)
+        # Bezier curves (hl.curve) — must precede the hl.animation calls below.
+        curve = [
+          (curve "fluent_decel" {
+            type = "bezier";
+            points = [
+              [0 0.2]
+              [0.4 1]
+            ];
+          })
+          (curve "easeOutCirc" {
+            type = "bezier";
+            points = [
+              [0 0.55]
+              [0.45 1]
+            ];
+          })
+          (curve "easeOutCubic" {
+            type = "bezier";
+            points = [
+              [0.33 1]
+              [0.68 1]
+            ];
+          })
+          (curve "fade_curve" {
+            type = "bezier";
+            points = [
+              [0 0.55]
+              [0.45 1]
+            ];
+          })
+        ];
+
+        # Animation leaves (hl.animation) restoring the previous config.
+        animation = [
+          {
+            leaf = "windowsIn";
+            enabled = false;
+            speed = 4;
+            bezier = "easeOutCubic";
+            style = "popin 20%";
+          }
+          {
+            leaf = "windowsOut";
+            enabled = false;
+            speed = 4;
+            bezier = "fluent_decel";
+            style = "popin 80%";
+          }
+          {
+            leaf = "windowsMove";
+            enabled = true;
+            speed = 2;
+            bezier = "fluent_decel";
+            style = "slide";
+          }
+          {
+            leaf = "fadeIn";
+            enabled = true;
+            speed = 3;
+            bezier = "fade_curve";
+          }
+          {
+            leaf = "fadeOut";
+            enabled = true;
+            speed = 3;
+            bezier = "fade_curve";
+          }
+          {
+            leaf = "fadeSwitch";
+            enabled = false;
+            speed = 1;
+            bezier = "easeOutCirc";
+          }
+          {
+            leaf = "fadeShadow";
+            enabled = true;
+            speed = 10;
+            bezier = "easeOutCirc";
+          }
+          {
+            leaf = "fadeDim";
+            enabled = true;
+            speed = 4;
+            bezier = "fluent_decel";
+          }
+          {
+            leaf = "workspaces";
+            enabled = true;
+            speed = 4;
+            bezier = "easeOutCubic";
+            style = "fade";
+          }
+        ];
+
+        # Enter the "clean" submap from the global keymap (toggle — see submaps).
         bind = [
           (bind "SUPER SHIFT CTRL, HOME" (submap "clean"))
-          (bind "SUPER SHIFT CTRL, Q" killactive)
-          (bind "SUPER SHIFT CTRL, Escape" (submap "reset"))
         ];
+      };
+
+      # Clean submap (Special Keybind disabler). Entering it deactivates all
+      # global binds; the binds below are only active while the clean submap
+      # is active and are registered via hl.define_submap.
+      submaps = {
+        clean = {
+          settings = {
+            bind = [
+              (bind "SUPER SHIFT CTRL, HOME" (submap "reset"))
+              (bind "SUPER SHIFT CTRL, Q" closeactive)
+            ];
+          };
+        };
       };
     };
   };

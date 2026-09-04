@@ -5,7 +5,7 @@
 }: let
   inherit (import ./hyprland-util.nix { inherit lib; })
     bind bindFlags bindLocked bindRepeat bindLockedRepeat bindMouse
-    exec execRaw killactive fullscreenToggle fullscreenMaximize
+    exec execRaw closeactive fullscreenToggle fullscreenMaximize
     movefocus movewindow focusWorkspace moveToWorkspace moveToWorkspaceStr
     resizeactive moveactive pseudo layoutmsg togglegroup changegroupactive
     dragWindow resizeWindow
@@ -28,7 +28,7 @@ in {
       (bind "SUPER SHIFT, D" (exec "legcord & steam"))
 
       # window management
-      (bind "SUPER, Q" killactive)
+      (bind "SUPER, Q" closeactive)
       (bind "SUPER, F" fullscreenToggle)
       (bind "SUPER SHIFT, F" fullscreenMaximize)
       (bind "SUPER SHIFT, T" (exec "toggle-float"))

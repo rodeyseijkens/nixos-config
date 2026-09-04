@@ -48,11 +48,14 @@ in rec {
   bindMouse = bindWith { };  # mouse: prefix in key suffices
   bindRelease = bindWith {release = true;};
 
+  # Raw curve constructor: renders `hl.curve("name", { type = ..., ... })`.
+  curve = name: spec: {_args = [name spec];};
+
   # Dispatch helpers — return mkLuaInline values
   exec = cmd: mkLuaInline ''hl.dsp.exec_cmd("${cmd}")'';
   execRaw = cmd: mkLuaInline "hl.dsp.exec_cmd([[${cmd}]])";
 
-  killactive = mkLuaInline "hl.dsp.window.kill()";
+  closeactive = mkLuaInline "hl.dsp.window.close()";
   submap = name: mkLuaInline ''hl.dsp.submap("${name}")'';
   fullscreenToggle = mkLuaInline ''hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" })'';
   fullscreenMaximize = mkLuaInline ''hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })'';
