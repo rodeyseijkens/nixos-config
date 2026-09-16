@@ -754,24 +754,24 @@ This script will:
 
 ## 🤖 Herdr Plugins
 
-Plugins are installed by herdr itself (e.g. `herdr plugin install persiyanov/herdr-reviewr`) and live under
-`~/.config/herdr/plugins/`. Only the plugin config is managed by nix:
-[reviewr-config.toml](modules/home/herdr/reviewr-config.toml) is symlinked to
-`~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml`, matching the same
+Plugins are installed by herdr itself (e.g. `herdr plugin install rodeyseijkens/codey`) and live under
+`~/.config/herdr/plugins/`. Only the codey config is managed by nix:
+[codey-config.toml](modules/home/herdr/codey-config.toml) is symlinked to
+`~/.config/codey/config.toml`, matching the same
 out-of-store symlink pattern as the herdr config itself.
 
 **Installed plugins:**
 
-| Plugin                                                       | Action                                        |
-| ------------------------------------------------------------ | --------------------------------------------- |
-| [herdr-reviewr](https://github.com/persiyanov/herdr-reviewr) | Native terminal code-review sidebar (v0.10.0) |
+| Plugin                                          | Action                                |
+| ----------------------------------------------- | ------------------------------------- |
+| [codey](https://github.com/rodeyseijkens/codey) | Review-first git TUI sidebar |
 
 **Herdr config:** `modules/home/herdr/config.toml`
 - Theme: My custom Gruvb0x
 - Prefix: `ctrl+i`
 
-**reviewr-config.toml keybinds (added to herdr config):**
-- `prefix+shift+r` — toggle reviewr sidebar
+**codey keybind (added to herdr config):**
+- `prefix+shift+r` — toggle codey sidebar
 
 ## 🔐 Secrets Management
 

@@ -1,0 +1,24 @@
+# codey configuration
+# Symlinked to ~/.config/codey/config.toml, where the codey TUI (standalone and
+# as a herdr plugin pane) reads it on every start.
+#
+# The herdr plugin itself is installed by herdr:
+#   herdr plugin install rodeyseijkens/codey
+# `auto_open` (default true), which controls auto-opening the pane on
+# `herdr worktree create`, lives in the plugin config at
+# ~/.config/herdr/plugins/config/codey/config.toml and is left at its default.
+#
+# Theme ids are bundled Shiki theme names; "auto" follows the terminal.
+theme = "gruvbox-dark-hard"
+
+# Diff layout: "split", "stack", or "auto".
+mode = "split"
+
+# Sidebar view: "tree" (default) or "list".
+view = "tree"
+
+# Show line numbers in the diff pane.
+lineNumbers = true
+
+# Sidebar width in columns (16-80).
+sidebarWidth = 32

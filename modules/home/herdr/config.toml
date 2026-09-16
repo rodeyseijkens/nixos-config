@@ -138,21 +138,21 @@ switch_workspace = "prefix+shift+1..9"
 # type = "shell" runs detached in the background.
 # type = "pane" opens a temporary pane and closes it when the command exits.
 # type = "plugin_action" invokes a herdr plugin's [[actions]] entry by id
-# (plugin_id.action_id, e.g. "persiyanov.reviewr.toggle").
+# (plugin_id.action_id, e.g. "codey.toggle").
 [[keys.command]]
 key = "prefix+ctrl+g"
 type = "pane"
 command = "lazygit"
 description = "lazygit: open"
 
-# herdr-reviewr: native code-review sidebar (persiyanov.herdr-reviewr,
-# installed via the herdr module in modules/home/herdr/reviewr.nix).
-# Toggle on prefix+alt+r, open on prefix+shift+r, close on prefix+alt+shift+r.
+# codey: review-first git TUI sidebar (rodeyseijkens.codey, installed via the
+# herdr module in modules/home/herdr/default.nix).
+# Toggle on prefix+shift+r.
 [[keys.command]]
 key = "prefix+shift+r"
 type = "plugin_action"
-command = "persiyanov.reviewr.toggle"
-description = "reviewr: toggle sidebar"
+command = "codey.toggle"
+description = "codey: toggle sidebar"
 
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
