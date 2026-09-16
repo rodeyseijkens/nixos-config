@@ -14,8 +14,9 @@
     fstrim.enable = true;
 
     # needed for GNOME services outside of GNOME Desktop
+    # gcr needs an explicit ABI version; gnome-keyring's D-Bus prompter is gcr_3
     dbus.packages = with pkgs; [
-      gcr
+      gcr_3
       gnome-settings-daemon
     ];
 
