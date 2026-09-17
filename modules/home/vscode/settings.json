@@ -164,7 +164,9 @@
   },
   "terminal.integrated.commandsToSkipShell": [
     "kilo-code.new.agentManagerOpen",
-    "kilo-code.new.agentManager.showTerminal"
+    "kilo-code.new.agentManager.showTerminal",
+    "kilo-code.new.agentManager.previousTerminal",
+    "kilo-code.new.agentManager.nextTerminal"
   ],
   "chat.disableAIFeatures": true,
   "kilo-code.new.browserAutomation.enabled": true,
