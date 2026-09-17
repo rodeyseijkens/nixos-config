@@ -6,14 +6,40 @@
       monitor = DP-3, 2560x1440@165, 0x0, 1
     '';
     workspaces = [
-      { workspace = "1"; monitor = "DP-3"; default = true; }
-      { workspace = "2"; monitor = "DP-3"; }
-      { workspace = "3"; monitor = "DP-3"; }
-      { workspace = "4"; monitor = "DP-3"; }
-      { workspace = "5"; monitor = "DP-3"; }
-      { workspace = "8"; monitor = "DP-2"; }
-      { workspace = "9"; monitor = "DP-2"; default = true; }
-      { workspace = "10"; monitor = "DP-2"; }
+      {
+        workspace = "1";
+        monitor = "DP-3";
+        default = true;
+      }
+      {
+        workspace = "2";
+        monitor = "DP-3";
+      }
+      {
+        workspace = "3";
+        monitor = "DP-3";
+      }
+      {
+        workspace = "4";
+        monitor = "DP-3";
+      }
+      {
+        workspace = "5";
+        monitor = "DP-3";
+      }
+      {
+        workspace = "8";
+        monitor = "DP-2";
+      }
+      {
+        workspace = "9";
+        monitor = "DP-2";
+        default = true;
+      }
+      {
+        workspace = "10";
+        monitor = "DP-2";
+      }
     ];
     windowrules = [
       {
