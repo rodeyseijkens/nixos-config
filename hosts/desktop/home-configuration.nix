@@ -85,7 +85,10 @@
 
   modules = {
     # Browser
-    zen-browser.enable = true;
+    zen-browser = {
+      enable = true;
+      initialSpawnWorkspace = "10";
+    };
 
     # Code editors
     vscode.enable = true;
