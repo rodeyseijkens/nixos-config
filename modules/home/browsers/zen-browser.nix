@@ -1,4 +1,5 @@
 {
+  pkgs,
   lib,
   config,
   inputs,
@@ -57,10 +58,50 @@ with lib; let
     "zen.window-sync.enabled" = false;
     "zen.workspaces.separate-essentials" = false;
   };
+  launcher = pkgs.writeShellScriptBin "zen-beta" ''
+    real_bin="${config.programs.zen-browser.finalPackage}/bin/zen-beta"
+    workspace="${
+      if cfg.initialSpawnWorkspace == null
+      then ""
+      else cfg.initialSpawnWorkspace
+    }"
+
+    if [ -n "$workspace" ] &&
+      [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ] &&
+      command -v hyprctl >/dev/null 2>&1 &&
+      ! hyprctl clients -j 2>/dev/null | ${pkgs.jq}/bin/jq -e 'any(.class == "zen-beta")' >/dev/null 2>&1; then
+      args=""
+      for arg in "$@"; do
+        args+=" $(printf '%q' "$arg")"
+      done
+      if hyprctl dispatch exec "[workspace $workspace] $real_bin$args" >/dev/null 2>&1; then
+        exit 0
+      fi
+    fi
+
+    exec "$real_bin" "$@"
+  '';
 in {
-  options.modules.zen-browser = {enable = mkEnableOption "zen-browser";};
+  options.modules.zen-browser = {
+    enable = mkEnableOption "zen-browser";
+
+    initialSpawnWorkspace = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = ''
+        Workspace to spawn the first zen-beta window on. Only applies when no
+        zen-beta window exists yet; any later window opens on the current
+        workspace. Set to null to disable.
+      '';
+    };
+  };
+
   imports = [inputs.zen-browser.homeModules.beta];
   config = mkIf cfg.enable {
+    home.packages = [
+      (hiPrio launcher)
+    ];
+
     programs.zen-browser = {
       enable = true;
       policies = {
