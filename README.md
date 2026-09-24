@@ -754,11 +754,23 @@ This script will:
 
 ## 🤖 Herdr Plugins
 
-Plugins are installed by herdr itself (e.g. `herdr plugin install rodeyseijkens/codey`) and live under
-`~/.config/herdr/plugins/`. Only the codey config is managed by nix:
+Plugins are installed by the herdr CLI and live under `~/.config/herdr/plugins/`
+(herdr has no declarative plugin config). Only the codey config is managed by nix:
 [codey-config.toml](modules/home/herdr/codey-config.toml) is symlinked to
 `~/.config/codey/config.toml`, matching the same
 out-of-store symlink pattern as the herdr config itself.
+
+**Helper Script:**
+
+There is a helper script available to install the plugins:
+
+```bash
+herdr-install-plugins
+```
+
+This script will:
+
+1. Install `rodeyseijkens/codey` (review-first git TUI sidebar)
 
 **Installed plugins:**
 

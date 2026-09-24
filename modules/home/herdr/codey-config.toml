@@ -2,7 +2,7 @@
 # Symlinked to ~/.config/codey/config.toml, where the codey TUI (standalone and
 # as a herdr plugin pane) reads it on every start.
 #
-# The herdr plugin itself is installed by herdr:
+# The herdr plugin is installed with the `herdr-install-plugins` helper:
 #   herdr plugin install rodeyseijkens/codey
 # `auto_open` (default true), which controls auto-opening the pane on
 # `herdr worktree create`, lives in the plugin config at
