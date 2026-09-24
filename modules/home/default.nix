@@ -19,7 +19,6 @@
     ./hyprland # window manager
     ./legcord # discord client with gruvbox
     ./llm # llm tools and plugins
-    ./lsp-ai # lsp-ai with Kilo Gateway
     ./micro.nix # nano replacement
     ./mise # dev tool version manager
     ./nautilus.nix # file manager
