@@ -206,11 +206,6 @@
     '';
   };
 
-  programs.mise = {
-    enable = true;
-    enableZshIntegration = true;
-  };
-
   home.sessionVariables = {
     VOLTA_HOME = "${config.home.homeDirectory}/.volta";
     MISE_NPM_PACKAGE_MANAGER = "pnpm";

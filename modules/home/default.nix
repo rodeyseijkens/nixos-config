@@ -21,6 +21,7 @@
     ./llm # llm tools and plugins
     ./lsp-ai # lsp-ai with Kilo Gateway
     ./micro.nix # nano replacement
+    ./mise # dev tool version manager
     ./nautilus.nix # file manager
     ./nvim.nix # neovim editor
     ./obs-studio.nix # screen recorder
