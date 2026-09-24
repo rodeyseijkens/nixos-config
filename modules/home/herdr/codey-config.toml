@@ -12,7 +12,7 @@
 theme = "gruvbox-dark-hard"
 
 # Diff layout: "split", "stack", or "auto".
-mode = "split"
+mode = "auto"
 
 # Sidebar view: "tree" (default) or "list".
 view = "tree"
