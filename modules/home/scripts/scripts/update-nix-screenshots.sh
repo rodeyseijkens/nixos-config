@@ -22,7 +22,7 @@ die() { echo "update-screenshots: $*" >&2; exit 1; }
 [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] || die "not inside a Hyprland session"
 [ -d "$OUT_DIR" ] || die "screenshot directory not found: $OUT_DIR"
 
-for cmd in hyprctl jq grimblast "$TERM_BIN" nautilus code walker swaync-client \
+for cmd in hyprctl jq grimblast "$TERM_BIN" nautilus code walker qs \
     notify-send fastfetch onefetch cmatrix cbonsai tty-clock btop starship zsh awww; do
     command -v "$cmd" >/dev/null 2>&1 || die "missing dependency: $cmd"
 done
@@ -60,7 +60,7 @@ hyprctl eval 'hl.config({ misc = { focus_on_activate = false } })' >/dev/null
 
 cleanup() {
     [ "$WALKER_OPEN" = 1 ] && walker -q >/dev/null 2>&1 || true
-    [ "$PANEL_OPEN" = 1 ] && swaync-client -cp >/dev/null 2>&1 || true
+    [ "$PANEL_OPEN" = 1 ] && qs -c shell ipc call notif close >/dev/null 2>&1 || true
     for addr in ${STAGED_ADDRS[@]:-}; do
         hclose "$addr"
     done
@@ -144,9 +144,9 @@ capture() { # capture <filename> [hero window address]
 }
 
 # ---------------------------------------------------------------- shot 1 ---
-# nautilus (floating, top left) + walker launcher + swaync notification panel
+# nautilus (floating, top left) + walker launcher + quickshell notification panel
 shot1() {
-    echo "== shot 1: nautilus + walker + swaync =="
+    echo "== shot 1: nautilus + walker + quickshell =="
     ensure_ws
     set_wallpaper astronaut.jpg
 
@@ -160,9 +160,9 @@ shot1() {
 
     # content for the notification panel (newest first)
     # -t 1: popup expires instantly, but the notification stays in the panel
-    swaync-client -C # start from a clean panel
+    qs -c shell ipc call notif clear # start from a clean panel
     sleep 0.5        # the clear is async; give it time before sending
-    # different urgencies = different border colors in the panel (see swaync style.css)
+    # different urgencies = different border colors in the panel (see NotifCard.qml)
     notify-send -t 1 -u low "Hello" "there"
     sleep 0.4
     notify-send -t 1 -u normal "You" "fellow"
@@ -173,7 +173,7 @@ shot1() {
     walker --maxheight 300 --minheight 300 &
     WALKER_OPEN=1
     sleep 1.2
-    swaync-client -op
+    qs -c shell ipc call notif open
     PANEL_OPEN=1
     sleep 1
 
@@ -182,7 +182,7 @@ shot1() {
 
     walker -q
     WALKER_OPEN=0
-    swaync-client -cp
+    qs -c shell ipc call notif close
     PANEL_OPEN=0
     close_window "$naut"
 }

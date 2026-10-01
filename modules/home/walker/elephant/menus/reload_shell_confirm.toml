@@ -1,0 +1,10 @@
+name = "reload_shell_confirm"
+name_pretty = "Restart Quickshell?"
+hide_from_providerlist = true
+
+[[entries]]
+text = "󰄬 Yes"
+actions = { "confirm" = "reload-services shell" }
+
+[[entries]]
+text = "󰅖 No"
