@@ -30,7 +30,8 @@ with lib; let
       for arg in "$@"; do
         args+=" $(printf '%q' "$arg")"
       done
-      if hyprctl dispatch exec "[workspace $workspace] $real_bin$args" >/dev/null 2>&1; then
+      cmd="$real_bin$args"
+      if hyprctl dispatch "hl.dsp.exec_cmd('$cmd', { workspace = '$workspace' })" >/dev/null 2>&1; then
         exit 0
       fi
     fi
