@@ -25,20 +25,18 @@
     ./nvim.nix # neovim editor
     ./obs-studio.nix # screen recorder
     ./packages.nix # other packages
+    ./quickshell # quickshell shell (bar, notifications, OSD)
     ./spicetify.nix # spotify client
     ./starship.nix # prompt
     ./scripts/scripts.nix # personal scripts
     ./spicetify.nix # spotify client
     ./stylix.nix # stylix theme
-    ./swaync/swaync.nix # notification deamon
-    ./swayosd.nix # brightness / volume wiget
     ./t3code.nix # t3code
     ./tigervnc.nix # remote desktop
     ./tiled.nix # tiled mapeditor
     ./viewnior.nix # image viewer
     ./vscode/vscode.nix # vscode
     ./walker # walker launcher
-    ./waybar # status bar
     ./worktrunk.nix # git worktree management
     ./xdg-mimes.nix # xdg config
     ./zed-editor.nix # zed editor
