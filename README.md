@@ -64,9 +64,9 @@ Hyprlock (EXPAND)
 |                                |                                  NixOS + Hyprland                                   |
 | ------------------------------ | :---------------------------------------------------------------------------------: |
 | **Window Manager**             |                                [Hyprland][Hyprland]                                 |
-| **Bar**                        |                                  [Waybar][Waybar]                                   |
+| **Bar**                        |                                [Quickshell][Quickshell]                                 |
 | **Application Launcher**       |                                  [Walker][Walker]                                   |
-| **Notification Daemon**        |                                  [swaync][swaync]                                   |
+| **Notification Daemon**        |                                [Quickshell][Quickshell]                                 |
 | **Terminal Emulator**          |                                 [Ghostty][Ghostty]                                  |
 | **Terminal Agent Multiplexer** |                                   [herdr][herdr]                                    |
 | **Shell**                      |                          [zsh][zsh] + [Starship][Starship]                          |
@@ -415,17 +415,6 @@ toggle-opacity.sh
 
 <details>
 <summary>
-toggle-waybar.sh 
-</summary>
-
-**Description:** This script toggles the visibility of the Waybar status bar. If Waybar is currently visible, it will be hidden, and if it's hidden, it will be shown.
-
-**Usage:** `toggle-waybar`
-
-</details>
-
-<details>
-<summary>
 wall-change.sh 
 </summary>
 
@@ -515,9 +504,9 @@ Keybindings
 
 ##### utilities and scripts
 
-- `$mod SHIFT, B, exec, toggle-waybar`
+- `$mod SHIFT, B, exec, qs -c shell ipc call bar toggle`
 - `$mod, C, exec, hyprpicker -a`
-- `$mod, N, exec, swaync-client -t -sw`
+- `$mod, N, exec, qs -c shell ipc call notif toggle`
 - `$mod, Space, exec, walker-menu apps`
 - `$mod, R, exec, walker-menu projects`
 - `$mod CTRL, Space, exec, walker-menu`
@@ -903,7 +892,7 @@ Other dotfiles that I learned / copy from:
 
 [Hyprland]: https://github.com/hyprwm/Hyprland
 [Ghostty]: https://ghostty.org/
-[Waybar]: https://github.com/Alexays/Waybar
+[Quickshell]: https://quickshell.org/
 [Btop]: https://github.com/aristocratos/btop
 [Nautilus]: https://apps.gnome.org/Nautilus/
 [yazi]: https://github.com/sxyazi/yazi
@@ -915,7 +904,6 @@ Other dotfiles that I learned / copy from:
 [VSCode]: https://code.visualstudio.com/
 [Neovim]: https://github.com/neovim/neovim
 [grimblast]: https://github.com/hyprwm/contrib
-[swaync]: https://github.com/ErikReider/SwayNotificationCenter
 [NetworkManager]: https://wiki.gnome.org/Projects/NetworkManager
 [network-manager-applet]: https://gitlab.gnome.org/GNOME/network-manager-applet/
 [wf-recorder]: https://github.com/ammen99/wf-recorder
