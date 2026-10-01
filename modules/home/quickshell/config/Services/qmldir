@@ -1,0 +1,8 @@
+singleton PanelRouter 1.0 PanelRouter.qml
+singleton Preferences 1.0 Preferences.qml
+singleton OsdBus 1.0 OsdBus.qml
+singleton Audio 1.0 Audio.qml
+singleton NotifServer 1.0 NotifServer.qml
+singleton Lib 1.0 Lib.qml
+ScreenPopup 1.0 ScreenPopup.qml
+PopupPlacement 1.0 PopupPlacement.qml

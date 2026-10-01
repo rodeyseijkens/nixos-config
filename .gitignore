@@ -1,0 +1,8 @@
+# Stylix-generated Quickshell palette (Home Manager writes the real one at
+# ~/.config/quickshell/shell/Colors.qml on switch). This copy exists only so
+# `qs -p modules/home/quickshell/config` runs the repo tree directly for local
+# development, and is byte-identical to the tokens.nix stand-in that
+# `nix develop test -c qml-check` lints against; regenerate it with
+# `nix develop test -c qml-regen modules/home/quickshell/config` after
+# editing tokens.nix. qml-check fails if this copy drifts. Never commit it.
+modules/home/quickshell/config/Colors.qml
