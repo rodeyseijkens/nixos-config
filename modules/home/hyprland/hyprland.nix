@@ -6,7 +6,7 @@
   home.packages = with pkgs; [
     awww
     inputs.hypr-contrib.packages.${pkgs.stdenv.hostPlatform.system}.grimblast
-    inputs.hyprpicker.packages.${pkgs.stdenv.hostPlatform.system}.hyprpicker
+    hyprpicker
     hyprpolkitagent
     inputs.hyprmag.packages.${pkgs.stdenv.hostPlatform.system}.hyprmag
     slurp
