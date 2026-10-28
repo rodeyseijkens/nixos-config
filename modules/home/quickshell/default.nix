@@ -43,9 +43,12 @@ in {
       colors = config.lib.stylix.colors;
     };
 
-    xdg.configFile."quickshell/shell/.qmlls.ini".text = ''
-      [General]
-      importPaths=${pkgs.quickshell}/lib/qt-6/qml
-    '';
+    xdg.configFile."quickshell/shell/.qmlls.ini" = {
+      force = true;
+      text = ''
+        [General]
+        importPaths=${pkgs.quickshell}/lib/qt-6/qml
+      '';
+    };
   };
 }
