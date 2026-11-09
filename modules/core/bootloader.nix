@@ -14,7 +14,7 @@
 
   config = {
     boot.loader.efi.canTouchEfiVariables = lib.mkIf config.boot.loader.systemd-boot.enable true;
-    boot.loader.systemd-boot.configurationLimit = lib.mkIf config.boot.loader.systemd-boot.enable 10;
+    boot.loader.systemd-boot.configurationLimit = lib.mkIf config.boot.loader.systemd-boot.enable 5;
 
     # Kernel selection based on variant option
     boot.kernelPackages =
