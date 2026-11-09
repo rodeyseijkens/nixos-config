@@ -4,7 +4,6 @@
     ./bat.nix # better cat command
     ./browsers # zen browser, and google chrome
     ./btop.nix # resouces monitor
-    ./cursor-editor.nix # cursor editor
     ./3d-printing.nix # 3D printing slicers
     ./devpod.nix # devpod development environments
     ./fastfetch.nix # fetch tool
@@ -13,14 +12,13 @@
     ./git.nix # version control
     ./gnome.nix # gnome apps
     ./gtk.nix # gtk theme
-    ./handy.nix # offline speech-to-text
-    ./helix # helix editor
     ./herdr # terminal agent multiplexer (gruvbox theme)
     ./hyprland # window manager
     ./legcord # discord client with gruvbox
     ./llm # llm tools and plugins
     ./micro.nix # nano replacement
     ./mise # dev tool version manager
+    ./mitos.nix # mitos editor
     ./nautilus.nix # file manager
     ./nvim.nix # neovim editor
     ./obs-studio.nix # screen recorder
@@ -31,7 +29,9 @@
     ./scripts/scripts.nix # personal scripts
     ./spicetify.nix # spotify client
     ./stylix.nix # stylix theme
+    ./superwhisper.nix # voice dictation
     ./t3code.nix # t3code
+    ./telegram.nix # telegram desktop
     ./tigervnc.nix # remote desktop
     ./tiled.nix # tiled mapeditor
     ./viewnior.nix # image viewer

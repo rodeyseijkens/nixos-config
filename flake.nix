@@ -57,8 +57,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ghostty.url = "github:ghostty-org/ghostty";
-
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -78,7 +76,10 @@
       inputs.elephant.follows = "elephant";
     };
 
-    cursor-editor.url = "github:tomsch/cursor-nix";
+    mitos = {
+      url = "github:mitos-editor/mitos";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Cached binaries for LLM agents and dev tools (incl. handy).
     llm-agents = {

@@ -29,11 +29,10 @@
 
     # Code editors
     vscode.enable = true;
-    cursor-editor.enable = true;
     zed-editor.enable = true;
-    helix-editor.enable = true;
-    t3code.enable = false;
-    handy.enable = true;
+    mitos-editor.enable = true;
+    t3code.enable = true;
+    superwhisper.enable = true;
 
     # DevPod
     devpod.enable = true;
@@ -44,5 +43,6 @@
     # Misc
     spicetify.enable = true;
     tigervnc.enable = true;
+    telegram.enable = true;
   };
 }

@@ -92,10 +92,9 @@
 
     # Code editors
     vscode.enable = true;
-    cursor-editor.enable = true;
     zed-editor.enable = true;
-    helix-editor.enable = true;
-    t3code.enable = false;
+    mitos-editor.enable = true;
+    t3code.enable = true;
 
     # File managers
     nautilus.enable = true;
@@ -106,6 +105,7 @@
     obs-studio.enable = true;
     printing3d.enable = true;
     tiled.enable = true;
-    handy.enable = true;
+    superwhisper.enable = true;
+    telegram.enable = true;
   };
 }
