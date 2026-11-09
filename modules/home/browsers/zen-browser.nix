@@ -53,6 +53,7 @@ with lib; let
     "zen.glance.enabled" = false;
     "zen.tabs.show-newtab-vertical" = false;
     "zen.tabs.vertical.right-side" = true;
+    "zen.theme.border-radius" = 0;
     "zen.view.compact.enable-at-startup" = true;
     "zen.view.compact.should-enable-at-startup" = true;
     "zen.window-sync.enabled" = false;
@@ -113,6 +114,7 @@ in {
       };
       profiles.default = {
         name = "Default";
+        mods = ["c6813222-6571-4ba6-8faf-58f3343324f6"];
         search = searchConfig.search;
         settings = prefs;
       };
