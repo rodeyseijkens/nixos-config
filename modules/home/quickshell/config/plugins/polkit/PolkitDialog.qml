@@ -39,6 +39,11 @@ Item {
   // to the password even when a sensor is enrolled. Refreshed per request.
   property bool laptopClosed: false
   property int shakeOffset: 0
+  // The password lives on root, not on the per-screen TextInput clone. IDs
+  // declared inside `content: Component` are not visible to these functions.
+  property string passwordText: ""
+
+  signal focusFieldRequested()
 
   readonly property string activeScreenName: Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : (Quickshell.screens.length > 0 ? (Quickshell.screens[0].name ?? "") : "")
 
@@ -48,6 +53,8 @@ Item {
   // a password — including immediately when the lid is shut and the clamshell
   // gate skips pam_fprintd — we switch to the password field instead.
   readonly property bool fingerprintMode: fingerprintConfigured && !laptopClosed && dialogVisible && !responseRequired && !submitted && !errorFlash
+
+  onDialogVisibleChanged: if (dialogVisible) Qt.callLater(refocus)
 
 
   function authorizationLabel(message) {
@@ -71,7 +78,7 @@ Item {
     failed = false
     errorFlash = false
     submitted = false
-    passwordInput.text = ""
+    passwordText = ""
   }
 
   function syncFromFlow() {
@@ -92,18 +99,17 @@ Item {
     closeTimer.stop()
     closing = false
     submitted = false
-    passwordInput.text = ""
+    passwordText = ""
     refreshLidState()
     syncFromFlow()
     Qt.callLater(refocus)
   }
 
+  // The TextInput is created inside the ScreenPopup content component, so the
+  // request is broadcast and the (single) visible surface picks it up.
   function refocus() {
     if (!dialogVisible) return
-    // In fingerprint mode there is no field to type into — park focus on the
-    // key catcher so Escape still cancels; otherwise focus the password field.
-    if (fingerprintMode) keyCatcher.forceActiveFocus()
-    else passwordInput.forceActiveFocus()
+    focusFieldRequested()
   }
 
   function submitResponse() {
@@ -111,14 +117,14 @@ Item {
     if (!flow || !flow.isResponseRequired) return
     submitted = true
     errorFlash = false
-    flow.submit(passwordInput.text)
-    passwordInput.text = ""
-    keyCatcher.forceActiveFocus()
+    flow.submit(passwordText)
+    passwordText = ""
+    Qt.callLater(refocus)
   }
 
   function cancelRequest() {
     var flow = polkitAgent.flow
-    passwordInput.text = ""
+    passwordText = ""
     submitted = false
     closing = true
     closeTimer.restart()
@@ -128,7 +134,7 @@ Item {
   function triggerFailureFeedback() {
     submitted = false
     errorFlash = true
-    passwordInput.text = ""
+    passwordText = ""
     errorTimer.restart()
     shakeAnimation.restart()
     Qt.callLater(refocus)
@@ -179,8 +185,10 @@ Item {
 
     onAuthenticationRequestStarted: root.beginFlow()
     onIsActiveChanged: {
-      if (isActive) root.syncFromFlow()
-      else if (!root.closing) root.resetSnapshot()
+      if (isActive) {
+        root.syncFromFlow()
+        Qt.callLater(root.refocus)
+      } else if (!root.closing) root.resetSnapshot()
     }
     onIsRegisteredChanged: {
       if (isRegistered) console.log("quickshell polkit agent registered")
@@ -193,7 +201,7 @@ Item {
 
     function onIsResponseRequiredChanged() {
       root.syncFromFlow()
-      if (!polkitAgent.flow || !polkitAgent.flow.isResponseRequired) passwordInput.text = ""
+      if (!polkitAgent.flow || !polkitAgent.flow.isResponseRequired) root.passwordText = ""
       Qt.callLater(root.refocus)
     }
 
@@ -240,6 +248,16 @@ Item {
         readonly property int cardWidth: root.fingerprintMode
           ? cardHeight
           : Math.min(Commons.Style.space(312), Math.max(Commons.Style.space(260), width - Commons.Style.gapsOut * 2))
+
+        Connections {
+          target: root
+          function onFocusFieldRequested() {
+            // No field exists while the fingerprint reader owns the dialog;
+            // park focus on the key catcher so Escape still cancels.
+            if (root.fingerprintMode) keyCatcher.forceActiveFocus()
+            else passwordInput.forceActiveFocus()
+          }
+        }
 
     Rectangle {
       anchors.fill: parent
@@ -325,6 +343,8 @@ Item {
             verticalAlignment: TextInput.AlignVCenter
             activeFocusOnPress: true
             clip: true
+            text: root.passwordText
+            onTextEdited: root.passwordText = text
             selectionColor: Commons.Util.alpha(root.accent, 0.45)
             selectedTextColor: root.foreground
             font.family: root.fontFamily
