@@ -70,8 +70,8 @@ Hyprlock (EXPAND)
 | **Terminal Emulator**          |                                 [Ghostty][Ghostty]                                  |
 | **Terminal Agent Multiplexer** |                                   [herdr][herdr]                                    |
 | **Shell**                      |                          [zsh][zsh] + [Starship][Starship]                          |
-| **Text Editor (GUI)**          |         [VSCode][VSCode] + [Zed][Zed] + [Cursor][Cursor] + [t3code][t3code]         |
-| **Text Editor (Terminal)**     |                 [Neovim][Neovim] + [micro][micro] + [Helix][Helix]                  |
+| **Text Editor (GUI)**          |              [VSCode][VSCode] + [Zed][Zed] + [t3code][t3code]              |
+| **Text Editor (Terminal)**     |                 [Neovim][Neovim] + [micro][micro] + [Mitos][Mitos]                  |
 | **network management tool**    | [NetworkManager][NetworkManager] + [network-manager-applet][network-manager-applet] |
 | **System resource monitor**    |                                    [Btop][Btop]                                     |
 | **System Fetch**               |                               [Fastfetch][Fastfetch]                                |
@@ -648,7 +648,7 @@ Execute and follow the installation script :
 
 #### 4. **Reboot**
 
-After rebooting, the config should be applied, you'll be greeted by hyprlock prompting for your password.
+After rebooting, the config should be applied, you'll be greeted by the Quickshell lock screen prompting for your password. Hyprlock remains installed as a fallback.
 
 #### 5. **Manual config**
 
@@ -831,27 +831,27 @@ For full details, see `secrets/README.md`.
 </details>
 
 
-## 🎙️ Handy (speech-to-text)
+## 🎙️ Superwhisper (speech-to-text)
 
-[Handy][Handy] is installed as a pre-built binary from [numtide/llm-agents.nix][llm-agents] (pulled from `cache.numtide.com` — no local build). It's enabled via the `modules.handy` option and only on `desktop-work` and `desktop-office`.
+[Superwhisper][Superwhisper] is installed from the vendor's signed Linux release (v1.2.0, x86_64). It is enabled via the `modules.superwhisper` option on all hosts.
 
 <details>
 <summary>
-Handy Configuration (EXPAND)
+Superwhisper Configuration (EXPAND)
 </summary>
 
-Configuration lives in `modules/home/handy.nix` and does three things:
+Configuration lives in `modules/home/superwhisper.nix` and does three things:
 
-- Adds `inputs.llm-agents.packages.${system}.handy` to `home.packages`
-- Starts a `handy.service` systemd user unit on `graphical-session.target` (auto-restart on failure)
-- Requires `wtype` (in `modules/core/nh.nix`) for Wayland text injection — without it Handy falls back to `enigo` which has limited Hyprland support
+- Packages `superwhisper-linux-x86_64` 1.2.0 with `autoPatchelfHook` and adds it to `home.packages`
+- Starts a `superwhisper.service` systemd user unit on `graphical-session.target` with `superwhisper daemon` (auto-restart on failure)
+- Supplies the runtime dependencies the vendor expects: GTK4, gtk4-layer-shell, at-spi2-core, PipeWire/PulseAudio, wl-clipboard, ffmpeg, libnotify and Vulkan
 
-The user is in the `input` group (see `modules/core/user.nix`) so the rdev hotkey feature can access `/dev/uinput`.
+Superwhisper needs Wayland (Hyprland, KDE Plasma or GNOME) and systemd. On Hyprland it registers its own hold-to-talk shortcut; `SUPER + period` is also bound to `superwhisper record` as a manual toggle.
 
 Toggle per-host in `hosts/<host>/home-configuration.nix`:
 
 ```nix
-modules.handy.enable = true;
+modules.superwhisper.enable = true;
 ```
 
 </details>
@@ -915,7 +915,6 @@ Other dotfiles that I learned / copy from:
 [Maple Mono]: https://github.com/subframe7536/maple-font
 [micro]: https://micro-editor.github.io/
 [Zed]: https://zed.dev/
-[Cursor]: https://www.cursor.com/
 [viewnior]: https://siyanpanayotov.com/project/viewnior
 [LibreSprite]: https://libresprite.github.io/
 [Stylix]: https://github.com/danth/stylix
@@ -925,6 +924,6 @@ Other dotfiles that I learned / copy from:
 [Worktrunk]: https://worktrunk.dev/
 [herdr]: https://herdr.dev/
 [t3code]: https://t3.codes
-[Helix]: https://github.com/helix-editor/helix
-[Handy]: https://handy.computer/
+[Mitos]: https://mitos.computer/
+[Superwhisper]: https://superwhisper.com/linux/
 [llm-agents]: https://github.com/numtide/llm-agents.nix
