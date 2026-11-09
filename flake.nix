@@ -77,7 +77,12 @@
     };
 
     mitos = {
-      url = "github:mitos-editor/mitos";
+      url = "github:rodeyseijkens/mitos-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    t3code = {
+      url = "github:rodeyseijkens/t3code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

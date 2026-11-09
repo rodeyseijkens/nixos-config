@@ -973,16 +973,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1794179304,
-        "narHash": "sha256-7+BkHVol1CHx35cydPc/aHCg4icWb3p1+5PzphZcKHk=",
-        "owner": "mitos-editor",
-        "repo": "mitos",
-        "rev": "daa72e31932b68711c66aa3339c7d73ed21a3cbb",
+        "lastModified": 1794263061,
+        "narHash": "sha256-RzFHY2xIg3dA+V0+UCp2LY1mJ6wCsgWDQ2QZ9KyULHw=",
+        "owner": "rodeyseijkens",
+        "repo": "mitos-nix",
+        "rev": "d5b0e6b56808e99efd030009d22da55dc0cbed88",
         "type": "github"
       },
       "original": {
-        "owner": "mitos-editor",
-        "repo": "mitos",
+        "owner": "rodeyseijkens",
+        "repo": "mitos-nix",
         "type": "github"
       }
     },
@@ -1311,6 +1311,7 @@
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "stylix": "stylix",
+        "t3code": "t3code",
         "walker": "walker",
         "worktrunk": "worktrunk",
         "zen-browser": "zen-browser"
@@ -1561,6 +1562,26 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "t3code": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794265697,
+        "narHash": "sha256-awuBQ/cGPiUzJLJGvoABI5r8MgjJIoXbBOMq/imGFTA=",
+        "owner": "rodeyseijkens",
+        "repo": "t3code-nix",
+        "rev": "4cc6f421cb3137a694bb2a9218fda55e40c16dc2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rodeyseijkens",
+        "repo": "t3code-nix",
         "type": "github"
       }
     },

@@ -9,10 +9,7 @@ with lib; let
   cfg = config.modules.mitos-editor;
   colors = config.lib.stylix.colors;
   system = pkgs.stdenv.hostPlatform.system;
-  mitos = inputs.mitos.packages.${system}.default.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [pkgs.pkg-config];
-    buildInputs = (old.buildInputs or []) ++ [pkgs.aws-lc];
-  });
+  mitos = inputs.mitos.packages.${system}.default;
 in {
   options.modules.mitos-editor = {enable = mkEnableOption "mitos-editor";};
 

@@ -8,18 +8,11 @@
 with lib; let
   cfg = config.modules.t3code;
   system = pkgs.stdenv.hostPlatform.system;
-  llm = inputs.llm-agents.packages.${system};
-  codex = llm.codex.overrideAttrs (old: {
-    dontCargoUseSystemLibs = true;
-    buildInputs = (old.buildInputs or []) ++ [pkgs.aws-lc];
-  });
-  t3code = llm.t3code.override {inherit codex;};
 in {
   options.modules.t3code = {enable = mkEnableOption "t3code";};
   config = mkIf cfg.enable {
     home.packages = [
-      t3code
-      (llm.t3code-desktop.override {inherit t3code;})
+      inputs.t3code.packages.${system}.t3code
     ];
 
     # Kilo only enables its `question` tool for app/cli/desktop/vscode and has
@@ -28,10 +21,10 @@ in {
     xdg.desktopEntries.t3code = {
       name = "T3 Code (Beta)";
       comment = "Control surface for coding agents";
-      exec = "env KILO_CLIENT=acp t3code-desktop %U";
+      exec = "env KILO_CLIENT=acp t3code %U";
       icon = "t3code";
       categories = ["Development"];
-      settings.StartupWMClass = "com.t3tools.T3Code";
+      settings.StartupWMClass = "t3code";
     };
   };
 }
