@@ -1,7 +1,9 @@
-// Unit tests for the pure shell lib (Services/Lib.qml) — run headless via
+// Unit tests for the pure shell lib (services/Lib.qml) — run headless via
 // the qtdeclarative `qml` runner: `nix develop test -c qml-test`. The tests
 // cross the same interface callers do; expected values are hand-computed.
-import "../../modules/home/quickshell/config/Services"
+import "../../modules/home/quickshell/config/services"
+import "../../modules/home/quickshell/config/plugins/panels/elsewhen/Model.js" as ElsewhenModel
+import "../../modules/home/quickshell/config/plugins/panels/elsewhen/Model.js" as ElsewhenModel
 
 QtObject {
   Component.onCompleted: {
@@ -12,6 +14,35 @@ QtObject {
         console.log("FAIL " + name + " — got [" + actual + "] want [" + expected + "]");
       }
     }
+
+    var defaultCities = ElsewhenModel.seedDefaultCities(null);
+    expect("default city count", defaultCities.length, 6);
+    expect("default city order", defaultCities.map(function(city) { return city.label; }).join("|"), "Auckland|Hanoi|Dubai|Amsterdam|New York|Cupertino");
+    var homeCities = ElsewhenModel.seedDefaultCities({label: "Home", id: "Europe/London"});
+    expect("home row first", homeCities[0].label, "Home");
+    expect("Auckland follows home", homeCities[1].label, "Auckland");
+    expect("home plus six cities", homeCities.length, 7);
+    var homeInCupertino = ElsewhenModel.seedDefaultCities({label: "Home", id: "America/Los_Angeles"});
+    expect("home zone not duplicated", homeInCupertino.length, 6);
+    expect("default units Celsius", ElsewhenModel.resolveUnits("", ElsewhenModel.DEFAULT_UNITS), "C");
+    expect("default clock is 24-hour", ElsewhenModel.DEFAULT_HOUR24, true);
+    expect("24-hour formatted time", ElsewhenModel.formatTime({hour: 13, minute: 5}, ElsewhenModel.DEFAULT_HOUR24, null), "13:05");
+
+    var defaultCities = ElsewhenModel.seedDefaultCities(null);
+    expect("default city count", defaultCities.length, 6);
+    expect("default city order", defaultCities.map(function(city) { return city.label; }).join("|"), "Auckland|Hanoi|Dubai|Amsterdam|New York|Cupertino");
+    var homeCities = ElsewhenModel.seedDefaultCities({label: "Home", id: "Europe/London"});
+    expect("home row first", homeCities[0].label, "Home");
+    expect("Auckland follows home", homeCities[1].label, "Auckland");
+    expect("home plus six cities", homeCities.length, 7);
+    var homeInAuckland = ElsewhenModel.seedDefaultCities({label: "Home", id: "Pacific/Auckland"});
+    expect("home zone and requested Auckland both remain", homeInAuckland.length, 7);
+    expect("home stays ahead of Auckland", homeInAuckland[0].label + "|" + homeInAuckland[1].label, "Home|Auckland");
+    var namedHomeInAuckland = ElsewhenModel.seedDefaultCities({label: "Auckland", id: "Pacific/Auckland"});
+    expect("identical home city is not duplicated", namedHomeInAuckland.length, 6);
+    expect("default units Celsius", ElsewhenModel.resolveUnits("", ElsewhenModel.DEFAULT_UNITS), "C");
+    expect("default clock is 24-hour", ElsewhenModel.DEFAULT_HOUR24, true);
+    expect("24-hour formatted time", ElsewhenModel.formatTime({hour: 13, minute: 5}, ElsewhenModel.DEFAULT_HOUR24, null), "13:05");
 
     var now = new Date(2026, 9, 1, 12, 0, 0);
 

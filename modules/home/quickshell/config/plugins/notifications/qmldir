@@ -1,0 +1,5 @@
+singleton NotificationService 1.0 NotificationService.qml
+ToastHost 1.0 ToastHost.qml
+PanelContent 1.0 PanelContent.qml
+Toast 1.0 Toast.qml
+DeedButton 1.0 DeedButton.qml

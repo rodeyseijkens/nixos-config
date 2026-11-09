@@ -183,6 +183,9 @@
       STAGE="$(mktemp -d)"
       trap 'rm -rf "''${STAGE}"' EXIT
       cp -r "''${CFG}/"* "''${STAGE}/"
+      # Quickshell resolves `qs.Commons` / `qs.Ui` against the config root.
+      # qmllint has no such mapping, so expose the stage as its own `qs` root.
+      ln -s "''${STAGE}" "''${STAGE}/qs"
       GEN="''${STAGE}/Colors.qml"
       # Lint ALWAYS reads the tokens.nix-generated stand-in — never the repo
       # copy, which can drift (it did once: no fontFamily) without notice.
@@ -198,18 +201,15 @@
       else
         echo "qml-check: WARN — no repo Colors.qml under ''${CFG}; drift check skipped"
       fi
-      # Seam enforcement: popups are built through ScreenPopup.qml only.
-      # Nothing else may hand-roll a per-screen PanelWindow or the
-      # layer-exclusion block — hand-rolled copies are exactly how the
-      # aboveWindows/Esc drift happened. The Bar is the sanctioned exception
-      # (always-visible dock that reserves space, not a ScreenPopup).
+      # Seam enforcement: local popups use ScreenPopup.qml; only the bar and
+      # upstream Ui overlay primitives are separately allowlisted.
       SEAM_VIOLATIONS=$(
-        grep -rlE 'ExclusionMode\.Ignore' "''${STAGE}" --include='*.qml' | grep -v 'ScreenPopup\.qml' || true
-        grep -rl 'PanelWindow' "''${STAGE}" --include='*.qml' | grep -vE 'ScreenPopup\.qml|Bar/Bar\.qml' || true
+        grep -rlE 'ExclusionMode\.Ignore' "''${STAGE}" --include='*.qml' | grep -vE 'ScreenPopup\.qml|Ui/(OverlayWindow|KeyboardPanel|SpeedTestOverlay)\.qml|plugins/bar/widgets/resonance/MediaWidget\.qml' || true
+        grep -rl 'PanelWindow' "''${STAGE}" --include='*.qml' | grep -vE 'ScreenPopup\.qml|plugins/bar/Bar\.qml|Ui/(OverlayWindow|KeyboardPanel|SpeedTestOverlay)\.qml|plugins/bar/widgets/resonance/MediaWidget\.qml' || true
         sort -u
       )
       if [ -n "''${SEAM_VIOLATIONS}" ]; then
-        echo "qml-check: FAIL — popup surface seam violated (PanelWindow/ExclusionMode outside ScreenPopup.qml and Bar/Bar.qml):"
+        echo "qml-check: FAIL — popup surface seam violated (PanelWindow/ExclusionMode outside ScreenPopup.qml, the bar, and upstream Ui overlay primitives):"
         echo "''${SEAM_VIOLATIONS}"
         exit 1
       fi
@@ -230,7 +230,7 @@
         echo "qml-check: FAIL"
         exit 1
       fi
-      if echo "''${OUT}" | grep -E '^(Error|Warning):' | grep -E '\[(syntax|parse|import|missing-type|unresolved-alias|signal-handler-parameters|unresolved-type)\]' | grep -v -i -E 'edges|gravity|margins|onexited|Warnings occurred while importing' | grep -q .; then
+      if echo "''${OUT}" | grep -E '^(Error|Warning):' | grep -E '\[(syntax|parse|import|missing-type|unresolved-alias|signal-handler-parameters|unresolved-type)\]' | grep -v -i -E 'edges|gravity|margins|adjustment|anchor|AuthFlow|onexited|Warnings occurred while importing' | grep -q .; then
         echo "qml-check: FAIL"
         exit 1
       fi

@@ -3,7 +3,7 @@ name_pretty = "Power"
 
 [[entries]]
 text = "󰌾 Lock"
-actions = { "lock" = "playerctl --all-players pause & hyprlock" }
+actions = { "lock" = "playerctl --all-players pause & qs -c shell ipc call lock lock || hyprlock" }
 
 [[entries]]
 text = "󰜉 Reboot"

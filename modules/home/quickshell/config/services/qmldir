@@ -1,0 +1,14 @@
+singleton PanelRouter 1.0 PanelRouter.qml
+singleton Preferences 1.0 Preferences.qml
+singleton OsdBus 1.0 OsdBus.qml
+singleton Audio 1.0 Audio.qml
+singleton Lib 1.0 Lib.qml
+ScreenPopup 1.0 ScreenPopup.qml
+PopupPlacement 1.0 PopupPlacement.qml
+singleton OverlayPanels 1.0 OverlayPanels.qml
+singleton HardwareAvailability 1.0 HardwareAvailability.qml
+singleton NetworkStatus 1.0 NetworkStatus.qml
+singleton WeatherStatus 1.0 WeatherStatus.qml
+singleton WeatherCache 1.0 WeatherCache.qml
+BarApi 1.0 BarApi.qml
+PanelHost 1.0 PanelHost.qml
