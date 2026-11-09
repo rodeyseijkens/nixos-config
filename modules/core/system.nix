@@ -43,9 +43,6 @@
     wget
     git
     ntfs3g
-    # Wayland virtual keyboard — required by Handy (and useful for other
-    # automation) for text injection since enigo has limited Wayland support.
-    wtype
     # Build toolchain for `mise` to compile Node/Ruby/Python/etc. from source
     # when a prebuilt binary isn't available for the current platform/version.
     gcc

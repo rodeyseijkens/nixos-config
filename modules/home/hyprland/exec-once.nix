@@ -16,7 +16,6 @@
       "wl-paste --type image --watch cliphist store"
       "dbus-update-activation-environment --all --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
       "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-      "systemctl --user start hyprpolkitagent"
     ]
     ++ [
       "killall -q elephant;sleep .5 && elephant"
@@ -25,8 +24,6 @@
 
       "nm-applet --indicator"
       "poweralertd"
-
-      "hyprlock"
 
       "${terminal} --gtk-single-instance=true --quit-after-last-window-closed=false --initial-window=false"
     ];

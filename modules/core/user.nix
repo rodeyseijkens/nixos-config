@@ -31,7 +31,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
-      # Required for Handy to access /dev/uinput (virtual input devices)
+      # Access to input devices
       "input"
     ];
     shell = pkgs.zsh;

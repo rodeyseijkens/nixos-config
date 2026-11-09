@@ -201,16 +201,18 @@ in {
             disable_autoreload = true;
             disable_hyprland_logo = true;
             always_follow_on_dnd = true;
-            layers_hog_keyboard_focus = true;
             animate_manual_resizes = false;
             enable_swallow = true;
             focus_on_activate = true;
             middle_click_paste = false;
           };
 
+          layers = {
+            layers_hog_keyboard_focus = true;
+          };
+
           dwindle = {
             force_split = 2;
-            special_scale_factor = 1.0;
             split_width_multiplier = 1.0;
             use_active_for_splits = true;
             preserve_split = true;
@@ -218,7 +220,6 @@ in {
 
           master = {
             new_status = "master";
-            special_scale_factor = 1;
           };
 
           decoration = {
@@ -260,6 +261,11 @@ in {
           cursor = {
             inactive_timeout = 5;
             no_hardware_cursors = true;
+            warp_on_monitor_change = 1;
+          };
+
+          binds = {
+            drag_center_window = false;
           };
 
           xwayland = {

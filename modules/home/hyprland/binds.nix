@@ -62,7 +62,7 @@ in {
         (bind "SUPER, N" (exec "qs -c shell ipc call notif toggle"))
         (bind "SUPER, Space" (exec "walker-menu apps"))
 
-        (bind "SUPER, period" (execRaw "sh -c 'pkill -USR2 -x handy || pkill -USR2 -x .handy-wrapped'"))
+        (bind "SUPER, period" (exec "superwhisper record"))
         (bind "SUPER CTRL, Space" (exec "walker-menu"))
         (bind "SUPER SHIFT, Escape" (exec "walker-menu power"))
         (bind "SUPER, W" (exec "walker-menu wallpapers"))

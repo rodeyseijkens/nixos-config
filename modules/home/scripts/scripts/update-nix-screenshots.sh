@@ -38,7 +38,7 @@ PANEL_OPEN=0
 ORIG_WS=$(hyprctl activeworkspace -j | jq -r .id)
 STAGE_DIR=$(mktemp -d)
 STAGE_MON=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
-FOA=$(hyprctl getoption -j misc:focus_on_activate | jq -r '.int')
+FOA=$(hyprctl getoption -j misc:focus_on_activate | jq -r '.bool')
 # current wallpaper of the staging monitor, restored on exit
 ORIG_WALL=$(awww query | sed -n "s/^: $STAGE_MON: .*currently displaying: image: //p")
 WALL_DIR="$REPO_DIR/wallpapers/gruvbox"
