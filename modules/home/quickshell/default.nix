@@ -29,7 +29,9 @@ in {
     systemd.user.services.quickshell-lock-on-session = {
       Unit = {
         Description = "Lock the session after Hyprland starts";
-        After = ["quickshell.service"];
+        # Ordering after quickshell.service would create a cycle:
+        # quickshell.service is ordered After hyprland-session.target, which
+        # itself starts this unit. The script below waits for the IPC instead.
       };
       Service = {
         Type = "oneshot";
