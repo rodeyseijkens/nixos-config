@@ -6,5 +6,5 @@ node = "latest"
 "npm:@biomejs/biome" = "latest"
 "npm:@kilocode/cli" = "latest"
 "npm:@rodey-io/codey" = "latest"
-opencode = { version = "latest", allow_builds = ["@opencode/cli"] }
+opencode = { version = "2.2.7", allow_builds = ["@opencode/cli"] }
 pnpm = "latest"
