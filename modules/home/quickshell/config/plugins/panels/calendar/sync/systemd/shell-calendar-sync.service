@@ -1,0 +1,21 @@
+[Unit]
+Description=Sync Google Calendar into the Shell Calendar widget
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# A user service starts with a minimal PATH, so a gws installed by bun,
+# cargo or pipx would be invisible. sync/setup writes an absolute path
+# into calendar-sync.json; this list is the fallback for everyone else.
+# The nix profile dirs come before the arch ones: on NixOS python3 and gws
+# live there, and the script's #!/usr/bin/env python3 has to find python3.
+Environment=PATH=%h/.local/bin:%h/.nix-profile/bin:/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin:%h/.cache/.bun/bin:%h/.bun/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/.config/quickshell/shell/plugins/panels/calendar/sync/shell-calendar-sync
+# The sync stops itself after 120 s. These hold if it cannot: a oneshot
+# unit has no start timeout by default, and nothing else caps its memory.
+TimeoutStartSec=180
+MemoryMax=512M
+# A failed run is deliberately allowed to surface as a failed unit. The
+# sync leaves the previous events file intact either way, and a user
+# needs `systemctl --user status` to show that something is wrong.

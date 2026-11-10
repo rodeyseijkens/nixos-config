@@ -1,7 +1,7 @@
 //@ pragma ShellId shell
 import Quickshell
 import "plugins/bar"
-import "plugins/panels/clock"
+import "plugins/panels/calendar"
 import "plugins/osd"
 import "plugins/notifications"
 import "plugins/polkit"
@@ -14,6 +14,6 @@ ShellRoot {
   ToastHost {}
   PolkitDialog {}
   LockService {}
-  Calendar {}
+  CalendarHost {}
   Osd {}
 }

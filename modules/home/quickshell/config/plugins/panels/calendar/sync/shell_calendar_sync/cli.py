@@ -1,0 +1,233 @@
+"""Entry point. Orchestrates config, a backend, normalization, and the write."""
+
+import argparse
+import json
+import os
+import sys
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+from . import config as config_module
+from . import budget, contract, normalize, suggestions
+from .caldav import Caldav
+from .caldir import Caldir
+from .eds import Eds
+from .errors import SyncError
+from .gws import Gws
+from .ics import Ics
+from .localzone import resolve_local_timezone
+
+EXIT_OK = 0
+EXIT_SYNC_FAILED = 1
+EXIT_BAD_CONFIG = 2
+
+
+def write_atomic(path, doc):
+    """Write JSON so a reader never observes a partial file."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    handle, temp_name = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
+    try:
+        with os.fdopen(handle, "w") as stream:
+            json.dump(doc, stream, ensure_ascii=False, indent=2)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp_name, path)
+    except BaseException:
+        Path(temp_name).unlink(missing_ok=True)
+        raise
+
+
+def occurrence_key(gevent):
+    """Identity of one occurrence, shared by its copies in several calendars.
+
+    An event you can see from two calendars is returned once per calendar,
+    and listing it twice is noise.
+
+    iCalUID alone is NOT a safe key. Every instance of a recurring series
+    carries the same one, verified against live data: a daily standup came
+    back as five events with five distinct ids and a single shared iCalUID.
+    Keying on it alone would collapse the whole series into one entry.
+
+    The start instant is what separates instances of a series while still
+    matching the same occurrence seen from two different calendars.
+
+    Returns None when the event carries no iCalUID, which means never
+    deduplicate it. Dropping a real event is worse than showing it twice.
+    """
+    uid = gevent.get("iCalUID")
+    if not uid:
+        return None
+
+    start = gevent.get("start") or {}
+    return (uid, start.get("dateTime") or start.get("date"))
+
+
+def _drop_duplicates(gevents, seen):
+    """Filter events already seen in an earlier calendar. Mutates `seen`.
+
+    First occurrence wins. The primary calendar goes first and the rest
+    follow by name, so which copy survives is stable across runs rather than
+    depending on Google's order.
+    """
+    fresh = []
+    for gevent in gevents:
+        key = occurrence_key(gevent)
+        if key is not None:
+            if key in seen:
+                continue
+            seen.add(key)
+        fresh.append(gevent)
+    return fresh
+
+
+def _rows_within_budget(gevents, calendar, tz, window, rows_so_far):
+    """The rows of one calendar, or None as soon as the sync would pass
+    budget.MAX_ROWS. Stops early, so the rows past the budget never exist."""
+    rows = []
+    for gevent in gevents:
+        rows.extend(normalize.normalize_event(gevent, calendar, tz, window))
+        if rows_so_far + len(rows) > budget.MAX_ROWS:
+            return None
+    return rows
+
+
+def run(client, cfg, now, out_path, local_tz):
+    """Fetch, normalize, write. Returns a process exit code."""
+    try:
+        client.check()
+        calendars = config_module.select_calendars(client.calendars(), cfg)
+        # Your own copy of a shared event carries your title, colour and
+        # answer. A colleague's copy can carry none of them (a calendar shared
+        # as free/busy has no titles), so the primary calendar wins the
+        # dedup. The sort is stable, so the rest keep their name order.
+        calendars.sort(key=lambda calendar: not calendar.get("primary"))
+        time_min, time_max = config_module.window_bounds(cfg, now)
+        window = config_module.window_dates(cfg, now, local_tz)
+
+        rows = []
+        seen = set()
+        fetched = []
+        for calendar in calendars:
+            # A calendar past the budget is skipped, like a broken feed, so
+            # one hostile source costs its own events and not the sync.
+            try:
+                raw = client.events(calendar["id"], time_min, time_max)
+            except budget.TooManyEvents as error:
+                print(f"skipping {calendar['name']}: {error}")
+                continue
+            calendar_seen = set(seen)
+            fresh = _drop_duplicates(raw, calendar_seen)
+            calendar_rows = None
+            if len(fetched) + len(fresh) <= budget.MAX_EVENTS:
+                calendar_rows = _rows_within_budget(fresh, calendar, local_tz, window, len(rows))
+            if calendar_rows is None:
+                print(f"skipping {calendar['name']}: the sync would hold more than "
+                      f"{budget.MAX_EVENTS} events or {budget.MAX_ROWS} rows")
+                continue
+            seen = calendar_seen
+            fetched.extend(fresh)
+            rows.extend(calendar_rows)
+
+        source = client.SOURCE_NAME + "/" + ".".join(
+            str(part) for part in client.version()
+        )
+    except SyncError as error:
+        print(f"sync failed: {error}", file=sys.stderr)
+        hint = client.auth_hint(cfg)
+        if hint:
+            print(hint, file=sys.stderr)
+        return EXIT_SYNC_FAILED
+
+    rows.sort(key=normalize.row_order)
+    # The panel offers edits only for these. Only when the user turned
+    # writing on and the backend can write; otherwise the key is absent.
+    writable = []
+    if cfg.get("write") and getattr(client, "can_write", False):
+        for c in calendars:
+            if not c.get("writable"):
+                continue
+            entry = {"id": c["id"], "name": c["name"], "color": c["color"]}
+            # What the form offers that this calendar cannot store.
+            if c.get("lacks"):
+                entry["lacks"] = list(c["lacks"])
+            writable.append(entry)
+    # Only for the event form, so only when writing is on.
+    guests = []
+    if writable:
+        guests = suggestions.guest_suggestions(fetched, [c["id"] for c in calendars])
+    doc = contract.build_document(rows, now.isoformat(), source, writable, guests)
+
+    problems = contract.validate(doc)
+    if problems:
+        for problem in problems:
+            print(f"refusing to write invalid document: {problem}", file=sys.stderr)
+        return EXIT_SYNC_FAILED
+
+    write_atomic(out_path, doc)
+    print(f"wrote {len(rows)} rows from {len(calendars)} calendars to {out_path}")
+    return EXIT_OK
+
+
+def build_client(cfg, local_tz=None):
+    """The calendar source named by the config."""
+    backend = str(cfg.get("backend") or "caldir").strip().lower()
+    if backend == "gws":
+        return Gws(cfg["profile"], binary=cfg["gwsPath"])
+    if backend == "eds":
+        return Eds(identity=cfg.get("identity", ""))
+    if backend == "ics":
+        return Ics(cfg.get("ics"), identity=cfg.get("identity", ""), local_tz=local_tz)
+    if backend == "caldir":
+        return Caldir(binary=cfg["caldirPath"], pull=bool(cfg.get("caldirPull")))
+    if backend == "caldav":
+        return Caldav(cfg.get("caldav"), identity=cfg.get("identity", ""), local_tz=local_tz)
+    raise config_module.ConfigError(
+        "unknown backend %r; expected \"gws\", \"eds\", \"ics\", \"caldir\" or \"caldav\"" % backend
+    )
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        prog="shell-calendar-sync",
+        description="Sync your calendars into the Shell Calendar widget file.",
+    )
+    parser.add_argument("--config", default=None, help="path to calendar-sync.json")
+    parser.add_argument("--out", default=None, help="path to the contract file")
+    args = parser.parse_args(argv)
+
+    try:
+        cfg = config_module.load(args.config)
+    except config_module.ConfigError as error:
+        print(f"config error: {error}", file=sys.stderr)
+        return EXIT_BAD_CONFIG
+
+    out_path = Path(args.out) if args.out else contract.CONTRACT_PATH
+    now = datetime.now(timezone.utc)
+    local_tz = resolve_local_timezone()
+
+    try:
+        client = build_client(cfg, local_tz)
+    except config_module.ConfigError as error:
+        print(f"config error: {error}", file=sys.stderr)
+        return EXIT_BAD_CONFIG
+
+    budget.cap_memory()
+    try:
+        with budget.deadline(budget.SYNC_SECONDS):
+            return run(client, cfg, now, out_path, local_tz)
+    except budget.TookTooLong as error:
+        # Past the deadline in the write itself; the old file stays.
+        print(f"sync failed: {error}", file=sys.stderr)
+        return EXIT_SYNC_FAILED
+    except MemoryError:
+        print(f"sync failed: it needed more than {budget.MAX_MEMORY_BYTES // (1024 * 1024)} MB",
+              file=sys.stderr)
+        return EXIT_SYNC_FAILED
+
+
+if __name__ == "__main__":
+    sys.exit(main())

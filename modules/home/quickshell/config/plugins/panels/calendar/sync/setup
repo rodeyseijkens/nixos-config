@@ -1,0 +1,215 @@
+#!/usr/bin/env bash
+# Interactive onboarding for the shell-calendar sync.
+#
+# caldir is the only calendar source. It keeps calendars as .ics files and
+# signs in to Google, iCloud, CalDAV, Outlook or a public feed through its own
+# providers, so there is no Google Cloud project and no OAuth client to
+# create here.
+#
+# This connects a provider when caldir has none, records the caldir binary for
+# the timer, and installs the systemd timer that refreshes the widget.
+
+set -euo pipefail
+
+for arg in "$@"; do
+  case "$arg" in
+    # Accepted because older instructions pass it. caldir is the only backend.
+    --caldir) ;;
+    *)
+      echo "unknown option: $arg (setup takes no options; it always uses caldir)"
+      exit 2
+      ;;
+  esac
+done
+
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SYNC_BIN="$SCRIPT_DIR/shell-calendar-sync"
+CONFIG="$CONFIG_HOME/shell-calendar/calendar-sync.json"
+EVENTS="$STATE_HOME/shell-calendar/calendar-events.json"
+
+step() { printf '\n==> %s\n' "$1"; }
+
+install_timer_and_sync() {
+  step "Installing the systemd timer"
+  mkdir -p "$HOME/.config/systemd/user"
+  cp "$SCRIPT_DIR/systemd/shell-calendar-sync."{service,timer} "$HOME/.config/systemd/user/"
+  # Point the unit at this checkout, so a hand-cloned repo works too. In a sed
+  # replacement, &, | and backslash must be escaped.
+  local sync_bin_escaped
+  sync_bin_escaped=$(printf '%s' "$SYNC_BIN" | sed 's/[&|\\]/\\&/g')
+  sed -i "s|^ExecStart=.*|ExecStart=$sync_bin_escaped|" "$HOME/.config/systemd/user/shell-calendar-sync.service"
+  systemctl --user daemon-reload
+  systemctl --user enable --now shell-calendar-sync.timer
+
+  step "Running the first sync"
+  systemctl --user start shell-calendar-sync.service || true
+  systemctl --user status shell-calendar-sync.service --no-pager || true
+
+  cat <<EOF
+
+Done. Events land in $EVENTS every 5 minutes.
+
+  Logs:    journalctl --user -u shell-calendar-sync -f
+  Choose which calendars to show: click the clock, then the gear icon.
+EOF
+}
+
+calendar_count() {
+  "$1" --json calendars 2>/dev/null | python3 -c '
+import json, sys
+
+try:
+    payload = json.load(sys.stdin)
+    print(len(payload) if isinstance(payload, list) else 0)
+except (ValueError, TypeError):
+    print(0)
+'
+}
+
+connect_provider() {
+  local caldir_bin=$1
+  step "Connecting a calendar provider"
+  if [ ! -t 0 ]; then
+    cat <<EOF
+  caldir has no calendars yet, and this is not a terminal, so it cannot ask.
+  Connect one first:
+
+    $caldir_bin connect google     # hosted OAuth
+    $caldir_bin connect icloud     # Apple ID and an app password
+    $caldir_bin connect caldav     # Nextcloud, Fastmail, ...
+    $caldir_bin connect outlook    # hosted OAuth
+    $caldir_bin connect webcal     # a public .ics feed
+EOF
+    return 1
+  fi
+
+  cat <<'EOF'
+
+  caldir has no calendars yet. Choose a provider:
+
+    1) Google    hosted OAuth, opens a browser (default)
+    2) iCloud    Apple ID and an app-specific password
+    3) CalDAV    Nextcloud, Fastmail, ...
+    4) Outlook   hosted OAuth
+    5) Webcal    a public .ics feed URL
+    q) quit
+
+EOF
+
+  local choice provider
+  while :; do
+    read -r -p "  Provider [1]: " choice || choice="q"
+    case "${choice:-1}" in
+      1) provider=google ;;
+      2) provider=icloud ;;
+      3) provider=caldav ;;
+      4) provider=outlook ;;
+      5) provider=webcal ;;
+      q | Q | quit) return 1 ;;
+      *)
+        echo "  Pick 1-5, or q."
+        continue
+        ;;
+    esac
+    break
+  done
+
+  # caldir finds caldir-provider-* on PATH. A binary given as an absolute path
+  # may sit outside it, so put its own directory first.
+  local caldir_dir
+  caldir_dir=$(cd "$(dirname "$caldir_bin")" && pwd)
+  step "Running: caldir connect $provider"
+  PATH="$caldir_dir:$PATH" "$caldir_bin" connect "$provider" || {
+    echo "  caldir connect $provider did not finish. Nothing was changed."
+    return 1
+  }
+  return 0
+}
+
+setup_caldir() {
+  step "Reading your calendars through caldir"
+  local caldir_bin="${CALDIR:-$(command -v caldir || true)}"
+  [ -n "$caldir_bin" ] || {
+    cat <<'EOF'
+  caldir is required. It is in the flake's packages, so rebuild first:
+
+    sudo nixos-rebuild switch --flake .#desktop
+
+  Then run this again, or point at another install:  CALDIR=/path/to/caldir $0
+EOF
+    exit 1
+  }
+  # The timer runs elsewhere, so record an absolute path.
+  case "$caldir_bin" in /*) ;; *) caldir_bin="$PWD/$caldir_bin" ;; esac
+
+  [ -x "$caldir_bin" ] || {
+    echo "  $caldir_bin is not executable. Nothing was changed."
+    exit 1
+  }
+
+  local count
+  count=$(calendar_count "$caldir_bin")
+  if [ "$count" = 0 ]; then
+    connect_provider "$caldir_bin" || {
+      echo "  No provider connected, so there is nothing to read. Nothing was changed."
+      exit 1
+    }
+    count=$(calendar_count "$caldir_bin")
+    if [ "$count" = 0 ]; then
+      echo "  caldir still reports no calendars. Nothing was changed."
+      exit 1
+    fi
+  fi
+  echo "  $count calendar(s) available in caldir"
+
+  local identity=""
+  if [ -t 0 ]; then
+    read -r -p "  Your email address (marks declined invitations, optional): " identity || true
+  fi
+
+  mkdir -p "$(dirname "$CONFIG")"
+  # The new config replaces the current one only after a test sync passes.
+  local candidate
+  candidate=$(mktemp "$CONFIG.XXXXXX")
+  trap 'rm -f "${candidate:-}"' EXIT
+  python3 - "$CONFIG" "$candidate" "$caldir_bin" "$identity" <<'PYEOF'
+import json, os, pathlib, sys
+
+path, dest = pathlib.Path(sys.argv[1]), sys.argv[2]
+caldir_bin, identity = sys.argv[3], sys.argv[4].strip()
+config = {}
+if path.exists():
+    try:
+        config = json.loads(path.read_text())
+    except ValueError:
+        config = {}
+config["backend"] = "caldir"
+config["caldirPath"] = caldir_bin
+config["caldirPull"] = True
+# The panel's event form writes through Google's API; caldir writes are not
+# wired up yet, so this backend publishes no writable calendars.
+config["write"] = False
+if identity:
+    config["identity"] = identity
+fd = os.open(dest, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+with os.fdopen(fd, "w") as stream:
+    stream.write(json.dumps(config, indent=2) + "\n")
+os.chmod(dest, 0o600)
+PYEOF
+
+  step "Testing caldir"
+  "$SYNC_BIN" --config "$candidate" || {
+    echo "  The sync failed, see above. $CONFIG is unchanged."
+    exit 1
+  }
+  mv -f "$candidate" "$CONFIG"
+  echo "  backend set to caldir ($caldir_bin) in $CONFIG"
+  echo "  reading only: the widget shows events, it cannot create or edit them"
+
+  install_timer_and_sync
+  exit 0
+}
+
+setup_caldir

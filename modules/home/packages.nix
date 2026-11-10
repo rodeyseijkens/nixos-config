@@ -12,8 +12,10 @@
     ffmpeg # multimedia framework
     file # Show file information
     jq # command-line JSON processor
+    (inputs.caldir.packages.${pkgs.stdenv.hostPlatform.system}.default) # calendar sync: .ics on disk, providers included
     killall # For Killing All Instances Of Programs
     libnotify # Notification library
+    libsecret # secret-tool, keyring for CalDAV passwords
     man-pages # extra man pages
     mpv # video player
     ncdu # disk space
@@ -53,7 +55,7 @@
     mise
 
     ## Python
-    python3
+    (python3.withPackages (ps: [ps.icalendar ps.recurring-ical-events])) # calendar sync: iCal and CalDAV backends
     python313Packages.ipython
 
     ## Misc

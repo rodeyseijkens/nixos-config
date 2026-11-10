@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    caldir.url = "github:t4t5/caldir";
+    caldir.inputs.nixpkgs.follows = "nixpkgs";
     nur.url = "github:nix-community/NUR";
 
     alejandra.url = "github:kamadorueda/alejandra/4.0.0";

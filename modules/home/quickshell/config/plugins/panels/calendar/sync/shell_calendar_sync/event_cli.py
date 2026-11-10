@@ -1,0 +1,254 @@
+"""The one command the panel runs to read or change an event.
+
+In: one JSON object on stdin (see writes.parse_request and the event form
+in event_form). Never an argument: arguments show to every user on the
+machine through ps, and a request carries the event's description and
+guests. Out: one JSON line on stdout, and exit 0 or 1:
+{"ok": true, "event": {...}} for get, {"ok": true, "eventId": ...} for a
+write, {"ok": false, "error": ...} on failure. The panel shows the error
+as it is, so every message is written for a person.
+"""
+
+import contextlib
+import json
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+from . import config as config_module
+from . import budget, cli, contract, event_form, writes
+from .errors import EventNotFound, SyncError
+from .gws import GwsAuthError, GwsSignInError
+from .localzone import resolve_local_timezone
+
+SYNC_UNIT = "shell-calendar-sync.service"
+
+WRITE_OFF = "Writing is turned off in the calendar config."
+NOT_WRITABLE = "This backend cannot write events."
+NO_SCOPE = "Write access not granted."
+EXPIRED = "Your Google sign-in expired."
+GONE = "This event no longer exists."
+NO_FILE = "No calendar synced yet. Wait for the first sync, then try again."
+STALE_PANEL = "The panel is older than the plugin files. Restart Quickshell to reload it."
+
+
+def start_background_sync():
+    # --no-block: the panel waits for this command, not for a 10 s sync.
+    # restart, not start: a sync already running read Google before this
+    # write, and "start" would let it finish and put the old event back.
+    # Stopping it is safe, because the sync replaces the file atomically.
+    subprocess.run(
+        ["systemctl", "--user", "restart", "--no-block", SYNC_UNIT],
+        check=False,
+        capture_output=True,
+    )
+
+
+def perform(raw, cfg, client, doc_path, tz, start_sync=start_background_sync, sync_now=None,
+            now=None):
+    """Run one request. Returns (exit code, reply).
+
+    start_sync starts a sync in the background. sync_now runs one inline,
+    for the writes a splice cannot express: anything that touches a series.
+    now is the moment the sync window is measured from, the clock by default.
+    """
+    if not cfg.get("write"):
+        return 1, _fail(WRITE_OFF)
+    if not getattr(client, "can_write", False):
+        return 1, _fail(NOT_WRITABLE)
+
+    doc = _read_doc(doc_path)
+    if doc is None:
+        return 1, _fail(NO_FILE)
+    writable = doc.get("writableCalendars") or []
+
+    try:
+        request = writes.parse_request(raw, [c.get("id") for c in writable])
+        calendar = next(c for c in writable if c.get("id") == request["calendarId"])
+        if request["action"] == "get":
+            return 0, {"ok": True, "event": _get(client, request, tz)}
+        event_id, resource, series = _write(client, request, tz)
+    except writes.WriteRequestError as error:
+        return 1, _fail(str(error))
+    except EventNotFound:
+        # The file still shows the event. The sync takes the row away.
+        start_sync()
+        return 1, _fail(GONE)
+    except GwsSignInError as error:
+        return 1, _fail(str(error))
+    except GwsAuthError as error:
+        return 1, _fail(_auth_message(str(error)))
+    except SyncError as error:
+        return 1, _fail(str(error))
+
+    if series and sync_now is not None:
+        sync_now()
+        return 0, {"ok": True, "eventId": event_id}
+
+    try:
+        window = config_module.window_dates(cfg, now or datetime.now(timezone.utc), tz)
+        spliced = writes.splice(doc, calendar, event_id, resource, tz, window)
+        if not contract.validate(spliced):
+            cli.write_atomic(Path(doc_path), spliced)
+    except (KeyError, TypeError, ValueError, OSError):
+        # Google has the change. The background sync below writes the file.
+        pass
+
+    start_sync()
+    return 0, {"ok": True, "eventId": event_id}
+
+
+def _auth_message(text):
+    """A person's reading of a 401 or 403.
+
+    Only a missing scope sends the user to setup. Any other 403 (an
+    invitation's shared properties, for one) is Google's own words.
+    """
+    if text.startswith("401"):
+        return EXPIRED
+    lowered = text.lower()
+    if "insufficient" in lowered and "scope" in lowered:
+        return NO_SCOPE
+    return "Google refused the change: " + text.split(": ", 1)[-1]
+
+
+def _get(client, request, tz):
+    resource = client.get(request["calendarId"], request["eventId"])
+    master = None
+    if resource.get("recurringEventId"):
+        # The repeat rule lives only on the series' master.
+        master = client.get(request["calendarId"], resource["recurringEventId"])
+    return event_form.resource_to_form(resource, request["calendarId"], tz, master)
+
+
+def _write(client, request, tz):
+    """Send one create, update or delete. Returns (eventId, reply, series).
+
+    `series` is True when the write touched a series, so the caller runs a
+    full sync instead of a splice.
+    """
+    calendar_id = request["calendarId"]
+    send_updates = request["sendUpdates"]
+    all_events = request["scope"] == "all"
+
+    if request["action"] == "delete":
+        target = request["recurringEventId"] if all_events else request["eventId"]
+        client.delete(calendar_id, target, send_updates=send_updates)
+        return target, None, all_events
+
+    form = request["event"]
+    if request["action"] == "create":
+        body = event_form.form_to_body(form, tz)
+        resource = client.create(calendar_id, body, send_updates=send_updates)
+        return resource.get("id", ""), resource, bool(resource.get("recurrence"))
+
+    # An update reads the event first: what it had decides whether a removed
+    # Meet, repeat or colour has to be sent as a removal, and what the patch
+    # can leave out.
+    target = request["recurringEventId"] if all_events else request["eventId"]
+    current = client.get(calendar_id, target)
+    had_meet = event_form.resource_to_form(current, calendar_id, tz)["meet"]
+    had_rule = bool(current.get("recurrence"))
+    had_color = bool(current.get("colorId"))
+
+    rule_start = None
+    if all_events:
+        # The series' rule belongs to its first date, not to the occurrence
+        # the user clicked: a monthly "4th Saturday" rebuilt from a late
+        # occurrence would become "last Saturday". An unchanged repeat sends
+        # the series' own rule back; a new preset is built from that date.
+        rule_start = event_form.starts_on(current, tz)
+        if form.get("repeat") == event_form.repeat_preset(current.get("recurrence"), rule_start):
+            form = {**form, "repeat": "custom", "rrule": list(current.get("recurrence") or [])}
+
+    body = event_form.form_to_body(form, tz, had_meet, had_rule, had_color, rule_start=rule_start)
+    body["attendees"] = event_form.merge_attendees(body["attendees"], current.get("attendees") or [])
+    if all_events:
+        body = event_form.onto_series(body, current, tz)
+    elif request["recurringEventId"]:
+        # One occurrence cannot carry a rule. A new repeat is a series edit,
+        # and the panel sends it with scope "all".
+        body.pop("recurrence", None)
+
+    removing_meet = had_meet and not form.get("meet")
+    switching_kind = ("date" in (current.get("start") or {})) != bool(form.get("allDay"))
+    if removing_meet or switching_kind:
+        # A patch cannot remove a Meet (verified live). A patch from
+        # start.dateTime to start.date may also merge the two keys (raised in
+        # review, not verified live). So replace the whole event: the one
+        # just read, with the form on top, which keeps every field the form
+        # does not know.
+        whole = {**current, **body}
+        if removing_meet:
+            whole.pop("conferenceData", None)
+            whole.pop("hangoutLink", None)
+        resource = client.replace(calendar_id, target, whole, send_updates=send_updates)
+    else:
+        patch = event_form.changed_only(body, current, tz)
+        # Nothing changed: no call, so an untouched invitation is not refused.
+        resource = client.update(calendar_id, target, patch, send_updates=send_updates) if patch else current
+    series = all_events or had_rule or bool(resource.get("recurrence"))
+    return request["eventId"] if not all_events else target, resource, series
+
+
+def main(argv=None, stdin=None):
+    # A panel loaded before an update passes the request as an argument and
+    # leaves stdin open: reading it would wait until the panel gives up.
+    if list(sys.argv[1:] if argv is None else argv):
+        return _emit(1, _fail(STALE_PANEL))
+    stream = sys.stdin if stdin is None else stdin
+    try:
+        raw = json.loads(stream.read())
+    except json.JSONDecodeError:
+        raw = None
+    if not isinstance(raw, dict):
+        return _emit(1, _fail("Expected one JSON object on stdin."))
+
+    tz = resolve_local_timezone()
+    try:
+        cfg = config_module.load()
+        client = cli.build_client(cfg, tz)
+    except config_module.ConfigError as error:
+        return _emit(1, _fail(f"Config error: {error}"))
+
+    budget.cap_memory()
+    try:
+        with budget.deadline(budget.EVENT_SECONDS):
+            code, reply = perform(
+                raw, cfg, client, contract.CONTRACT_PATH, tz,
+                sync_now=lambda: _sync_inline(client, cfg, tz),
+            )
+    except budget.TookTooLong as error:
+        return _emit(1, _fail(f"The calendar did not answer: {error}."))
+    except MemoryError:
+        return _emit(1, _fail("The calendar sent more than this command can hold."))
+    return _emit(code, reply)
+
+
+def _sync_inline(client, cfg, tz):
+    # The sync prints its summary on stdout, and stdout is the reply the
+    # panel parses, so the summary goes to stderr.
+    with contextlib.redirect_stdout(sys.stderr):
+        cli.run(client, cfg, datetime.now(timezone.utc), contract.CONTRACT_PATH, tz)
+
+
+def _emit(code, reply):
+    print(json.dumps(reply))
+    return code
+
+
+def _fail(message):
+    return {"ok": False, "error": message}
+
+
+def _read_doc(path):
+    try:
+        doc = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return None
+    return doc if isinstance(doc, dict) else None
+
+
+if __name__ == "__main__":
+    sys.exit(main())

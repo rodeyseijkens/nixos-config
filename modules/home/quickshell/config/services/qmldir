@@ -12,3 +12,4 @@ singleton WeatherStatus 1.0 WeatherStatus.qml
 singleton WeatherCache 1.0 WeatherCache.qml
 BarApi 1.0 BarApi.qml
 PanelHost 1.0 PanelHost.qml
+singleton CalendarEvents 1.0 CalendarEvents.qml

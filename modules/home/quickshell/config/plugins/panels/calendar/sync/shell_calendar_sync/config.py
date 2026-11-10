@@ -1,0 +1,155 @@
+"""User configuration for the sync.
+
+Absent config is a valid state: every key has a default, so a first run works
+with no file at all.
+"""
+
+import copy
+import json
+import os
+from datetime import datetime, timedelta
+from pathlib import Path
+
+CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+CONFIG_PATH = CONFIG_HOME / "shell-calendar" / "calendar-sync.json"
+
+DEFAULTS = {
+    # "caldir" reads the caldir CLI and reuses its provider sign-in. The
+    # library also carries "gws", "eds", "ics" and "caldav" for configs that
+    # name them by hand, but sync/setup only writes "caldir".
+    "backend": "caldir",
+    # Off, the sync publishes no writable calendars and the panel shows no way
+    # to change an event. caldir writes are not wired up yet.
+    "write": False,
+    # ics only: feed URLs, each a string or {"url", "name", "color"}.
+    "ics": [],
+    # caldav only: an account {"url", "username", "passwordCommand"}, or a
+    # list of them. "password" works in place of the command, in a file
+    # with mode 600; sync/setup --caldav keeps it in the keyring instead.
+    "caldav": [],
+    # eds, ics and caldav: the address whose invitation answers count as "yours".
+    # Blank means responseStatus is left unset rather than guessed.
+    "identity": "",
+    "profile": str(CONFIG_HOME / "gws-shell-calendar"),
+    # Resolved to an absolute path by sync/setup. A systemd user service
+    # does not inherit an interactive shell PATH, so relying on the bare
+    # name works from a terminal and fails from the timer.
+    "gwsPath": "gws",
+    # caldir only. Same PATH caveat as gwsPath.
+    "caldirPath": "caldir",
+    # caldir only: run `caldir pull` before reading. Turn it off when
+    # something else already keeps caldir up to date.
+    "caldirPull": True,
+    "calendars": {"include": [], "exclude": []},
+    "window": {"pastDays": 7, "futureDays": 60},
+}
+
+
+class ConfigError(Exception):
+    """Raised when the config file exists but cannot be used."""
+
+
+def load(path=None):
+    """Load config, filling in defaults for anything absent."""
+    path = Path(path) if path is not None else CONFIG_PATH
+
+    if not path.exists():
+        return _merge(copy.deepcopy(DEFAULTS), {})
+
+    try:
+        raw = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        raise ConfigError(f"cannot read {path}: {error}") from error
+
+    if not isinstance(raw, dict):
+        raise ConfigError(f"{path} must contain a JSON object")
+
+    merged = _merge(copy.deepcopy(DEFAULTS), raw)
+
+    _validate_calendars(merged.get("calendars"))
+
+    window = merged.get("window")
+    if isinstance(window, dict):
+        window["pastDays"] = _coerce_days(window.get("pastDays"), "window.pastDays")
+        window["futureDays"] = _coerce_days(
+            window.get("futureDays"), "window.futureDays"
+        )
+
+    return merged
+
+
+def _merge(defaults, override):
+    """One level of nesting is all this config has, so this stays simple."""
+    merged = {}
+    for key, fallback in defaults.items():
+        value = override.get(key, fallback)
+        if value is None:
+            # An explicit null for a nested key means "not set", not "empty".
+            value = fallback
+        if isinstance(fallback, dict) and isinstance(value, dict):
+            merged[key] = {**fallback, **value}
+        else:
+            merged[key] = value
+    return merged
+
+
+def _validate_calendars(calendars):
+    """Reject a non-list include or exclude instead of silently misreading it."""
+    if not isinstance(calendars, dict):
+        return
+    for key in ("include", "exclude"):
+        value = calendars.get(key)
+        if value is not None and not isinstance(value, list):
+            raise ConfigError(f"calendars.{key} must be a list")
+
+
+def _coerce_days(value, key):
+    """Turn a window day count into an int, or fail loudly naming the key."""
+    if isinstance(value, bool):
+        raise ConfigError(f"{key} must be a number")
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            raise ConfigError(f"{key} must be a number") from None
+    raise ConfigError(f"{key} must be a number")
+
+
+def select_calendars(calendars, config):
+    """Apply the include and exclude lists. Exclude always wins."""
+    rules = config.get("calendars") or {}
+    include = set(rules.get("include") or [])
+    exclude = set(rules.get("exclude") or [])
+
+    selected = []
+    for calendar in calendars:
+        keys = {calendar["id"], calendar["name"]}
+        if keys & exclude:
+            continue
+        if include and not (keys & include):
+            continue
+        selected.append(calendar)
+    return selected
+
+
+def window_bounds(config, now):
+    """Return RFC3339 timeMin and timeMax for the events query."""
+    window = config.get("window") or {}
+    past = int(window.get("pastDays", DEFAULTS["window"]["pastDays"]))
+    future = int(window.get("futureDays", DEFAULTS["window"]["futureDays"]))
+    return (
+        (now - timedelta(days=past)).isoformat(),
+        (now + timedelta(days=future)).isoformat(),
+    )
+
+
+def window_dates(config, now, tz):
+    """The (first, last) local dates of the events query. Days outside it
+    get no row, so an event that ends in the year 9998 costs only these."""
+    time_min, time_max = window_bounds(config, now)
+    return (
+        datetime.fromisoformat(time_min).astimezone(tz).date(),
+        datetime.fromisoformat(time_max).astimezone(tz).date(),
+    )
