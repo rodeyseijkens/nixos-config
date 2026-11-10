@@ -1522,7 +1522,7 @@ Panel {
     width: Style.space(540)
     height: Style.spacing.controlHeight + Style.space(8) + Style.space(12) + Style.space(14) + (root.mainView === "settings" ? settingsColumn.implicitHeight : root.bodyHeight)
     color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, Math.max(1, Style.space(2)))
+    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
     radius: Style.cornerRadius
 
     PanelKeyCatcher {

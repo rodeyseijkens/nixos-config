@@ -25,7 +25,7 @@ Item {
   BorderSurface {
     anchors.fill: parent
     color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, Math.max(1, Style.space(2)))
+    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
     radius: Style.cornerRadius
 
     ColumnLayout {

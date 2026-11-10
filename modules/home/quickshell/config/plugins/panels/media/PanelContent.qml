@@ -269,7 +269,7 @@ Item {
     anchors.fill: parent
     radius: Style.cornerRadius
     color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, Math.max(1, Style.space(1)))
+    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
   }
 
   Column {

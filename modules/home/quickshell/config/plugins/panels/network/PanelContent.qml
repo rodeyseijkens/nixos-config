@@ -676,7 +676,7 @@ Item {
     width: parent.width
     height: Math.min(column.implicitHeight + Style.spacing.panelPadding * 2, 680)
     color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, Math.max(1, Style.space(2)))
+    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
     radius: Style.cornerRadius
 
     Flickable {

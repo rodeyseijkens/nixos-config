@@ -931,7 +931,7 @@ Panel {
     implicitHeight: leftContent.implicitHeight + padding * 2 + border.width * 2
     color: Commons.Color.popups.background
     border.color: Commons.Color.popups.border
-    border.width: Math.max(1, Style.normalBorderWidth)
+    border.width: 1
     radius: Style.cornerRadius
 
     PanelKeyCatcher {
