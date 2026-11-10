@@ -81,11 +81,14 @@ Scope {
           anchors.rightMargin: 5
           spacing: 0
 
+          Media {
+            barScreen: win.screen
+            Layout.rightMargin: 10
+          }
           Stats {}
           Volume {
             barScreen: win.screen
           }
-          ResonanceMedia {}
           PanelButton {
             panel: "network"
             glyph: NetworkStatus.icon

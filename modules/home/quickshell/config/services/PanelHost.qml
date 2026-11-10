@@ -20,6 +20,7 @@ Scope {
     bluetooth: {file: "../plugins/panels/bluetooth/PanelContent.qml", width: 390},
     network: {file: "../plugins/panels/network/PanelContent.qml", width: 400},
     power: {file: "../plugins/panels/power/PanelContent.qml", width: 350},
+    media: {file: "../plugins/panels/media/PanelContent.qml", width: 400},
     weather: {file: "../plugins/panels/weather/PanelContent.qml", width: 540},
     tailscale: {file: "../plugins/panels/tailscale/PanelContent.qml", width: 390}
   })
