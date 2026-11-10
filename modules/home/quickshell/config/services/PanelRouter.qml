@@ -12,11 +12,13 @@ Singleton {
   property string _panelScreenName: ""
   property bool _calendarOpen: false
   property string _calendarScreenName: ""
+  property real _calendarAnchorX: -1
 
   readonly property bool panelOpen: _panelOpen
   readonly property string panelScreenName: _panelScreenName
   readonly property bool calendarOpen: _calendarOpen
   readonly property string calendarScreenName: _calendarScreenName
+  readonly property real calendarAnchorX: _calendarAnchorX
 
   // Falls back to the already-open screen, then the first screen, so
   // parameterless IPC callers (keybinds) keep working.
@@ -50,17 +52,20 @@ Singleton {
     _panelOpen = false;
   }
 
-  function toggleCalendar(screenName: var): void {
+  function toggleCalendar(screenName: var, anchorX: var): void {
     var s = _resolveScreen(screenName, _calendarScreenName);
     if (_calendarOpen && _calendarScreenName === s) {
       _calendarOpen = false;
+      _calendarAnchorX = -1;
     } else {
       _calendarScreenName = s;
+      _calendarAnchorX = anchorX === undefined || anchorX === null ? -1 : anchorX;
       _calendarOpen = true;
     }
   }
 
   function closeCalendar(): void {
     _calendarOpen = false;
+    _calendarAnchorX = -1;
   }
 }

@@ -25,10 +25,12 @@ Scope {
   ScreenPopup {
     placement: PopupPlacement {
       bottom: true
-      // bar (28) + gap (12): keep clear of the bar the clock lives on
-      marginBottom: 40
+      // The bar reserves its own 28px, so this is the 16px gap above it that
+      // matches the popup's side padding.
+      marginBottom: 16
       width: Math.max(320, calendar.panelWidth)
     }
+    anchorX: PanelRouter.calendarAnchorX
     // only the bar whose clock was clicked (screen names are unique)
     showWhen: (name) => PanelRouter.calendarOpen && PanelRouter.calendarScreenName === name
     focusable: true

@@ -22,7 +22,8 @@ Text {
       if (mouse.button === Qt.RightButton)
         Audio.toggleMute();
       else
-        OverlayPanels.toggle("audio", root.barScreen ? root.barScreen.name : "");
+        OverlayPanels.toggle("audio", root.barScreen ? root.barScreen.name : "",
+          root.mapToItem(null, root.width / 2, 0).x);
     }
     onWheel: wheel => {
       if (wheel.angleDelta.y > 0)

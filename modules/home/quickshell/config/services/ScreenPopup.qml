@@ -30,6 +30,13 @@ Scope {
   property bool focusable: false
   property bool focusGrab: false
   property Component content
+  // Screen x of the item that opened the popup, or -1 to use the placement's
+  // own horizontal margins. A set anchor centres the window over that item
+  // and keeps it inside the screen.
+  property real anchorX: -1
+  // Nothing may touch a screen edge: an anchored popup keeps at least this
+  // much air on the left and right, even when its widget sits at the margin.
+  readonly property int edgeGap: 16
   signal dismissRequested()
 
   Variants {
@@ -42,14 +49,24 @@ Scope {
       readonly property string screenName: modelData.name ?? ""
       screen: modelData
 
+      readonly property int screenWidth: win.screen ? win.screen.width : 0
+      readonly property int edgeGap: root.edgeGap
+      readonly property int leftLimit: Math.max(root.placement.marginLeft, edgeGap)
+      readonly property int rightLimit: Math.max(root.placement.marginRight, edgeGap)
+      readonly property int anchorLeft: root.anchorX < 0 || screenWidth <= 0
+        ? root.placement.marginLeft
+        : Math.max(leftLimit,
+            Math.min(Math.round(root.anchorX - win.implicitWidth / 2),
+              Math.max(leftLimit, screenWidth - win.implicitWidth - rightLimit)))
+
       anchors {
-        left: root.placement.left
+        left: root.anchorX >= 0 ? true : root.placement.left
         top: root.placement.top
-        right: root.placement.right
+        right: root.anchorX >= 0 ? false : root.placement.right
         bottom: root.placement.bottom
       }
       margins {
-        left: root.placement.marginLeft
+        left: win.anchorLeft
         top: root.placement.marginTop
         right: root.placement.marginRight
         bottom: root.placement.marginBottom

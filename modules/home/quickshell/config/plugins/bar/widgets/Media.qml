@@ -76,7 +76,7 @@ Row {
   function togglePanel() {
     if (!root.active)
       return
-    OverlayPanels.toggle("media", root.screenName)
+    OverlayPanels.toggle("media", root.screenName, root.mapToItem(null, root.width / 2, 0).x)
   }
 
   // No player, nothing shown: the bar keeps no idle media slot. A paused

@@ -51,7 +51,8 @@ Item {
     cursorShape: Qt.PointingHandCursor
     onClicked: function(mouse) {
       if (mouse.button === Qt.MiddleButton) WeatherStatus.refresh()
-      else OverlayPanels.toggle("weather", root.barScreen ? root.barScreen.name : "")
+      else OverlayPanels.toggle("weather", root.barScreen ? root.barScreen.name : "",
+        root.mapToItem(null, root.width / 2, 0).x)
     }
   }
 }

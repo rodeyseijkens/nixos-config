@@ -10,9 +10,11 @@ Singleton {
 
   property string _active: ""
   property string _screenName: ""
+  property real _anchorX: -1
 
   readonly property string active: _active
   readonly property string screenName: _screenName
+  readonly property real anchorX: _anchorX
 
   function _resolveScreen(name: var): string {
     if (name !== undefined && name !== null && name !== "")
@@ -31,18 +33,24 @@ Singleton {
     return root._screenName === screen;
   }
 
-  function open(name: string, screenName: var): void {
+  // anchorX is the screen x of the widget that opened the panel, so the
+  // popup can sit above it. Omit it for keyboard/API callers; -1 centres
+  // the popup with the placement's own margins.
+  function open(name: string, screenName: var, anchorX: real): void {
     root._screenName = root._resolveScreen(screenName);
+    root._anchorX = anchorX === undefined || anchorX === null ? -1 : anchorX;
     root._active = name;
   }
 
-  function toggle(name: string, screenName: var): void {
+  function toggle(name: string, screenName: var, anchorX: real): void {
     var s = root._resolveScreen(screenName);
     if (root._active === name && root._screenName === s) {
       root._active = "";
       root._screenName = "";
+      root._anchorX = -1;
     } else {
       root._screenName = s;
+      root._anchorX = anchorX === undefined || anchorX === null ? -1 : anchorX;
       root._active = name;
     }
   }
@@ -50,5 +58,6 @@ Singleton {
   function close(): void {
     root._active = "";
     root._screenName = "";
+    root._anchorX = -1;
   }
 }

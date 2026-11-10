@@ -28,6 +28,7 @@ Text {
     hoverEnabled: true
     onEntered: root.opacity = 0.6
     onExited: root.opacity = 1.0
-    onClicked: PanelRouter.toggleCalendar(root.barScreen ? root.barScreen.name : "")
+    onClicked: PanelRouter.toggleCalendar(root.barScreen ? root.barScreen.name : "",
+      root.mapToItem(null, root.width / 2, 0).x)
   }
 }

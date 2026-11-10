@@ -32,9 +32,12 @@ Scope {
   ScreenPopup {
     placement: PopupPlacement {
       bottom: true
-      marginBottom: 40
+      // The bar reserves its own 28px, so this is the gap above it: the same
+      // 16px the popup keeps at the screen sides.
+      marginBottom: 16
       width: root.panelWidth
     }
+    anchorX: OverlayPanels.anchorX
     showWhen: name => OverlayPanels.active !== "" && OverlayPanels.screenName === name
     focusable: true
     focusGrab: true
@@ -92,6 +95,12 @@ Scope {
 
     function toggle(name: string): void {
       OverlayPanels.toggle(name);
+    }
+
+    // Anchor the panel over a given screen x. Bar widgets pass their own
+    // centre; this is for keybinds and scripts that know where it belongs.
+    function toggleAt(name: string, anchorX: real): void {
+      OverlayPanels.toggle(name, "", anchorX);
     }
 
     function close(): void {
