@@ -22,7 +22,6 @@
       "killall -q walker;sleep .5 && walker --gapplication-service"
       "killall -q awww;sleep .5 && awww-daemon"
 
-      "nm-applet --indicator"
       "poweralertd"
 
       "${terminal} --gtk-single-instance=true --quit-after-last-window-closed=false --initial-window=false"

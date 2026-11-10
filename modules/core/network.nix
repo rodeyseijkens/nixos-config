@@ -1,5 +1,4 @@
 {
-  pkgs,
   host,
   lib,
   config,
@@ -30,9 +29,5 @@
       };
       enableIPv6 = false;
     };
-
-    environment.systemPackages = with pkgs; [
-      networkmanagerapplet
-    ];
   };
 }
