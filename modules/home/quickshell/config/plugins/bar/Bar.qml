@@ -61,6 +61,10 @@ Scope {
           anchors.centerIn: parent
           spacing: 16
 
+          Date {
+            barScreen: win.screen
+          }
+
           Clock {
             barScreen: win.screen
           }
