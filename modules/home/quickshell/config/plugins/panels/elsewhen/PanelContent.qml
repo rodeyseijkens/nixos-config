@@ -31,6 +31,10 @@ Item {
   // `cities` once written; until then the older `zones` string.
   readonly property var zones: Model.parseCities(setting("cities", null), setting("zones", ""))
   readonly property var zoneIds: zones.map(function(z) { return z.id })
+  // The host assigns `settings` after the item is complete, so the first probe
+  // has run against the empty list by the time the stored cities arrive.
+  // Probe again whenever the stored entry changes.
+  onSettingsChanged: Qt.callLater(root.refresh)
   // Never written: the first probe seeds the list around the local zone.
   readonly property bool needsSeed: zones.length === 0
   readonly property var probeIds: needsSeed ? zoneIds.concat(Model.seedCandidateZones()) : zoneIds
@@ -66,8 +70,9 @@ Item {
     return value === undefined || value === null ? fallback : value
   }
 
-  // Inline settings stay in this item. Nothing is written to shell.json; the
-  // host supplies the initial object and may replace it at any time.
+  // The host owns the stored entry. Assigning root.settings alone is lost as
+  // soon as another panel replaces this item in the shared Loader, so every
+  // change goes back through the host as well.
   function persistSettings(values) {
     var entry = {}
     for (var existing in root.settings) entry[existing] = root.settings[existing]
@@ -76,6 +81,8 @@ Item {
       else entry[key] = values[key]
     }
     root.settings = entry
+    if (root.bar && root.bar.shell && typeof root.bar.shell.updateEntryInline === "function")
+      root.bar.shell.updateEntryInline(root.moduleName, entry)
   }
 
   function toggleOffsetMode() { persistSettings({ offsetMode: offsetMode === "utc" ? "home" : "utc" }) }

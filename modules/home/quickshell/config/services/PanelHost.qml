@@ -29,6 +29,45 @@ Scope {
   readonly property string panelFile: current ? current.file : ""
   readonly property int panelWidth: current ? current.width : 380
 
+  // Panel settings live here, not in the panels: the shared Loader destroys a
+  // panel item when another one replaces it. Persisting this store means a
+  // city list, calendar filter, or weather unit survives both that and a
+  // shell restart.
+  function writeSettings() {
+    settingsFile.setText(JSON.stringify(root.settingsStore, null, 2) + "\n")
+  }
+
+  function applySettingsToCurrent() {
+    var item = root.barApi.currentPanelItem
+    var name = OverlayPanels.active
+    if (item && name !== "" && root.settingsStore[name] !== undefined)
+      item.settings = root.settingsStore[name]
+  }
+
+  FileView {
+    id: settingsFile
+    path: (Quickshell.env("XDG_STATE_HOME") || ((Quickshell.env("HOME") || "") + "/.local/state"))
+      + "/quickshell/panels.json"
+    atomicWrites: true
+    watchChanges: true
+    printErrors: false
+
+    onLoaded: {
+      var parsed = null
+      try {
+        parsed = JSON.parse(text())
+      } catch (error) {
+        parsed = null
+      }
+      if (parsed && typeof parsed === "object")
+        root.settingsStore = parsed
+      root.applySettingsToCurrent()
+    }
+    // A first run has no file yet; the first settings change creates it.
+    onLoadFailed: {}
+    onFileChanged: reload()
+  }
+
   ScreenPopup {
     placement: PopupPlacement {
       bottom: true
@@ -64,6 +103,7 @@ Scope {
             root.settingsStore[name] = values;
             if (root.barApi.currentPanelItem && root.barApi.currentPanelItem.moduleName === name)
               root.barApi.currentPanelItem.settings = values;
+            root.writeSettings();
           };
           item.bar = root.barApi;
           item.settings = root.settingsStore[OverlayPanels.active];
