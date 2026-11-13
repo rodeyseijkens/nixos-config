@@ -38,7 +38,13 @@ QtObject {
       if (root.updateEntryInlineHandler)
         root.updateEntryInlineHandler(name, values)
     }
-    function summon() {}
+    function summon(name, payload) {
+      if (name === "osd") {
+        OsdBus.show(payload)
+        return
+      }
+      console.warn("BarApi.shell.summon: unknown target " + String(name || ""))
+    }
   }
 
   function run(command: var): void {
