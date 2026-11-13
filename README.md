@@ -504,7 +504,7 @@ Keybindings
 
 ##### utilities and scripts
 
-- `$mod SHIFT, B, exec, qs -c shell ipc call bar toggle`
+- `$mod SHIFT, W, exec, qs -c shell ipc call bar toggle`
 - `$mod, C, exec, hyprpicker -a`
 - `$mod, N, exec, qs -c shell ipc call notif toggle`
 - `$mod, Space, exec, walker-menu apps`
