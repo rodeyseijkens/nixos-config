@@ -5,7 +5,6 @@ import "../../../services"
 
 Item {
   id: root
-  required property var barScreen
   readonly property string tempValue: WeatherCache.barTempC !== "" ? WeatherCache.barTempC : WeatherStatus.tempC
 
   implicitWidth: content.implicitWidth
@@ -51,8 +50,7 @@ Item {
     cursorShape: Qt.PointingHandCursor
     onClicked: function(mouse) {
       if (mouse.button === Qt.MiddleButton) WeatherStatus.refresh()
-      else OverlayPanels.toggle("weather", root.barScreen ? root.barScreen.name : "",
-        root.mapToItem(null, root.width / 2, 0).x)
+      else OverlayPanels.toggleFrom(root, "weather")
     }
   }
 }

@@ -7,7 +7,6 @@ import "../../../"
 
 Text {
   id: root
-  required property var barScreen
   Layout.rightMargin: 5
   Layout.leftMargin: 10
   Layout.minimumWidth: 30
@@ -35,8 +34,7 @@ Text {
       if (mouse.button === Qt.RightButton)
         NotificationService.toggleDnd();
       else
-        OverlayPanels.toggle("notifications", root.barScreen ? root.barScreen.name : "",
-          root.mapToItem(null, root.width / 2, 0).x);
+        OverlayPanels.toggleFrom(root, "notifications");
     }
   }
 }

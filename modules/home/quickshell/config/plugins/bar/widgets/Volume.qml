@@ -6,7 +6,6 @@ import "../../../services"
 
 Text {
   id: root
-  required property var barScreen
   Layout.rightMargin: 10
   text: "<font color='" + Colors.base0B + "'>" + Audio.icon + "</font> " + Audio.percent + "%"
   textFormat: Text.RichText
@@ -22,8 +21,7 @@ Text {
       if (mouse.button === Qt.RightButton)
         Audio.toggleMute();
       else
-        OverlayPanels.toggle("audio", root.barScreen ? root.barScreen.name : "",
-          root.mapToItem(null, root.width / 2, 0).x);
+        OverlayPanels.toggleFrom(root, "audio");
     }
     onWheel: wheel => {
       if (wheel.angleDelta.y > 0)

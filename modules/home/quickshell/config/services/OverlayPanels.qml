@@ -33,6 +33,24 @@ Singleton {
     return root._screenName === screen;
   }
 
+  // Derive the host monitor and screen-local x coordinate from the clicked
+  // item. Popup callers use this instead of carrying bar-screen geometry.
+  function contextFrom(item): var {
+    var window = item && item.QsWindow ? item.QsWindow.window : null;
+    var screen = window ? window.screen : null;
+    var content = window ? window.contentItem : null;
+    var point = item && content ? content.mapFromItem(item, item.width / 2, 0) : null;
+    return {
+      screenName: screen ? (screen.name ?? "") : "",
+      anchorX: point ? Math.round(point.x) : -1
+    };
+  }
+
+  function toggleFrom(item, name: string): void {
+    var context = contextFrom(item);
+    toggle(name, context.screenName, context.anchorX);
+  }
+
   // anchorX is the screen x of the widget that opened the panel, so the
   // popup can sit above it. Omit it for keyboard/API callers; -1 centres
   // the popup with the placement's own margins.

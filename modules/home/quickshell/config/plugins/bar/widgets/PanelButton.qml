@@ -73,8 +73,7 @@ Item {
     anchors.fill: parent
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-    onClicked: OverlayPanels.toggle(root.panel, root.barScreen ? root.barScreen.name : "",
-      root.mapToItem(null, root.width / 2, 0).x)
+    onClicked: OverlayPanels.toggleFrom(root, root.panel)
   }
 
   Process {

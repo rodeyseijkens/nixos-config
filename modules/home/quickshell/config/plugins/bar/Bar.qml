@@ -61,17 +61,11 @@ Scope {
           anchors.centerIn: parent
           spacing: 16
 
-          Date {
-            barScreen: win.screen
-          }
+          Date {}
 
-          Clock {
-            barScreen: win.screen
-          }
+          Clock {}
 
-          Weather {
-            barScreen: win.screen
-          }
+          Weather {}
         }
 
         RowLayout {
@@ -82,13 +76,10 @@ Scope {
           spacing: 0
 
           Media {
-            barScreen: win.screen
             Layout.rightMargin: 10
           }
           Stats {}
-          Volume {
-            barScreen: win.screen
-          }
+          Volume {}
           PanelButton {
             panel: "network"
             glyph: NetworkStatus.icon
@@ -115,9 +106,7 @@ Scope {
             barScreen: win.screen
           }
           Tray {}
-          NotifIcon {
-            barScreen: win.screen
-          }
+          NotifIcon {}
         }
       }
     }

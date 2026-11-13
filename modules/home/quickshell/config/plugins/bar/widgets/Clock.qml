@@ -6,8 +6,6 @@ import "../../../services"
 // Clock: the bar's time of day. Clicking it opens the world clock panel.
 Text {
   id: root
-  required property var barScreen
-
   SystemClock {
     id: clock
     precision: SystemClock.Minutes
@@ -26,7 +24,6 @@ Text {
     hoverEnabled: true
     onEntered: root.opacity = 0.6
     onExited: root.opacity = 1.0
-    onClicked: OverlayPanels.toggle("elsewhen", root.barScreen ? root.barScreen.name : "",
-      root.mapToItem(null, root.width / 2, 0).x)
+    onClicked: OverlayPanels.toggleFrom(root, "elsewhen")
   }
 }

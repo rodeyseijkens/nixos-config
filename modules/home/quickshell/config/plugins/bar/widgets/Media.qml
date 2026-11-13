@@ -10,10 +10,7 @@ import "../../../services"
 // panel has that. Both icons hide while nothing is playing.
 Row {
   id: root
-  required property var barScreen
   spacing: 6
-
-  readonly property string screenName: root.barScreen ? (root.barScreen.name ?? "") : ""
   readonly property var players: Mpris.players && Mpris.players.values ? Mpris.players.values : []
   readonly property var player: {
     var list = root.players
@@ -76,7 +73,7 @@ Row {
   function togglePanel() {
     if (!root.active)
       return
-    OverlayPanels.toggle("media", root.screenName, root.mapToItem(null, root.width / 2, 0).x)
+    OverlayPanels.toggleFrom(root, "media")
   }
 
   // No player, nothing shown: the bar keeps no idle media slot. A paused

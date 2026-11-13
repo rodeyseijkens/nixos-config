@@ -6,8 +6,6 @@ import "../../../services"
 // Date: today's date in the bar. Clicking it opens the calendar panel.
 Text {
   id: root
-  required property var barScreen
-
   SystemClock {
     id: clock
     precision: SystemClock.Minutes
@@ -28,7 +26,9 @@ Text {
     hoverEnabled: true
     onEntered: root.opacity = 0.6
     onExited: root.opacity = 1.0
-    onClicked: PanelRouter.toggleCalendar(root.barScreen ? root.barScreen.name : "",
-      root.mapToItem(null, root.width / 2, 0).x)
+    onClicked: {
+      var context = OverlayPanels.contextFrom(root)
+      PanelRouter.toggleCalendar(context.screenName, context.anchorX)
+    }
   }
 }
