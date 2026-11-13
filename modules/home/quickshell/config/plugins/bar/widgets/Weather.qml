@@ -5,7 +5,7 @@ import "../../../services"
 
 Item {
   id: root
-  readonly property string tempValue: WeatherCache.barTempC !== "" ? WeatherCache.barTempC : WeatherStatus.tempC
+  readonly property string tempValue: WeatherService.temperature
 
   implicitWidth: content.implicitWidth
   implicitHeight: content.implicitHeight
@@ -19,7 +19,7 @@ Item {
 
     Text {
       id: iconText
-      text: WeatherCache.barGlyph !== "" ? WeatherCache.barGlyph : WeatherStatus.icon
+      text: WeatherService.icon
       textFormat: Text.PlainText
       font.family: Colors.fontFamily
       font.pixelSize: 22
@@ -30,7 +30,7 @@ Item {
 
     Text {
       id: tempText
-      text: root.tempValue !== "" ? root.tempValue + WeatherCache.barTempUnit : ""
+      text: root.tempValue !== "" ? root.tempValue + WeatherService.temperatureUnit : ""
       textFormat: Text.PlainText
       font.family: Colors.fontFamily
       font.pixelSize: 16
@@ -49,7 +49,7 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
     cursorShape: Qt.PointingHandCursor
     onClicked: function(mouse) {
-      if (mouse.button === Qt.MiddleButton) WeatherStatus.refresh()
+      if (mouse.button === Qt.MiddleButton) WeatherService.refresh()
       else OverlayPanels.toggleFrom(root, "weather")
     }
   }

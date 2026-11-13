@@ -14,6 +14,7 @@ import "RadarModel.js" as RadarModel
 Panel {
   id: root
   moduleName: "weather"
+  defaultSettings: Model.DEFAULT_SETTINGS
   ipcTarget: "weather"
   manageIpc: false
 
@@ -63,14 +64,15 @@ Panel {
   readonly property string unitChoice: String(setting("unit", "auto"))
   readonly property bool use12Hour: String(setting("timeFormat", "24")) === "12"
   readonly property bool alertsOn: setting("alertsEnabled", false) === true
-  readonly property bool showBarTemp: setting("showBarTemp", false) === true
+
+  onSettingsChanged: removeLegacyBarTemperatureSetting()
 
   function open() {
     openedFromHotkey = false
     setCenterHoverRevealSuppressed(false)
     root.controller.show()
     resetCarousel(true)
-    locationFile.reload()
+    WeatherService.reloadLocation()
     root.refresh()
   }
 
@@ -78,7 +80,7 @@ Panel {
     openedFromHotkey = true
     root.controller.show()
     resetCarousel(true)
-    locationFile.reload()
+    WeatherService.reloadLocation()
     root.refresh()
     Qt.callLater(function() {
       if (root.opened) setCenterHoverRevealSuppressed(true)
@@ -136,31 +138,27 @@ Panel {
   property var report: null
   property var dailyForecastReport: null
   property var airQualityReport: null
-  property string wttrLocation: ""
-
-  onReportChanged: if (report !== null) WeatherCache.report = report
-  onDailyForecastReportChanged: if (dailyForecastReport !== null) WeatherCache.dailyForecastReport = dailyForecastReport
-  onAirQualityReportChanged: if (airQualityReport !== null) WeatherCache.airQualityReport = airQualityReport
+  onReportChanged: if (report !== null) Cache.report = report
+  onDailyForecastReportChanged: if (dailyForecastReport !== null) Cache.dailyForecastReport = dailyForecastReport
+  onAirQualityReportChanged: if (airQualityReport !== null) Cache.airQualityReport = airQualityReport
   onLabelChanged: {
     if (label === "") return;
-    WeatherCache.label = label;
-    WeatherCache.barGlyph = label;
+    Cache.label = label;
   }
 
   Component.onCompleted: {
-    if (WeatherCache.report) report = WeatherCache.report;
-    if (WeatherCache.dailyForecastReport) dailyForecastReport = WeatherCache.dailyForecastReport;
-    if (WeatherCache.airQualityReport) airQualityReport = WeatherCache.airQualityReport;
-    if (WeatherCache.label !== "") label = WeatherCache.label;
+    if (Cache.report) report = Cache.report;
+    if (Cache.dailyForecastReport) dailyForecastReport = Cache.dailyForecastReport;
+    if (Cache.airQualityReport) airQualityReport = Cache.airQualityReport;
+    if (Cache.label !== "") label = Cache.label;
   }
 
-  // Configured location, read from the weather.json state file (owned by
-  // the weather-location helper). The query is the wttr.in path segment
-  // (coordinates when stored, else the encoded name); empty means IP
-  // auto-detect. The watch makes hand edits take effect live.
-  property var configuredLocationState: ({ name: "", latitude: null, longitude: null })
-  readonly property string configuredLocation: configuredLocationState.name
-  readonly property string locationQuery: Model.wttrLocationQuery(configuredLocationState.name, configuredLocationState.latitude, configuredLocationState.longitude)
+  // The shell service owns the saved/detected location and current bar
+  // conditions. This panel borrows that home location while retaining its own
+  // temporary peek state for forecast browsing.
+  readonly property var configuredLocationState: WeatherService.location
+  readonly property string configuredLocation: WeatherService.locationName
+  readonly property string locationQuery: WeatherService.locationQuery
 
   onLocationQueryChanged: {
     if (peeking) return
@@ -176,25 +174,6 @@ Panel {
     airQualityRetryTimer.stop()
     beginWeatherTransition("location")
     scheduleRefresh(false)
-  }
-
-  property FileView locationFile: FileView {
-    path: Quickshell.env("HOME") + "/.local/state/quickshell/settings/weather.json"
-    watchChanges: true
-    printErrors: false
-    onFileChanged: reload()
-    onLoaded: root.configuredLocationState = Model.parseLocationFile(text())
-    onLoadFailed: root.configuredLocationState = Model.parseLocationFile("")
-  }
-
-  // The first read can race shell startup (observed sporadically), leaving a
-  // stored location unhonored until the next file write. One delayed reload
-  // self-corrects; if the first read was fine it's a no-op, since identical
-  // state doesn't change locationQuery and so triggers no refetch.
-  Timer {
-    interval: 1500
-    running: true
-    onTriggered: locationFile.reload()
   }
 
   property int forecastRetries: 0
@@ -227,22 +206,14 @@ Panel {
     return isFinite(lat) && isFinite(lon)
   }
   readonly property string peekName: peeking ? String(peekLocation.name || "") : ""
-  readonly property string homeName: configuredLocation || wttrLocation || "home"
+  readonly property string homeName: configuredLocation || "home"
 
-  // Shared hero/bar icon state, updated with each successful weather response.
+  // The panel's hero label is cached across Loader teardown. Bar current
+  // conditions are owned independently by WeatherService.
   property string label: ""
   property string homeLabel: ""
-  readonly property string barLabel: homeLabel || label
-  property string homeTempF: ""
-  property string homeTempC: ""
-  readonly property string barTemperatureF: homeTempF
-  readonly property string barTemperatureC: homeTempC
-  readonly property string barConditionGlyph: homeLabel || label
 
-  // The bar follows the saved unit setting (auto/metric/imperial), like the
-  // rest of the panel. Keep both home °F and °C paired with the saved home's
-  // icon so peeking at another city cannot quietly replace either half of the
-  // bar reading. The compact readout picks via useImperial below.
+  // A temporary city peek may change the panel's forecast, never the bar.
   function rememberHomeCurrent(currentCondition, provisionalIcon) {
     if (root.peeking || !currentCondition) return
 
@@ -254,10 +225,6 @@ Panel {
       root.homeLabel = nextIcon
     }
 
-    var nextTempF = Model.roundedTemp(currentCondition.temp_F)
-    var nextTempC = Model.roundedTemp(currentCondition.temp_C)
-    if (nextTempF !== "") root.homeTempF = nextTempF
-    if (nextTempC !== "") root.homeTempC = nextTempC
   }
 
   // wttr's current conditions when available; open-meteo's (bundled with the
@@ -267,11 +234,7 @@ Panel {
   readonly property var openMeteoCurrent: Model.openMeteoCurrentCondition(dailyForecastReport)
   readonly property var current: (hasConfiguredCoordinates && openMeteoCurrent) ? openMeteoCurrent : ((report && report.current_condition && report.current_condition[0]) ? report.current_condition[0] : openMeteoCurrent)
   readonly property var areaInfo: report && report.nearest_area && report.nearest_area[0] ? report.nearest_area[0] : null
-  readonly property string reportCountry: areaInfo && areaInfo.country && areaInfo.country[0] ? areaInfo.country[0].value : ""
-
-  readonly property bool useImperial: Model.shouldUseImperial(setting("unit", ""), Qt.locale().name, reportCountry)
-  readonly property string barTemperature: useImperial ? homeTempF : homeTempC
-  readonly property string barTempUnit: useImperial ? "°F" : "°C"
+  readonly property bool useImperial: WeatherService.useImperial
 
   // Auto-refresh interval in minutes; clamped to a sane minimum.
   readonly property int refreshMinutes: Math.max(5, parseInt(setting("refreshMinutes", 15), 10) || 15)
@@ -288,7 +251,7 @@ Panel {
 
   onForecastOrbitChanged: if (forecastOrbit && opened) resetCarousel(true)
 
-  readonly property string reportLocation: peeking ? peekName : (configuredLocation || wttrLocation || (areaInfo && areaInfo.areaName && areaInfo.areaName[0] ? areaInfo.areaName[0].value : ""))
+  readonly property string reportLocation: peeking ? peekName : (configuredLocation || (areaInfo && areaInfo.areaName && areaInfo.areaName[0] ? areaInfo.areaName[0].value : ""))
   readonly property string reportTempNum: current ? String(useImperial ? current.temp_F : current.temp_C) : ""
   readonly property string tempUnit: "°" + (useImperial ? "F" : "C")
   property real animatedReportTemp: NaN
@@ -581,10 +544,7 @@ Panel {
     temperatureFlashPulse.start()
   }
 
-  onReportTempNumChanged: {
-    syncAnimatedTemperature()
-    if (reportTempNum !== "") WeatherCache.barTempC = Model.roundedTemp(reportTempNum)
-  }
+  onReportTempNumChanged: syncAnimatedTemperature()
 
   // Deferred so the unit flip and the number that follows it settle into one
   // animation, and coalesced so a flip back and forth does not queue two.
@@ -599,10 +559,7 @@ Panel {
     onTriggered: root.syncAnimatedTemperature()
   }
 
-  onTempUnitChanged: {
-    WeatherCache.barTempUnit = tempUnit
-    tempUnitTimer.restart()
-  }
+  onTempUnitChanged: tempUnitTimer.restart()
 
   // Keep the shell theme as the base, then tint it toward a recognizable
   // condition family. These colors only appear at low opacity, so the panel
@@ -977,7 +934,6 @@ Panel {
     // path — with configured coordinates Open-Meteo is authoritative, so skip
     // the extra external request entirely.
     if (!root.peeking && !root.hasHomeCoordinates && !forecastProc.running) startForecastProc()
-    if (!root.peeking && root.locationQuery === "" && !locationProc.running) locationProc.running = true
     refreshDailyForecast(null)
   }
 
@@ -1152,17 +1108,13 @@ Panel {
     savingLocation = true
     savingLocationQueryStarted = false
     locationPickHint = ""
-    configuredLocationState = {
-      name: location.name,
-      latitude: location.latitude,
-      longitude: location.longitude
-    }
+    WeatherService.setConfiguredLocation(location)
     persistLocation(location.name, location.latitude, location.longitude)
   }
 
   function clearLocation() {
+    WeatherService.setConfiguredLocation({ name: "", latitude: null, longitude: null })
     persistLocation("", null, null)
-    wttrLocation = ""
     cancelEditingLocation()
   }
 
@@ -1174,11 +1126,7 @@ Panel {
     }
     savingLocation = true
     savingLocationQueryStarted = false
-    configuredLocationState = {
-      name: suggestion.name,
-      latitude: suggestion.latitude,
-      longitude: suggestion.longitude
-    }
+    WeatherService.setConfiguredLocation(suggestion)
     persistLocation(suggestion.name, suggestion.latitude, suggestion.longitude)
   }
 
@@ -1267,6 +1215,16 @@ Panel {
     root.bar.shell.updateEntryInline(root.moduleName, entry)
   }
 
+  function removeLegacyBarTemperatureSetting() {
+    var current = root.settings
+    if (!current || !Object.prototype.hasOwnProperty.call(current, "showBarTemp")) return
+    var entry = {}
+    for (var key in current) if (key !== "showBarTemp") entry[key] = current[key]
+    root.settings = entry
+    if (root.bar && root.bar.shell && typeof root.bar.shell.updateEntryInline === "function")
+      root.bar.shell.updateEntryInline(root.moduleName, entry)
+  }
+
   function setRadarSite(name) {
     root.persistSetting("radarSite", String(name || "RainViewer"))
   }
@@ -1349,9 +1307,8 @@ Panel {
     onTriggered: if (!forecastProc.running) root.startForecastProc()
   }
 
-  // With configured coordinates this fetch is the only thing that updates the
-  // bar icon, so a dropped response must retry rather than wait out the
-  // refresh timer with a stale icon.
+  // With configured coordinates this fetch is the panel's current-conditions
+  // source, so a dropped response must retry rather than leave its hero stale.
   function scheduleDailyForecastRetry() {
     if (dailyForecastRetries >= 3) return
     dailyForecastRetries++
@@ -1467,7 +1424,7 @@ Panel {
     onExited: function(exitCode) {
       if (exitCode !== 0 || !root.savingLocation) return
 
-      locationFile.reload()
+      WeatherService.reloadLocation()
       if (root.radar && root.radar.reloadLocation) root.radar.reloadLocation()
       if (!root.savingLocationQueryStarted) {
         root.savingLocationQueryStarted = true
@@ -1478,21 +1435,6 @@ Panel {
         dailyForecastProc.running = false
         airQualityProc.running = false
         root.scheduleRefresh()
-      }
-    }
-  }
-
-  Process {
-    id: locationProc
-    command: Model.curlGet("https://wttr.in/?format=%l", 4, Model.MAX_PLACE_NAME_BYTES)
-    stdout: StdioCollector {
-      waitForEnd: true
-      onStreamFinished: {
-        var raw = String(text || "")
-        if (Model.rejectOversized(raw, Model.MAX_PLACE_NAME_BYTES)) return
-        raw = raw.trim()
-        if (!raw) return
-        root.wttrLocation = raw.split(",")[0]
       }
     }
   }
@@ -3193,45 +3135,6 @@ Panel {
               width: parent.width
               wrapMode: Text.WordWrap
               text: "Open radar on the forecast uses this site. Custom URLs must be https."
-              color: root.dimText
-              font.family: root.bar.fontFamily
-              font.pixelSize: Style.font.bodySmall
-            }
-
-            PanelSectionHeader {
-              text: "BAR"
-              foreground: root.bar.foreground
-              fontFamily: root.bar.fontFamily
-            }
-
-            Item {
-              width: parent.width
-              height: Style.spacing.controlHeight
-
-              Text {
-                textFormat: Text.PlainText
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                text: "Show temperature"
-                color: root.bar.foreground
-                font.family: root.bar.fontFamily
-                font.pixelSize: Style.font.body
-              }
-
-              ToggleSwitch {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                checked: root.showBarTemp
-                foreground: root.bar.foreground
-                onToggled: root.persistSetting("showBarTemp", !root.showBarTemp)
-              }
-            }
-
-            Text {
-              textFormat: Text.PlainText
-              width: parent.width
-              wrapMode: Text.WordWrap
-              text: "Puts the current temperature next to the bar glyph, at the clock type size. Off keeps the glyph-only pill."
               color: root.dimText
               font.family: root.bar.fontFamily
               font.pixelSize: Style.font.bodySmall

@@ -3,6 +3,7 @@
 // collectors still refuse anything over the cap before JSON.parse.
 var MAX_JSON_BYTES = 1048576
 var MAX_PLACE_NAME_BYTES = 4096
+var DEFAULT_SETTINGS = { unit: "metric", timeFormat: "24" }
 
 function curlGet(url, maxTimeSec, maxBytes) {
   var cap = parseInt(maxBytes, 10)

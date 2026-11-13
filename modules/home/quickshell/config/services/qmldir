@@ -9,8 +9,7 @@ PopupPlacement 1.0 PopupPlacement.qml
 singleton OverlayPanels 1.0 OverlayPanels.qml
 singleton HardwareAvailability 1.0 HardwareAvailability.qml
 singleton NetworkStatus 1.0 NetworkStatus.qml
-singleton WeatherStatus 1.0 WeatherStatus.qml
-singleton WeatherCache 1.0 WeatherCache.qml
+singleton WeatherService 1.0 WeatherService.qml
 BarApi 1.0 BarApi.qml
 PanelHost 1.0 PanelHost.qml
 singleton CalendarEvents 1.0 CalendarEvents.qml

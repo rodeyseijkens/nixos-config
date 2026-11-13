@@ -1,3 +1,4 @@
+singleton Cache 1.0 Cache.qml
 MetricCard 1.0 MetricCard.qml
 MorphingWeatherLoader 1.0 MorphingWeatherLoader.qml
 PanelContent 1.0 PanelContent.qml
