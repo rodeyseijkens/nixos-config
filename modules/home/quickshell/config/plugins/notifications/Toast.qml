@@ -27,6 +27,10 @@ Item {
   property double now: Date.now()
   property real cardWidth: Style.space(380)
   property var actions: []                   // what the sender put on the wire
+  property var snoozeChoices: []             // per-source snooze lengths
+  property bool deckFront: false             // the card its deck shows in front
+  property bool showCountdown: false         // print seconds left instead of age
+  property int groupCount: 1
 
   // The pointer in the deck's coordinates: the deck owns hover, so cards and
   // their buttons work out what is under it themselves.
@@ -66,12 +70,14 @@ Item {
   signal activated()
   signal dismissed()
   signal codeCopied(string code)
+  signal snoozeRequested(var duration)
+  signal groupToggled()
   signal actionInvoked(string identifier)
   signal execInvoked(int index)
   signal linkOpened()
 
   readonly property bool critical: row.urgency === 2
-  readonly property color urgencyColor: row.urgency === 2 ? "#FB4934" : (row.urgency === 0 ? "#928374" : "#FE8019")
+  readonly property color urgencyColor: row.urgency === 2 ? Commons.Color.urgent : Commons.Color.accent
   readonly property color dimColor: Qt.darker(Commons.Color.notifications.text, 1.4)
   readonly property color bodyColor: Qt.darker(Commons.Color.notifications.text, 1.15)
   readonly property color accentColor: critical ? Commons.Color.urgent
@@ -123,6 +129,9 @@ Item {
       if (out[i].kind === "code")
         out[i].label = foundCodes.length > 1 ? I18n.t("notifications.copyThisCode", "Copy %1").arg(out[i].value)
                                              : I18n.t("notifications.copyCode", "Copy code")
+      else if (out[i].kind === "phone")
+        out[i].label = I18n.t("notifications.copyNumber", "Copy number")
+    if (row.hasInlineReply) out.push({ kind: "reply", value: "", label: I18n.t("notifications.reply", "Reply") })
     return out
   }
 
@@ -138,6 +147,8 @@ Item {
     var kind = String(deed.kind || "")
     if (kind === "action") { actionInvoked(String(deed.value)); return }
     if (kind === "exec") { execInvoked(Number(deed.value)); return }
+    if (kind === "reply") { showReplyField(); return }
+    if (kind === "snooze") { snoozeRequested(deed.value); return }
     codeCopied(String(deed.value))
     copiedCode = String(deed.value)
     tick.restart()
@@ -146,6 +157,40 @@ Item {
   // The code last copied, ticked for a moment: copying is silent.
   property string copiedCode: ""
   Timer { id: tick; interval: 1400; onTriggered: card.copiedCode = "" }
+
+  property string replyText: ""
+  property bool replyOpen: false
+  property bool snoozeMenuOpen: false
+
+  function showReplyField() {
+    replyOpen = true
+    Qt.callLater(focusReply)
+    // The deck's layer surface only becomes focusable in response to this
+    // state, so give the compositor a beat and ask again.
+    focusRetry.restart()
+  }
+
+  function focusReply() {
+    if (replyOpen && replyField)
+      replyField.forceActiveFocus()
+  }
+
+  Timer { id: focusRetry; interval: 120; onTriggered: card.focusReply() }
+
+  function submitReply() {
+    var value = String(replyText || "").trim()
+    if (!value) return
+    replySubmitted(value)
+    replyText = ""
+    replyOpen = false
+  }
+
+  function closeReply() {
+    replyText = ""
+    replyOpen = false
+  }
+
+  signal replySubmitted(string text)
 
   // Pausing holds the remaining time rather than restarting it.
   // An update (replaces_id) rewrites the row in place with a new arrival
@@ -220,15 +265,77 @@ Item {
   // card is at opacity 0 and costs no drawing; `enabled` refuses the pointer.
   enabled: !place.hidden && !place.leaving
 
+  // The card owns its own hover state: the close control and the body
+  // expansion both read it, wherever the card is drawn.
+  HoverHandler {
+    id: cardHover
+    onHoveredChanged: card.hovered = hovered
+  }
+
+  // Rounded edges drawn under the front card of a shut stack. The cards
+  // behind are paragraphs of the same deck, not messages anyone reads until
+  // it opens; drawing their edges here keeps them opaque and legible instead
+  // of letting the translucent card surface show the desktop through.
+  readonly property int peeks: !expanded && deckFront && groupCount > 1
+    ? Math.min(2, groupCount - 1) : 0
+  readonly property color stackFill: Qt.rgba(Commons.Color.notifications.background.r,
+    Commons.Color.notifications.background.g, Commons.Color.notifications.background.b, 1)
+  // Card chrome is neutral, not the theme accent: an accent outline around
+  // every notification is louder than the message inside it.
+  readonly property color lineColor: Qt.rgba(Commons.Color.notifications.text.r,
+    Commons.Color.notifications.text.g, Commons.Color.notifications.text.b, 0.22)
+
   // BorderSurface keeps gradients and per-side border widths; content below is
-  // inset by those exact widths.
+  // inset by those exact widths. A card behind the front one takes the same
+  // surface at full opacity: the deck is a stack of edges, and translucency
+  // there would show the desktop through those edges.
+  readonly property color plateColor: card.place && !card.place.front && !card.expanded
+    ? card.stackFill
+    : Commons.Color.notifications.background
+
+  Repeater {
+    model: card.peeks
+
+    Rectangle {
+      required property int index
+      z: -1
+      x: Style.space(5) * (index + 1)
+      width: card.width - 2 * x
+      y: card.height - Style.space(2) + index * Style.space(10)
+      height: Style.space(12)
+      radius: Style.cornerRadius
+      color: card.stackFill
+      border.color: card.lineColor
+      border.width: 1
+    }
+  }
+
   BorderSurface {
     id: plate
     width: body.width
     height: body.height
     radius: Style.cornerRadius
-    color: "#3C3836"
-    borderSpec: Border.flat(card.urgencyColor, "0 0 0 2")
+    color: card.plateColor
+    borderSpec: Border.flat(card.lineColor, 1)
+  }
+
+  // Time left, as a hairline that recedes across the card's top edge. The
+  // card's own clock drives it; no text competes with the message.
+  Rectangle {
+    id: timerBar
+    visible: card.showCountdown && Number(card.row.duration) > 0
+    z: 5
+    x: 0
+    y: 0
+    height: Style.space(3)
+    radius: 0
+    color: Commons.Color.notifications.text
+    opacity: 0.6
+    width: card.width
+      * Math.max(0, Math.min(1, card.remaining / Math.max(1, card.row.duration)))
+    Behavior on width {
+      NumberAnimation { duration: 500; easing.type: Easing.Linear }
+    }
   }
 
   // The keyboard's card is tinted with the theme's hover fill, buttons and all.
@@ -437,12 +544,47 @@ Item {
             anchors.verticalCenter: title.verticalCenter
             spacing: Style.space(5)
 
-            // The time and the hover close mark share one square and
-            // crossfade, so nothing in the headline moves.
+            // An open stack can be put back together from its own top card:
+            // hovering reveals a collapse control beside the dismiss one, in
+            // the same bordered square and with the same crossfade, so the
+            // pair appears and disappears as one thing. The slot is reserved
+            // for as long as the stack is open, so the headline never shifts
+            // when the pointer arrives.
             Item {
+              anchors.verticalCenter: parent.verticalCenter
+              width: card.expanded && card.deckFront && card.groupCount > 1
+                ? Style.space(18) : 0
+              height: Style.space(18)
+
+              Button {
+                id: collapseMark
+                anchors.fill: parent
+                text: "\u{f084d}"
+                bordered: true
+                horizontalPadding: Style.space(3)
+                verticalPadding: Style.space(1)
+                implicitWidth: Style.space(18)
+                implicitHeight: Style.space(18)
+                foreground: Commons.Color.notifications.text
+                fontFamily: Style.font.family
+                fontSize: Style.font.caption
+                enabled: card.hovered
+                opacity: card.hovered ? 1 : 0
+                visible: opacity > 0.01
+                Behavior on opacity {
+                  NumberAnimation { duration: card.fade; easing.type: Easing.InOutQuad }
+                }
+                onClicked: card.groupToggled()
+              }
+            }
+
+            // The age and the close control share one square and crossfade:
+            // hovering turns the timestamp into the dismiss button without
+            // moving the headline.
+            Item {
+              anchors.verticalCenter: parent.verticalCenter
               width: Math.max(stamp.implicitWidth, shut.implicitWidth)
               height: Math.max(stamp.implicitHeight, shut.implicitHeight)
-              anchors.verticalCenter: parent.verticalCenter
 
               Text {
                 textFormat: Text.PlainText
@@ -457,33 +599,23 @@ Item {
                 Behavior on opacity { NumberAnimation { duration: card.fade; easing.type: Easing.InOutQuad } }
               }
 
-              Item {
+              Button {
                 id: shut
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                implicitWidth: closeMark.implicitWidth + Style.space(6)
-                implicitHeight: closeMark.implicitHeight
+                anchors.centerIn: parent
+                text: "\u00d7"
+                bordered: true
+                horizontalPadding: Style.space(3)
+                verticalPadding: Style.space(1)
+                implicitWidth: Style.space(18)
+                implicitHeight: Style.space(18)
+                foreground: Commons.Color.notifications.text
+                fontFamily: Style.font.family
+                fontSize: Style.font.caption
                 enabled: card.hovered
                 opacity: card.hovered ? 1 : 0
                 visible: opacity > 0.01
-                readonly property bool hot: card.pointerOver(shut)
                 Behavior on opacity { NumberAnimation { duration: card.fade; easing.type: Easing.InOutQuad } }
-
-                Text {
-                  id: closeMark
-                  anchors.centerIn: parent
-                  textFormat: Text.PlainText
-                  text: "✕"
-                  color: shut.hot ? Commons.Color.notifications.text : card.dimColor
-                  font.pixelSize: Math.round(Style.font.caption * 1.44)
-                }
-
-                MouseArea {
-                  anchors.fill: parent
-                  anchors.margins: -Style.space(3)
-                  cursorShape: Qt.PointingHandCursor
-                  onClicked: card.dismissed()
-                }
+                onClicked: card.dismissed()
               }
             }
           }
@@ -517,6 +649,9 @@ Item {
           // Second gate: Markup already drops anchors it will not vouch for.
           onLinkActivated: function(url) { card.linkOpened(); Security.openExternalUrl(url) }
         }
+
+        // Reply lives in the action area below, so a card carries one reply
+        // control rather than a second, competing one beside the body.
       }
     }
 
@@ -531,7 +666,16 @@ Item {
                 leftMargin: plate.borderLeft; rightMargin: plate.borderRight
                 bottomMargin: plate.borderBottom }
 
-      readonly property bool shown: card.allDeeds.length > 0 && (card.expanded ? card.hovered : card.place.front)
+      // Never read `place` here: targetHeight feeds the layout that produces
+      // place, and reading it back would close a binding loop. Every card in
+      // an open stack carries its own buttons; a collapsed stack shows the
+      // front card's. Right-click is the source menu, which replaces the
+      // buttons while it is open.
+      readonly property bool shown: card.allDeeds.length > 0
+                                    && (card.expanded || card.sole || card.deckFront)
+      readonly property string mode: card.replyOpen ? "reply"
+                                    : card.snoozeMenuOpen ? "menu"
+                                    : (shown ? "row" : "")
       readonly property int columns: Math.max(1, Math.min(3, card.allDeeds.length))
       readonly property int rows: Math.ceil(card.allDeeds.length / columns)
       readonly property real rule: 1
@@ -540,7 +684,10 @@ Item {
       readonly property real barHeight: rows * (rule + segmentHeight)
       // What the state asks for; the drawn height is whatever slack the
       // scene has given the card so far.
-      readonly property real wanted: shown ? barHeight : 0
+      readonly property real wanted: mode === "row" ? barHeight
+                                    : mode === "menu" ? menuColumn.implicitHeight + Style.space(12)
+                                    : mode === "reply" ? replyRow.implicitHeight + Style.space(12)
+                                    : 0
       height: Math.max(0, card.drawnHeight - card.fixedHeight)
       visible: height > 0
       clip: true
@@ -550,7 +697,7 @@ Item {
         anchors.bottom: parent.bottom
         width: parent.width
         height: deedArea.barHeight
-        opacity: deedArea.shown ? 1 : 0
+        opacity: deedArea.mode === "row" ? 1 : 0
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: card.fade; easing.type: Easing.InOutQuad } }
 
@@ -579,6 +726,82 @@ Item {
           }
         }
       }
+
+      // The reply field takes the action area's place, so the message stays
+      // exactly where it was while the answer is being typed.
+      Row {
+        id: replyRow
+        visible: opacity > 0.01
+        opacity: deedArea.mode === "reply" ? 1 : 0
+        anchors { left: parent.left; right: parent.right; bottom: parent.bottom
+                  leftMargin: Style.space(8); rightMargin: Style.space(8); bottomMargin: Style.space(5) }
+        spacing: Style.space(5)
+        Behavior on opacity { NumberAnimation { duration: card.fade; easing.type: Easing.InOutQuad } }
+
+        TextField {
+          id: replyField
+          width: parent.width - sendButton.implicitWidth - parent.spacing
+          visible: card.replyOpen
+          placeholderText: String(card.row.inlineReplyPlaceholder || I18n.t("notifications.replyPlaceholder", "Reply…"))
+          text: card.replyText
+          onTextChanged: card.replyText = text
+          onAccepted: card.submitReply()
+          Keys.onEscapePressed: function(event) {
+            event.accepted = true
+            card.closeReply()
+          }
+        }
+
+        Button {
+          id: sendButton
+          text: I18n.t("notifications.send", "Send")
+          bordered: true
+          onClicked: card.submitReply()
+        }
+      }
+
+      // Right-click asks about the source rather than the message: how long to
+      // stop it talking. Drawn inside the card because a popup would be clipped
+      // by the deck's own layer surface.
+      Column {
+        id: menuColumn
+        visible: opacity > 0.01
+        opacity: deedArea.mode === "menu" ? 1 : 0
+        anchors { left: parent.left; right: parent.right; bottom: parent.bottom
+                  leftMargin: Style.space(8); rightMargin: Style.space(8); bottomMargin: Style.space(5) }
+        spacing: Style.space(2)
+        Behavior on opacity { NumberAnimation { duration: card.fade; easing.type: Easing.InOutQuad } }
+
+        Text {
+          width: parent.width
+          text: "SNOOZE · " + String(card.row.source || card.row.app || "").toUpperCase()
+          color: card.dimColor
+          elide: Text.ElideRight
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
+          font.bold: true
+          font.letterSpacing: 1
+        }
+
+        Repeater {
+          model: card.snoozeChoices
+
+          Button {
+            required property var modelData
+            width: parent.width
+            text: modelData.label
+            leftAlign: true
+            bordered: true
+            fontSize: Style.font.bodySmall
+            horizontalPadding: Style.space(6)
+            verticalPadding: Style.spacing.hairline
+            onClicked: {
+              card.snoozeMenuOpen = false
+              card.snoozeRequested(modelData.value)
+            }
+          }
+        }
+      }
     }
 
     // Under the content (z: -1) so buttons get their clicks first; anything
@@ -592,9 +815,17 @@ Item {
       cursorShape: Qt.PointingHandCursor
 
       onClicked: function(mouse) {
-        if (mouse.button === Qt.LeftButton) card.activated()
-        else card.dismissed()
+        if (mouse.button === Qt.LeftButton) {
+          // A stack in front of you is one card until you ask it to open:
+          // the first click on the front card reveals the rest.
+          if (!card.expanded && card.deckFront && card.groupCount > 1) card.groupToggled()
+          else card.activated()
+        }
+        else if (mouse.button === Qt.MiddleButton) card.dismissed()
+        else card.snoozeMenuOpen = !card.snoozeMenuOpen
       }
     }
   }
+
+  onSnoozeMenuOpenChanged: if (snoozeMenuOpen) replyOpen = false
 }

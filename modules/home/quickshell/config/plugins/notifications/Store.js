@@ -10,8 +10,9 @@ var QSIMAGE = /^image:\/\/qsimage\/[0-9]+\/[0-9]+$/
 // Everything a card draws and a history entry needs, read defensively from an
 // arbitrary sender.
 function snapshot(n, key, urgencyEnum) {
-  var expire = Number(n.expireTimeout || 0)
-  if (!isFinite(expire) || expire < 0) expire = 0
+  var expire = n.expireTimeout === undefined || n.expireTimeout === null
+    ? -1 : Number(n.expireTimeout)
+  if (!isFinite(expire)) expire = -1
   // `-i some-icon` arrives as image "image://icon/some-icon": a theme name to
   // look up, not a picture (drawn raw it is a checkerboard). Pull the name out
   // before the qsimage check discards it. An absolute path (Chromium's site
@@ -43,6 +44,8 @@ function snapshot(n, key, urgencyEnum) {
     senderPid: Number(hints["sender-pid"] || 0) || 0,
     execArgv: argv ? JSON.stringify(argv) : "",
     execActions: actions ? JSON.stringify(actions) : "",
+    hasInlineReply: n.hasInlineReply === true,
+    inlineReplyPlaceholder: Security.bounded(n.inlineReplyPlaceholder, Security.MAX_ACTION_LABEL),
     glyph: hints["shell-glyph"],
     transient: hints["transient"] === true || hints["transient"] === 1,
     app: raw.app,
@@ -56,6 +59,8 @@ function snapshot(n, key, urgencyEnum) {
     source: id.source,
     code: found.code,
     codes: found.codes,
+    phone: found.phone,
+    phones: found.phones,
     link: found.link,
     image: img,
     urgency: typeof n.urgency === "number" ? n.urgency : urgencyEnum.Normal,
@@ -65,10 +70,10 @@ function snapshot(n, key, urgencyEnum) {
 }
 
 // The fields an in-place update (replaces_id) must write through to the row.
-var ROLES = ["originalId", "senderPid", "execArgv", "execActions", "glyph", "transient", "app", "appIcon", "summary", "body", "rawBody", "bodyRich",
+var ROLES = ["originalId", "senderPid", "execArgv", "execActions", "hasInlineReply", "inlineReplyPlaceholder", "glyph", "transient", "app", "appIcon", "summary", "body", "rawBody", "bodyRich",
              "bodyLine", "source", "groupKey", "image", "urgency",
              "expireTimeout", "duration", "ts",
-             "code", "codes", "link"]
+             "code", "codes", "phone", "phones", "link"]
 
 function applyTo(model, index, row) {
   var current = model.get(index)
@@ -86,10 +91,10 @@ var RESTORE_GRACE = 20000
 // from the first row it sees and silently drops keys that row lacked, so every
 // row goes through normalise() and carries every field.
 var SHAPE = {
-  key: "", originalId: 0, senderPid: 0, execArgv: "", execActions: "", glyph: "", transient: false, app: "", appIcon: "", summary: "", body: "",
+  key: "", originalId: 0, senderPid: 0, execArgv: "", execActions: "", hasInlineReply: false, inlineReplyPlaceholder: "", glyph: "", transient: false, app: "", appIcon: "", summary: "", body: "",
   bodyRich: "", bodyLine: "", rawBody: "", source: "", groupKey: "", image: "",
-  code: "", codes: "", link: "",
-  urgency: 1, expireTimeout: 0, duration: 0, ts: 0,
+  code: "", codes: "", phone: "", phones: "", link: "",
+  urgency: 1, expireTimeout: -1, duration: 0, ts: 0,
   restored: false
 }
 
@@ -112,6 +117,7 @@ function normalise(row) {
   var actions = Security.parseExecActions(out.execActions)
   out.execActions = actions ? JSON.stringify(actions) : ""
   out.codes = out.codes.split(" ").slice(0, Security.MAX_CODES).join(" ")
+  out.phones = out.phones.split(" ").slice(0, 2).join(" ")
   // qsimage is in-process pixels; anything else must be a local path the
   // policy accepts, kept in its one canonical spelling.
   out.image = QSIMAGE.test(out.image) ? out.image : Security.localImagePath(out.image)

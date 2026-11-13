@@ -88,15 +88,46 @@ function links(text) {
   return out.slice(0, Security.MAX_CODES)
 }
 
+// A phone number only when the sender says it is one: bare digit runs are
+// order numbers, dates and build ids.
+var PHONE_WORDS = /\b(phone|tel|telephone|mobile|cell|call|whatsapp)\b/i
+var PHONE_SHAPE = /(\+?\d[\d ().-]{6,}\d)/g
+
+function phones(text) {
+  var t = Security.bounded(text, Security.MAX_BODY)
+  if (!PHONE_WORDS.test(t)) return []
+  var out = [], seen = {}, m
+  PHONE_SHAPE.lastIndex = 0
+  while ((m = PHONE_SHAPE.exec(t)) !== null) {
+    var digits = m[1].replace(/[^\d+]/g, "")
+    if (digits.replace(/\D/g, "").length < 7) continue
+    if (seen[digits]) continue
+    seen[digits] = true
+    out.push(digits)
+  }
+  return out.slice(0, 2)
+}
+
 // Everything a card might offer. The body must already have the browser's
 // origin anchor lifted off, or every Chrome card offers to open its own site.
 function scan(summary, body) {
   var text = String(summary || "") + "\n" + String(body || "")
-  var code = codes(text)
+  var phone = phones(text)
+  var phoneDigits = phone.map(function(number) { return number.replace(/\D/g, "") })
+  // A run of digits inside a phone number is not a verification code.
+  var code = codes(text).filter(function(value) {
+    var digits = String(value).replace(/[^\d]/g, "")
+    if (!digits) return true
+    for (var i = 0; i < phoneDigits.length; i++)
+      if (phoneDigits[i].indexOf(digits) !== -1) return false
+    return true
+  })
   var link = links(text)
   return {
     code: code.length ? code[0] : "",
     codes: code.join(" "),
-    link: link.length ? link[0] : ""
+    link: link.length ? link[0] : "",
+    phone: phone.length ? phone[0] : "",
+    phones: phone.join(" ")
   }
 }

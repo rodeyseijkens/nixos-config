@@ -22,12 +22,22 @@ function deeds(row, senderActions) {
   var codes = String((row && (row.codes || row.code)) || "").split(" ")
   for (var c = 0; c < codes.length; c++)
     if (codes[c]) out.push({ kind: "code", value: codes[c], label: "" })
+  var phones = String((row && (row.phones || row.phone)) || "").split(" ")
+  for (var ph = 0; ph < phones.length; ph++)
+    if (phones[ph]) out.push({ kind: "phone", value: phones[ph], label: "" })
   var exec = Security.parseExecActions(row && row.execActions) || []
   for (var e = 0; e < exec.length; e++)
     out.push({ kind: "exec", value: e, label: exec[e].label })
   var actions = senderActions || []
-  for (var i = 0; i < actions.length; i++)
-    out.push({ kind: "action", value: String(actions[i].id), label: String(actions[i].text || "") })
+  for (var i = 0; i < actions.length; i++) {
+    var actionId = String(actions[i].id || "")
+    var actionLabel = String(actions[i].text || "")
+    // A sender that says "copy" for the code it also wrote out would repeat
+    // the button the card already made for that code.
+    if (codes.length && /^copy(-code)?$/i.test(actionId) && /code/i.test(actionLabel))
+      continue
+    out.push({ kind: "action", value: actionId, label: actionLabel })
+  }
   return out
 }
 

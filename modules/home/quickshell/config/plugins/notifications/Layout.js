@@ -37,19 +37,40 @@ function compute(rows, opts) {
     var items = decks[k].rows
     var open = expanded && (opts.openDeck === undefined || opts.openDeck === decks[k].key)
     var deckTop = y
+    var groupLimit = Math.max(1, Number(opts.groupLimit) || VISIBLE)
     // Shut, every card takes the front card's height, so a taller one behind
     // does not hang out below the stack.
     var frontHeight = heightOf(items[0].key)
 
+    // A deck that cannot fit under the last one is not drawn at all. Its rows
+    // stay in the model, so the panel still lists them; the deck is a glance,
+    // not a second inbox.
+    var maxHeight = Number(opts.maxHeight) || 0
+    if (maxHeight > 0 && deckTop > 0 && deckTop + frontHeight > maxHeight) {
+      for (var h = 0; h < items.length; h++)
+        placements[items[h].key] = {
+          y: deckTop, scale: 1, opacity: 0, z: 0, front: false,
+          hidden: true, height: 0
+        }
+      continue
+    }
+
     for (var r = 0; r < items.length; r++) {
       var item = items[r]
       if (open) {
-        var height = heightOf(item.key)
+        var cardHeight = heightOf(item.key)
+        if (r >= groupLimit || (maxHeight > 0 && y + cardHeight > maxHeight)) {
+          placements[item.key] = {
+            y: deckTop, scale: 1, opacity: 0, z: -r, front: false,
+            hidden: true, height: 0
+          }
+          continue
+        }
         placements[item.key] = {
           y: y, scale: 1, opacity: 1, z: 1000 - r, front: r === 0,
-          hidden: false, height: height
+          hidden: false, height: cardHeight
         }
-        y += height + gap
+        y += cardHeight + gap
       } else {
         var drawn = r < VISIBLE
         placements[item.key] = {
@@ -70,5 +91,6 @@ function compute(rows, opts) {
     if (k < decks.length - 1) y += deckGap
   }
 
-  return { decks: decks, placements: placements, height: Math.max(0, y) }
+  return { decks: decks, placements: placements,
+           height: maxHeight > 0 ? Math.min(maxHeight, Math.max(0, y)) : Math.max(0, y) }
 }
