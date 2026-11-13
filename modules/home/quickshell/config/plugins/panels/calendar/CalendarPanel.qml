@@ -4,6 +4,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
+import "../../../"
 import "Model.js" as Model
 import "QuickAddParser.js" as QuickAddParser
 import "Strings.js" as Strings
@@ -929,8 +930,8 @@ Panel {
     readonly property int padding: Style.spacing.popupPadding
     implicitWidth: columns.width + padding * 2 + border.width * 2
     implicitHeight: leftContent.implicitHeight + padding * 2 + border.width * 2
-    color: Commons.Color.popups.background
-    border.color: Commons.Color.popups.border
+    color: Colors.base01
+    border.color: Colors.base04
     border.width: 1
     radius: Style.cornerRadius
 

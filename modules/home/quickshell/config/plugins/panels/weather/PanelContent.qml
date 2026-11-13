@@ -5,6 +5,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
+import "../../../"
 import "../../../services"
 import "."
 import "Model.js" as Model
@@ -1521,8 +1522,8 @@ Panel {
     id: panel
     width: Style.space(540)
     height: Style.spacing.controlHeight + Style.space(8) + Style.space(12) + Style.space(14) + (root.mainView === "settings" ? settingsColumn.implicitHeight : root.bodyHeight)
-    color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
+    color: Colors.base01
+    borderSpec: Border.flat(Colors.base04, 1)
     radius: Style.cornerRadius
 
     PanelKeyCatcher {

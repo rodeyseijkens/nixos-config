@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Bluetooth
 import Quickshell.Services.Pipewire
 import qs.Ui
+import "../../../"
 import qs.Commons
 import qs.Commons as Commons
 import "../../../services"
@@ -483,6 +484,15 @@ Item {
 
   implicitWidth: Style.space(380)
   implicitHeight: column.implicitHeight + padding * 2
+
+  // Same card as every other panel: the bar's background and top-border colour.
+  Rectangle {
+    anchors.fill: parent
+    color: Colors.base01
+    border.color: Colors.base04
+    border.width: 1
+    radius: Style.cornerRadius
+  }
 
   // BlueZ rejects StartDiscovery while the adapter is still powering up, and
   // discovery can also time out on its own. While the panel is open, keep

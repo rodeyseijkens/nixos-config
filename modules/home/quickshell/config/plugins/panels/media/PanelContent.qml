@@ -8,6 +8,7 @@ import Quickshell.Services.Pipewire
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
+import "../../../"
 
 // Media panel: now playing, transport controls, and per-source audio output.
 // Adapted from MEPPERDONAS/media-plus (MIT).
@@ -268,8 +269,8 @@ Item {
   BorderSurface {
     anchors.fill: parent
     radius: Style.cornerRadius
-    color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
+    color: Colors.base01
+    borderSpec: Border.flat(Colors.base04, 1)
   }
 
   Column {

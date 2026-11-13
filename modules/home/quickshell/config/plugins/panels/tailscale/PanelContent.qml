@@ -6,6 +6,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
+import "../../../"
 
 Item {
   id: root
@@ -243,8 +244,8 @@ Item {
     id: surface
     width: parent.width
     height: Math.min(column.implicitHeight + Style.spacing.panelPadding * 2, 600)
-    color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
+    color: Colors.base01
+    borderSpec: Border.flat(Colors.base04, 1)
     radius: Style.cornerRadius
 
     Flickable {

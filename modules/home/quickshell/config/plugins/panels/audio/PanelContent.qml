@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
 import qs.Ui
+import "../../../"
 import qs.Commons
 import qs.Commons as Commons
 import "../../../services"
@@ -548,8 +549,8 @@ Item {
   BorderSurface {
     id: card
     anchors.fill: parent
-    color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
+    color: Colors.base01
+    borderSpec: Border.flat(Colors.base04, 1)
     radius: Style.cornerRadius
     padding: root.padding
   }

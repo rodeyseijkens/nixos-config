@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Commons as Commons
+import "../../../"
 
 // Shows that a Flickable holds more than it shows: a fade over its bottom
 // edge while there is more below, and a thin thumb on its right edge while
@@ -11,8 +12,10 @@ Item {
 
   property Flickable flickable: null
   property color foreground: Commons.Color.foreground
-  // What the fade turns into: the surface behind the Flickable.
-  property color background: Commons.Color.popups.background
+  // What the fade turns into: the panel card behind the Flickable. It has to
+  // be the card colour, not the popups token, or the fade leaves a visible
+  // rectangle that does not match the panel.
+  property color background: Colors.base01
 
   readonly property bool scrollable: flickable !== null && flickable.contentHeight > flickable.height + 1
   readonly property bool moreBelow: scrollable

@@ -4,6 +4,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
+import "../../../"
 import "../../../services"
 import "Model.js" as Model
 import "GlobeModel.js" as Solar
@@ -701,8 +702,8 @@ Item {
   BorderSurface {
     id: card
     anchors.fill: parent
-    color: Commons.Color.popups.background
-    borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1)
+    color: Colors.base01
+    borderSpec: Border.flat(Colors.base04, 1)
     radius: Style.cornerRadius
     padding: Style.spacing.popupPadding
     clip: true
