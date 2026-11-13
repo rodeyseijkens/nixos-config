@@ -34,6 +34,23 @@ QtObject {
     locationProc.running = true
   }
 
+  // Quickshell starts a second after login, before NetworkManager has finished
+  // DHCP, so the first fetch fails and the bar stays blank until the 15-minute
+  // refresh. Retry a failed fetch quickly and back off to a one-minute cap
+  // while offline; a success hands the schedule back to refreshTimer.
+  property int retryDelay: 2000
+
+  function noteFetchResult(succeeded) {
+    if (succeeded) {
+      retryDelay = 2000
+      retryTimer.stop()
+      return
+    }
+    retryTimer.interval = retryDelay
+    retryDelay = Math.min(retryDelay * 2, 60000)
+    retryTimer.restart()
+  }
+
   function refresh() {
     if (autoLocation && detected.name === "" && detected.latitude === null)
       detectLocation()
@@ -98,12 +115,17 @@ QtObject {
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
+        var succeeded = false
         try {
           var parsed = JSON.parse(String(text || "").trim())
           var current = Model.openMeteoCurrentCondition(parsed)
-          root.icon = Model.currentIcon(current, root.icon)
-          root.tempC = Model.roundedTemp(current.temp_C)
+          if (current) {
+            root.icon = Model.currentIcon(current, root.icon)
+            root.tempC = Model.roundedTemp(current.temp_C)
+            succeeded = root.tempC !== ""
+          }
         } catch (e) {}
+        root.noteFetchResult(succeeded)
       }
     }
   }
@@ -112,12 +134,17 @@ QtObject {
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
+        var succeeded = false
         try {
           var parsed = JSON.parse(String(text || "").trim())
           var current = parsed.current_condition && parsed.current_condition[0]
-          root.icon = Model.currentIcon(current, root.icon)
-          root.tempC = Model.roundedTemp(current.temp_C)
+          if (current) {
+            root.icon = Model.currentIcon(current, root.icon)
+            root.tempC = Model.roundedTemp(current.temp_C)
+            succeeded = root.tempC !== ""
+          }
         } catch (e) {}
+        root.noteFetchResult(succeeded)
       }
     }
   }
@@ -125,6 +152,11 @@ QtObject {
   property Timer refreshTimer: Timer {
     interval: 15 * 60 * 1000
     repeat: true
+    onTriggered: root.refresh()
+  }
+
+  property Timer retryTimer: Timer {
+    repeat: false
     onTriggered: root.refresh()
   }
 }
