@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
@@ -138,6 +139,26 @@ Scope {
           }
         }
       }
+    }
+  }
+
+  IpcHandler {
+    target: "notif"
+
+    function toggle(): void {
+      NotificationService.togglePanel()
+    }
+
+    function open(): void {
+      OverlayPanels.open("notifications", NotificationService.targetDisplayName)
+    }
+
+    function close(): void {
+      if (OverlayPanels.active === "notifications") OverlayPanels.close()
+    }
+
+    function clear(): void {
+      NotificationService.clear()
     }
   }
 }
