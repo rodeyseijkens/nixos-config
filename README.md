@@ -872,6 +872,13 @@ Other dotfiles that I learned / copy from:
   - [fufexan/dotfiles](https://github.com/fufexan/dotfiles)
   - [mrh/dotfiles](https://codeberg.org/mrh/dotfiles): base waybar config
 
+- Quickshell
+  - [omarchy shell](https://github.com/omacom/omarchy/tree/quattro/shell): shell structure inspiration
+  - [omapager](https://github.com/omacom/omapager): notification inspiration
+  - [omarchy-calendar](https://github.com/tmn73/omarchy-calendar): calendar widget
+  - [omarchy-weather](https://github.com/calebhat/omarchy-weather): weather widget
+  - [omamedia-plus](https://github.com/MEPPERDONAS/omamedia-plus): media widget
+
 - README
   - [ryan4yin/nix-config](https://github.com/ryan4yin/nix-config)
   - [NotAShelf/nyx](https://github.com/NotAShelf/nyx)
