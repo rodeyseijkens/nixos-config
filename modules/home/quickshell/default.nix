@@ -26,12 +26,19 @@ in {
       };
     };
 
+    # programs.quickshell generates `After=hyprland-session.target` for its
+    # unit. A oneshot wanted by that same target is ordered Before it and the
+    # target's start job waits for the oneshot to exit, so waiting for the IPC
+    # deadlocks: target → lock unit → quickshell → target. The env import in
+    # Hyprland's startup hook runs before the target starts, so quickshell can
+    # start alongside the target instead of after it.
+    systemd.user.services.quickshell.Unit.After = lib.mkForce ["graphical-session-pre.target"];
+
     systemd.user.services.quickshell-lock-on-session = {
       Unit = {
         Description = "Lock the session after Hyprland starts";
-        # Ordering after quickshell.service would create a cycle:
-        # quickshell.service is ordered After hyprland-session.target, which
-        # itself starts this unit. The script below waits for the IPC instead.
+        After = ["quickshell.service"];
+        Wants = ["quickshell.service"];
       };
       Service = {
         Type = "oneshot";
