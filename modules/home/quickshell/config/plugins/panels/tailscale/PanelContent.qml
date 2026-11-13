@@ -13,6 +13,7 @@ Item {
 
   // ---- host contract -----------------------------------------------------
   property var settings: ({})
+  property var defaultSettings: ({})
   property string moduleName: "tailscale"
   property var bar: null
 

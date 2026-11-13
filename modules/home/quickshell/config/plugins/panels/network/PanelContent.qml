@@ -15,6 +15,7 @@ Item {
 
   // ---- host contract -----------------------------------------------------
   property var settings: ({})
+  property var defaultSettings: ({})
   property string moduleName: "network"
   property var bar: null
 

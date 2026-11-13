@@ -13,6 +13,7 @@ Item {
 
   property var bar: null
   property var settings: ({})
+  property var defaultSettings: NotificationService.defaultSettings
   property string moduleName: "notifications"
   property bool showSettings: false
 

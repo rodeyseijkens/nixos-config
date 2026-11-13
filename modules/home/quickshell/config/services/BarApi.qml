@@ -23,9 +23,6 @@ QtObject {
   readonly property color barForeground: Colors.base05
   readonly property color urgent: Colors.base08
   readonly property color background: Colors.base00
-  property var updateEntryInlineHandler: null
-  property var currentPanelItem: null
-
   readonly property bool barHidden: false
   readonly property bool hideTooltip: false
   readonly property bool traySectionDragActive: false
@@ -35,8 +32,7 @@ QtObject {
 
   readonly property QtObject shell: QtObject {
     function updateEntryInline(name, values) {
-      if (root.updateEntryInlineHandler)
-        root.updateEntryInlineHandler(name, values)
+      PanelSettings.write(name, values)
     }
     function summon(name, payload) {
       if (name === "osd") {

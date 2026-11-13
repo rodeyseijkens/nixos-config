@@ -22,6 +22,7 @@ Item {
   // ----- Host-injected context -----
   property QtObject bar: null
   property var settings: ({})
+  property var defaultSettings: ({})
   property string moduleName: "audio"
 
   // ----- Bar-widget API (for a future widget) -----

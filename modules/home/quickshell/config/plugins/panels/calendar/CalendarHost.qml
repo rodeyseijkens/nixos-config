@@ -48,8 +48,18 @@ Scope {
             calendar.panelWidth = Math.round(implicitWidth)
         }
 
+        function adoptSettingsFromStore() {
+          if (!PanelSettings.loaded) return
+          var values = PanelSettings.ensure("shell-calendar", panel.defaultSettings)
+          calendar.panelSettings = values
+          panel.settings = values
+        }
+
         onImplicitWidthChanged: adoptWidth()
-        Component.onCompleted: adoptWidth()
+        Component.onCompleted: {
+          adoptWidth()
+          adoptSettingsFromStore()
+        }
 
         Connections {
           target: PanelRouter
@@ -58,6 +68,18 @@ Scope {
               panel.open()
             else
               panel.close()
+          }
+        }
+
+        Connections {
+          target: PanelSettings
+          function onLoadedChanged(): void {
+            if (PanelSettings.loaded) panel.adoptSettingsFromStore()
+          }
+          function onChanged(name, values): void {
+            if (name !== "shell-calendar") return
+            calendar.panelSettings = values
+            panel.settings = values
           }
         }
       }

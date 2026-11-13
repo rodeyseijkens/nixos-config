@@ -11,7 +11,6 @@ Scope {
   id: root
 
   readonly property var barApi: BarApi {}
-  property var settingsStore: ({})
   property double openedAt: 0
 
   readonly property var panels: ({
@@ -30,81 +29,41 @@ Scope {
   readonly property string panelFile: current ? current.file : ""
   readonly property int panelWidth: current ? current.width : 380
 
-  // Panel settings live here, not in the panels: the shared Loader destroys a
-  // panel item when another one replaces it. Notification preferences share
-  // this store and schema, but NotificationService owns their UI and writes.
-  // Persisting this store means settings survive panel switches and restarts.
-  function writeSettings() {
-    settingsFile.setText(JSON.stringify(root.settingsStore, null, 2) + "\n")
+  function applySettingsTo(item, name): void {
+    if (!item || !PanelSettings.loaded || !name) return
+    item.settings = PanelSettings.ensure(name, item.defaultSettings || ({}))
   }
 
-  function writeSettingsEntry(name, values) {
-    root.settingsStore[name] = values
-    root.writeSettings()
+  function syncNotificationSettings(): void {
+    if (!PanelSettings.loaded) return
+    var values = PanelSettings.entry("notifications")
+    NotificationService.setSettingsFromHost(
+      values === undefined ? NotificationService.defaultSettings : values)
   }
 
-  function applySettingsToCurrent() {
-    var item = root.barApi.currentPanelItem
-    var name = OverlayPanels.active
-    if (item && name !== "" && root.settingsStore[name] !== undefined)
-      item.settings = root.settingsStore[name]
+  Component.onCompleted: {
+    NotificationService.setSettingsFromHost(NotificationService.defaultSettings)
+    syncNotificationSettings()
   }
 
-  function updateEntryInline(name, values) {
-    root.settingsStore[name] = values
-    if (root.barApi.currentPanelItem && root.barApi.currentPanelItem.moduleName === name)
-      root.barApi.currentPanelItem.settings = values
-    root.writeSettings()
-    if (name === "notifications") NotificationService.setSettingsFromHost(values)
-  }
-
+  // The notification daemon remains the owner of its settings schema. The
+  // generic store only persists its entry; this host is the small adapter
+  // between the daemon and panels.json.
   Connections {
     target: NotificationService
     function onPreferencesChanged(values): void {
-      root.updateEntryInline("notifications", values)
+      PanelSettings.write("notifications", values)
     }
   }
 
-  FileView {
-    id: settingsFile
-    path: (Quickshell.env("XDG_STATE_HOME") || ((Quickshell.env("HOME") || "") + "/.local/state"))
-      + "/quickshell/panels.json"
-    atomicWrites: true
-    watchChanges: true
-    printErrors: false
-
-    onLoaded: {
-      var parsed = null
-      try {
-        parsed = JSON.parse(text())
-      } catch (error) {
-        parsed = null
-      }
-      if (parsed && typeof parsed === "object") {
-        root.settingsStore = parsed
-        var notificationEntry = parsed.notifications
-        if (notificationEntry && typeof notificationEntry === "object")
-          NotificationService.setSettingsFromHost(notificationEntry)
-        else {
-          var defaults = NotificationService.defaultSettings
-          NotificationService.setSettingsFromHost(defaults)
-          if (defaults && Object.keys(defaults).length > 0)
-            root.writeSettingsEntry("notifications", defaults)
-        }
-      } else {
-        root.settingsStore = ({})
-        NotificationService.setSettingsFromHost(NotificationService.defaultSettings)
-      }
-      root.applySettingsToCurrent()
+  Connections {
+    target: PanelSettings
+    function onChanged(name, values): void {
+      if (name === "notifications") NotificationService.setSettingsFromHost(values)
     }
-    // A first run has no file yet. Initialize the daemon entry from its
-    // defaults, but don't write a file until the user changes a setting.
-    onLoadFailed: {
-      root.settingsStore = ({})
-      NotificationService.setSettingsFromHost(NotificationService.defaultSettings)
-      root.applySettingsToCurrent()
+    function onLoadedChanged(): void {
+      if (PanelSettings.loaded) root.syncNotificationSettings()
     }
-    onFileChanged: reload()
   }
 
   ScreenPopup {
@@ -130,36 +89,42 @@ Scope {
         anchors.fill: parent
         source: root.panelFile
 
-        onLoaded: {
-          if (!item)
-            return;
-          if (!root.settingsStore[OverlayPanels.active])
-            root.settingsStore[OverlayPanels.active] = OverlayPanels.active === "weather"
-              ? ({unit: "metric", timeFormat: "24", showBarTemp: true})
-              : ({});
-          root.barApi.currentPanelItem = item;
-          root.barApi.updateEntryInlineHandler = function(name, values) {
-            root.updateEntryInline(name, values);
-          };
-          item.bar = root.barApi;
-          item.settings = root.settingsStore[OverlayPanels.active];
-          item.moduleName = OverlayPanels.active;
-          root.openedAt = Date.now();
-          if (typeof item.open === "function")
-            item.open();
+        function prepareItem() {
+          if (!item) return
+          var name = OverlayPanels.active
+          item.bar = root.barApi
+          item.moduleName = name
+          item.settings = item.defaultSettings || ({})
+          root.applySettingsTo(item, name)
+          root.openedAt = Date.now()
+          if (typeof item.open === "function") item.open()
         }
+
+        onLoaded: prepareItem()
 
         Connections {
           target: OverlayPanels
           function onActiveChanged(): void {
-            if (!item)
-              return;
+            if (!loader.item) return
             if (OverlayPanels.active !== "")
-              root.openedAt = Date.now();
-            if (OverlayPanels.active === "" && typeof item.close === "function")
-              item.close();
-            item.bar = root.barApi;
-            item.moduleName = OverlayPanels.active;
+              root.openedAt = Date.now()
+            if (OverlayPanels.active === "" && typeof loader.item.close === "function")
+              loader.item.close()
+            loader.item.bar = root.barApi
+            loader.item.moduleName = OverlayPanels.active
+            root.applySettingsTo(loader.item, OverlayPanels.active)
+          }
+        }
+
+        Connections {
+          target: PanelSettings
+          function onChanged(name, values): void {
+            if (loader.item && name === OverlayPanels.active)
+              loader.item.settings = values
+          }
+          function onLoadedChanged(): void {
+            if (PanelSettings.loaded)
+              root.applySettingsTo(loader.item, OverlayPanels.active)
           }
         }
       }

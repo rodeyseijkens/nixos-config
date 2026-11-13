@@ -20,6 +20,7 @@ Item {
   // ---- host surface ------------------------------------------------------
   property QtObject bar: null
   property var settings: ({})
+  property var defaultSettings: ({})
   property string moduleName: "elsewhen"
 
   implicitWidth: Style.space(380)

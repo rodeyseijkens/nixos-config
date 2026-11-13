@@ -13,6 +13,7 @@ Item {
   property QtObject bar: null
   property string moduleName: ""
   property var settings: ({})
+  property var defaultSettings: ({})
   property string ipcTarget: ""
   property bool manageIpc: true
   property alias controller: panelController

@@ -18,6 +18,7 @@ Item {
   // ---- host contract -----------------------------------------------------
   property var bar: null
   property var settings: ({})
+  property var defaultSettings: ({})
   property string moduleName: "media"
 
   readonly property color foreground: bar ? bar.foreground : Commons.Color.foreground

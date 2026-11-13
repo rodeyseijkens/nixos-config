@@ -1,4 +1,5 @@
 singleton PanelRouter 1.0 PanelRouter.qml
+singleton PanelSettings 1.0 PanelSettings.qml
 singleton Preferences 1.0 Preferences.qml
 singleton OsdBus 1.0 OsdBus.qml
 singleton Audio 1.0 Audio.qml
