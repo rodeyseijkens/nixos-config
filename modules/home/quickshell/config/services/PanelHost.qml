@@ -2,6 +2,7 @@ import Quickshell.Io
 import Quickshell
 import QtQuick
 import qs.Commons
+import "../plugins/notifications"
 
 // PanelHost: one ScreenPopup that renders whichever overlay panel is active.
 // Vendored panel content lives in plugins/panels/<Name>/PanelContent.qml and
@@ -15,7 +16,7 @@ Scope {
 
   readonly property var panels: ({
     elsewhen: {file: "../plugins/panels/elsewhen/PanelContent.qml", width: 430},
-    notifications: {file: "../plugins/notifications/PanelContent.qml", width: 340},
+    notifications: {file: "../plugins/notifications/PanelContent.qml", width: 380},
     audio: {file: "../plugins/panels/audio/PanelContent.qml", width: 390},
     bluetooth: {file: "../plugins/panels/bluetooth/PanelContent.qml", width: 390},
     network: {file: "../plugins/panels/network/PanelContent.qml", width: 400},
@@ -30,11 +31,16 @@ Scope {
   readonly property int panelWidth: current ? current.width : 380
 
   // Panel settings live here, not in the panels: the shared Loader destroys a
-  // panel item when another one replaces it. Persisting this store means a
-  // city list, calendar filter, or weather unit survives both that and a
-  // shell restart.
+  // panel item when another one replaces it. Notification preferences share
+  // this store and schema, but NotificationService owns their UI and writes.
+  // Persisting this store means settings survive panel switches and restarts.
   function writeSettings() {
     settingsFile.setText(JSON.stringify(root.settingsStore, null, 2) + "\n")
+  }
+
+  function writeSettingsEntry(name, values) {
+    root.settingsStore[name] = values
+    root.writeSettings()
   }
 
   function applySettingsToCurrent() {
@@ -42,6 +48,21 @@ Scope {
     var name = OverlayPanels.active
     if (item && name !== "" && root.settingsStore[name] !== undefined)
       item.settings = root.settingsStore[name]
+  }
+
+  function updateEntryInline(name, values) {
+    root.settingsStore[name] = values
+    if (root.barApi.currentPanelItem && root.barApi.currentPanelItem.moduleName === name)
+      root.barApi.currentPanelItem.settings = values
+    root.writeSettings()
+    if (name === "notifications") NotificationService.setSettingsFromHost(values)
+  }
+
+  Connections {
+    target: NotificationService
+    function onPreferencesChanged(values): void {
+      root.updateEntryInline("notifications", values)
+    }
   }
 
   FileView {
@@ -59,12 +80,30 @@ Scope {
       } catch (error) {
         parsed = null
       }
-      if (parsed && typeof parsed === "object")
+      if (parsed && typeof parsed === "object") {
         root.settingsStore = parsed
+        var notificationEntry = parsed.notifications
+        if (notificationEntry && typeof notificationEntry === "object")
+          NotificationService.setSettingsFromHost(notificationEntry)
+        else {
+          var defaults = NotificationService.defaultSettings
+          NotificationService.setSettingsFromHost(defaults)
+          if (defaults && Object.keys(defaults).length > 0)
+            root.writeSettingsEntry("notifications", defaults)
+        }
+      } else {
+        root.settingsStore = ({})
+        NotificationService.setSettingsFromHost(NotificationService.defaultSettings)
+      }
       root.applySettingsToCurrent()
     }
-    // A first run has no file yet; the first settings change creates it.
-    onLoadFailed: {}
+    // A first run has no file yet. Initialize the daemon entry from its
+    // defaults, but don't write a file until the user changes a setting.
+    onLoadFailed: {
+      root.settingsStore = ({})
+      NotificationService.setSettingsFromHost(NotificationService.defaultSettings)
+      root.applySettingsToCurrent()
+    }
     onFileChanged: reload()
   }
 
@@ -100,10 +139,7 @@ Scope {
               : ({});
           root.barApi.currentPanelItem = item;
           root.barApi.updateEntryInlineHandler = function(name, values) {
-            root.settingsStore[name] = values;
-            if (root.barApi.currentPanelItem && root.barApi.currentPanelItem.moduleName === name)
-              root.barApi.currentPanelItem.settings = values;
-            root.writeSettings();
+            root.updateEntryInline(name, values);
           };
           item.bar = root.barApi;
           item.settings = root.settingsStore[OverlayPanels.active];
