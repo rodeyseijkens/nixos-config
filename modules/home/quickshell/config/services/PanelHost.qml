@@ -3,10 +3,12 @@ import Quickshell
 import QtQuick
 import qs.Commons
 import "../plugins/notifications"
+import "../plugins/panels/calendar"
 
 // PanelHost: one ScreenPopup that renders whichever overlay panel is active.
-// Vendored panel content lives in plugins/panels/<Name>/PanelContent.qml and
-// receives the BarApi instance through its `bar` property.
+// Panel content lives under plugins/panels (or plugins/notifications) and
+// receives the BarApi instance through its `bar` property; switching panels
+// changes that one popup instead of opening a separate window.
 Scope {
   id: root
 
@@ -22,16 +24,41 @@ Scope {
     power: {file: "../plugins/panels/power/PanelContent.qml", width: 350},
     media: {file: "../plugins/panels/media/PanelContent.qml", width: 400},
     weather: {file: "../plugins/panels/weather/PanelContent.qml", width: 540},
-    tailscale: {file: "../plugins/panels/tailscale/PanelContent.qml", width: 390}
+    tailscale: {file: "../plugins/panels/tailscale/PanelContent.qml", width: 390},
+    // The calendar keeps its old settings entry, and sizes itself to its
+    // columns because the agenda can sit beside or below the month.
+    calendar: {
+      file: "../plugins/panels/calendar/CalendarPanel.qml",
+      width: 815,
+      settingsName: "shell-calendar",
+      measureWidth: true
+    }
   })
 
   readonly property var current: panels[OverlayPanels.active] ?? null
   readonly property string panelFile: current ? current.file : ""
-  readonly property int panelWidth: current ? current.width : 380
+  property real measuredPanelWidth: 0
+  readonly property int panelWidth: current
+    ? (current.measureWidth === true && measuredPanelWidth > 0
+      ? Math.max(320, Math.round(measuredPanelWidth))
+      : current.width)
+    : 380
+
+  // Some panels keep their historical settings key, so panel names and
+  // stored entries do not have to match.
+  function settingsEntryName(name: string): string {
+    var panel = root.panels[name]
+    return panel && panel.settingsName ? panel.settingsName : name
+  }
 
   function applySettingsTo(item, name): void {
     if (!item || !PanelSettings.loaded || !name) return
-    item.settings = PanelSettings.ensure(name, item.defaultSettings || ({}))
+    item.settings = PanelSettings.ensure(root.settingsEntryName(name), item.defaultSettings || ({}))
+  }
+
+  function syncMeasuredWidth(item): void {
+    if (!item || !root.current || root.current.measureWidth !== true) return
+    if (item.implicitWidth > 0) root.measuredPanelWidth = item.implicitWidth
   }
 
   function syncNotificationSettings(): void {
@@ -93,14 +120,22 @@ Scope {
           if (!item) return
           var name = OverlayPanels.active
           item.bar = root.barApi
-          item.moduleName = name
+          item.moduleName = root.settingsEntryName(name)
           item.settings = item.defaultSettings || ({})
           root.applySettingsTo(item, name)
+          root.syncMeasuredWidth(item)
           root.openedAt = Date.now()
           if (typeof item.open === "function") item.open()
         }
 
         onLoaded: prepareItem()
+
+        Connections {
+          target: loader.item
+          function onImplicitWidthChanged(): void {
+            root.syncMeasuredWidth(loader.item)
+          }
+        }
 
         Connections {
           target: OverlayPanels
@@ -111,15 +146,16 @@ Scope {
             if (OverlayPanels.active === "" && typeof loader.item.close === "function")
               loader.item.close()
             loader.item.bar = root.barApi
-            loader.item.moduleName = OverlayPanels.active
+            loader.item.moduleName = root.settingsEntryName(OverlayPanels.active)
             root.applySettingsTo(loader.item, OverlayPanels.active)
+            root.syncMeasuredWidth(loader.item)
           }
         }
 
         Connections {
           target: PanelSettings
           function onChanged(name, values): void {
-            if (loader.item && name === OverlayPanels.active)
+            if (loader.item && name === root.settingsEntryName(OverlayPanels.active))
               loader.item.settings = values
           }
           function onLoadedChanged(): void {
@@ -146,6 +182,19 @@ Scope {
 
     function close(): void {
       OverlayPanels.close();
+    }
+  }
+
+  // The calendar had its own IPC target before joining the shared popup.
+  IpcHandler {
+    target: "calendar"
+
+    function toggle(): void {
+      OverlayPanels.toggle("calendar");
+    }
+
+    function toggleOn(screen: string): void {
+      OverlayPanels.toggle("calendar", screen);
     }
   }
 }

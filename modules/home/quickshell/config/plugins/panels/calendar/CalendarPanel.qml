@@ -5,6 +5,7 @@ import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
 import "../../../"
+import "../../../services"
 import "Model.js" as Model
 import "QuickAddParser.js" as QuickAddParser
 import "Strings.js" as Strings
@@ -15,8 +16,8 @@ import "Strings.js" as Strings
 // state, the events file, the settings, the keyboard and the write path; the
 // columns draw what they are handed and signal back.
 //
-// CalendarHost.qml hosts this panel in the shell's shared ScreenPopup; the
-// card itself is the Rectangle below.
+// PanelHost.qml hosts this panel in the shell's shared ScreenPopup; the card
+// itself is the Rectangle below.
 Panel {
   id: root
   moduleName: "shell-calendar"
@@ -444,8 +445,15 @@ Panel {
     if (root.formOpen) root.closeForm()
   }
 
+  // A panel-local action that leaves the calendar (Escape, a meeting link)
+  // has to close the shared popup too, not just this panel's controller.
+  function dismiss() {
+    if (OverlayPanels.active === "calendar") OverlayPanels.close()
+    else root.close()
+  }
+
   function toggle() {
-    if (root.opened) root.close()
+    if (root.opened) root.dismiss()
     else root.open()
   }
 
@@ -549,7 +557,7 @@ Panel {
     else if (root.detailsOpen && root.selectedItem) root.detailsOpen = false
     else if (root.selectedEventId !== "") root.selectedEventId = ""
     else if (root.settingsOpen) root.settingsOpen = false
-    else root.close()
+    else root.dismiss()
   }
 
   function handleTextKey(t) {
@@ -578,7 +586,7 @@ Panel {
     var safe = Model.safeUrl(url)
     if (!safe) return
     Qt.openUrlExternally(safe)
-    root.close()
+    root.dismiss()
   }
 
   function joinItem(item) {

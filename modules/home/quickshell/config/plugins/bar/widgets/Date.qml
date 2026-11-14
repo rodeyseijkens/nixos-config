@@ -26,9 +26,6 @@ Text {
     hoverEnabled: true
     onEntered: root.opacity = 0.6
     onExited: root.opacity = 1.0
-    onClicked: {
-      var context = OverlayPanels.contextFrom(root)
-      PanelRouter.toggleCalendar(context.screenName, context.anchorX)
-    }
+    onClicked: OverlayPanels.toggleFrom(root, "calendar")
   }
 }
