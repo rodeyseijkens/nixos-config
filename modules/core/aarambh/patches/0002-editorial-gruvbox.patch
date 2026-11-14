@@ -1,0 +1,143 @@
+From 5129f739ec1f12b7559a10aa55e4d381eff79c62 Mon Sep 17 00:00:00 2001
+From: Rodey Seijkens <me@rodey.nl>
+Date: Sat, 14 Nov 2026 18:45:08 +0100
+Subject: [PATCH 2/2] feat(theme): add editorial-gruvbox theme
+
+Add editorial-gruvbox next to editorial-dark: the same magazine layout,
+with paper, ink and accent colours from
+src/themes/editorial/editorial_gruvbox_palette.h.
+
+The header in this commit is a build stub (paper 0x3C3836, ink 0xEBDBB2,
+accent 0x98971A). The Nix package generates the same file from
+config.lib.stylix.colors at build time, defining EDITORIAL_GRUVBOX_PAPER,
+EDITORIAL_GRUVBOX_INK and EDITORIAL_GRUVBOX_ACCENT, and overwrites it
+before compiling.
+
+The dark variant's muted text colour (0x9a9284) and EDIT_FRAME_RULES are
+kept for the new theme. editorial and editorial-dark are unchanged.
+---
+ src/core/theme_registry.c                     |  2 ++
+ src/themes/editorial/editorial.c              | 25 +++++++++++++++++++
+ .../editorial/editorial_gruvbox_palette.h     | 13 ++++++++++
+ tests/qemu/run.sh                             |  2 +-
+ 4 files changed, 41 insertions(+), 1 deletion(-)
+ create mode 100644 src/themes/editorial/editorial_gruvbox_palette.h
+
+diff --git a/src/core/theme_registry.c b/src/core/theme_registry.c
+index eb4137e..e238524 100644
+--- a/src/core/theme_registry.c
++++ b/src/core/theme_registry.c
+@@ -7,6 +7,7 @@ extern const Theme minimal_theme;
+ extern const Theme glass_sidebar_theme;
+ extern const Theme editorial_theme;
+ extern const Theme editorial_dark_theme;
++extern const Theme editorial_gruvbox_theme;
+ extern const Theme cinema_theme;
+ extern const Theme honeycomb_theme;
+ extern const Theme constellation_theme;
+@@ -22,6 +23,7 @@ static const Theme *const themes[] = {
+     &glass_sidebar_theme,
+     &editorial_theme,
+     &editorial_dark_theme,
++    &editorial_gruvbox_theme,
+     &cinema_theme,
+     &honeycomb_theme,
+     &constellation_theme,
+diff --git a/src/themes/editorial/editorial.c b/src/themes/editorial/editorial.c
+index 519f26e..bcdf38e 100644
+--- a/src/themes/editorial/editorial.c
++++ b/src/themes/editorial/editorial.c
+@@ -1,6 +1,7 @@
+ #include "aarambh/theme_kit.h"
+ 
+ #include "lib/str.h"
++#include "themes/editorial/editorial_gruvbox_palette.h"
+ 
+ #define EDITORIAL_NAMES 3
+ #define EDITORIAL_ROW   74.0f
+@@ -13,6 +14,9 @@ typedef struct {
+ 
+ static const EditorialPalette editorial_light = { 0xefe9dd, 0x141210, 0xe63b2e };
+ static const EditorialPalette editorial_dark = { 0x15130f, 0xebe3d2, 0xff5a45 };
++static const EditorialPalette editorial_gruvbox = {
++    EDITORIAL_GRUVBOX_PAPER, EDITORIAL_GRUVBOX_INK, EDITORIAL_GRUVBOX_ACCENT
++};
+ 
+ typedef struct {
+     const EditorialPalette *palette;
+@@ -86,6 +90,12 @@ static void editorial_dark_load(const ThemeContext *context)
+     editorial_load_faces(context);
+ }
+ 
++static void editorial_gruvbox_load(const ThemeContext *context)
++{
++    editorial.palette = &editorial_gruvbox;
++    editorial_load_faces(context);
++}
++
+ static void two_digits(char *output, int value)
+ {
+     output[0] = (char)('0' + (value / 10) % 10);
+@@ -232,6 +242,11 @@ static const EditColors editorial_dark_edit = {
+     0x15130f, 0x15130f, 0xff5a45, 0xebe3d2, 0x9a9284, EDIT_FRAME_RULES
+ };
+ 
++static const EditColors editorial_gruvbox_edit = {
++    EDITORIAL_GRUVBOX_PAPER, EDITORIAL_GRUVBOX_PAPER, EDITORIAL_GRUVBOX_ACCENT,
++    EDITORIAL_GRUVBOX_INK, 0x9a9284, EDIT_FRAME_RULES
++};
++
+ const Theme editorial_theme = {
+     .name = "editorial",
+     .list_rows = KIT_LIST_ROWS,
+@@ -250,4 +265,14 @@ const Theme editorial_dark_theme = {
+     .edit = &editorial_dark_edit,
+     .load = editorial_dark_load,
+     .render = editorial_render
++};
++
++const Theme editorial_gruvbox_theme = {
++    .name = "editorial-gruvbox",
++    .list_rows = KIT_LIST_ROWS,
++    .vertical_navigation = 1,
++    .down_opens_list = 0,
++    .edit = &editorial_gruvbox_edit,
++    .load = editorial_gruvbox_load,
++    .render = editorial_render
+ };
+\ No newline at end of file
+diff --git a/src/themes/editorial/editorial_gruvbox_palette.h b/src/themes/editorial/editorial_gruvbox_palette.h
+new file mode 100644
+index 0000000..33ba536
+--- /dev/null
++++ b/src/themes/editorial/editorial_gruvbox_palette.h
+@@ -0,0 +1,13 @@
++#ifndef AARAMBH_THEMES_EDITORIAL_GRUVBOX_PALETTE_H
++#define AARAMBH_THEMES_EDITORIAL_GRUVBOX_PALETTE_H
++
++/*
++ * Placeholder palette for the scratch build. The Nix package overwrites this
++ * file with the Stylix colours before compiling, keeping these three names.
++ * paper = base01, ink = base06, accent = base0D.
++ */
++#define EDITORIAL_GRUVBOX_PAPER  0x3C3836
++#define EDITORIAL_GRUVBOX_INK    0xEBDBB2
++#define EDITORIAL_GRUVBOX_ACCENT 0x98971A
++
++#endif
+diff --git a/tests/qemu/run.sh b/tests/qemu/run.sh
+index c2a3991..afc3029 100755
+--- a/tests/qemu/run.sh
++++ b/tests/qemu/run.sh
+@@ -24,7 +24,7 @@ VARS="$WORK_DIR/vars.fd"
+ OVMF_DIR="${OVMF_DIR:-/usr/share/OVMF}"
+ ESP_DIR="::/EFI/aarambh"
+ CONFIG="$WORK_DIR/aarambh.conf"
+-THEMES="accordion minimal glass-sidebar editorial editorial-dark cinema honeycomb constellation picker-wheel dial hud departures gallery"
++THEMES="accordion minimal glass-sidebar editorial editorial-dark editorial-gruvbox cinema honeycomb constellation picker-wheel dial hud departures gallery"
+ 
+ export MTOOLS_SKIP_CHECK=1
+ 
+-- 
+2.56.0
+

@@ -3,6 +3,7 @@
     ./drivers/amd-drivers.nix
     ./drivers/nvidia-drivers.nix
     ./bootloader.nix
+    ./aarambh.nix
     ./hardware.nix
     ./xserver.nix
     ./network.nix

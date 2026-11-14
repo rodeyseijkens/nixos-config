@@ -1,0 +1,1414 @@
+From 5e6a6fce2e7da28f435e39c8567dc773361d2304 Mon Sep 17 00:00:00 2001
+From: Rodey Seijkens <me@rodey.nl>
+Date: Sat, 14 Nov 2026 18:45:03 +0100
+Subject: [PATCH 1/2] feat(autodetect): scan every UEFI volume, key entries by
+ volume and path
+
+Enumerate EFI_SIMPLE_FILE_SYSTEM_PROTOCOL handles and scan \EFI on each
+volume instead of only the image's own. A volume is identified by the GPT
+partition GUID in the device path HD node, or by the device path bytes when
+there is no HD node.
+
+Add "volume <name> partuuid=<guid>" config lines and the @<name>: loader
+prefix. Entries without the prefix keep their current meaning. Autodetect
+skips a loader that an explicit entry already starts from the same volume
+and path, and hides the image's own systemd-boot.
+
+Volume-qualified loaders are read and loaded from the named volume's device
+path. Every identity, path and skip comparison ignores case, because FAT
+does, so \EFI\MICROSOFT\Boot\bootmgfw.efi and \EFI\MICROSOFT\BOOT\BOOTMGFW.EFI
+dedupe to one entry.
+
+The unit suite gains volume line parsing, @name: parsing, (volume, path)
+dedupe and autodetect skip tests.
+---
+ config/aarambh.conf        |   8 +
+ include/aarambh/entry.h    |   4 +
+ src/boot/image_loader.c    |  26 ++-
+ src/boot/image_loader.h    |   3 +-
+ src/boot/launcher.c        |   2 +-
+ src/core/autodetect.c      |  63 +++++--
+ src/core/autodetect.h      |   8 +
+ src/core/config.c          |   4 +-
+ src/core/config.h          |   1 +
+ src/core/entries.c         | 286 +++++++++++++++++++++++++++-----
+ src/core/entries.h         |  21 ++-
+ src/efi/fs.c               | 331 ++++++++++++++++++++++++++++++++++++-
+ src/efi/fs.h               |  17 ++
+ tests/unit/config_test.c   |   2 +
+ tests/unit/fs_test.c       |   5 +
+ tests/unit/launcher_test.c |   2 +-
+ tests/unit/run.sh          |   3 +-
+ tests/unit/volumes_test.c  | 169 +++++++++++++++++++
+ 18 files changed, 889 insertions(+), 66 deletions(-)
+ create mode 100644 tests/unit/volumes_test.c
+
+diff --git a/config/aarambh.conf b/config/aarambh.conf
+index ba54bd6..c6a09c0 100644
+--- a/config/aarambh.conf
++++ b/config/aarambh.conf
+@@ -8,6 +8,14 @@
+ #   key         OS id (/etc/os-release ID), used for <key>.kernels
+ #   accent      Optional color, e.g. #e95420
+ #
++# volume <name> partuuid=<guid>
++#
++#   Declares another ESP by its GPT partition UUID. Write that volume's loader
++#   as @<name>:\EFI\... ; loaders without the prefix stay on this ESP.
++#
++#   volume work partuuid=4a512320-ad94-44b6-883f-ba9c8a3335c2
++#   entry NixOS (work) | @work:\EFI\SYSTEMD\SYSTEMD-BOOTX64.EFI | logos/nixos.png | backgrounds/nixos.jpg | nixos-work
++#
+ # Linux entries are added by hooks/setup.sh on each installation. With
+ # "autodetect yes", loaders found under \EFI\ that no entry uses (Windows,
+ # other Linux installs) are added at boot.
+diff --git a/include/aarambh/entry.h b/include/aarambh/entry.h
+index 89ca6cf..b82616b 100644
+--- a/include/aarambh/entry.h
++++ b/include/aarambh/entry.h
+@@ -7,6 +7,8 @@
+ 
+ #define AARAMBH_MAX_ENTRIES 10
+ #define AARAMBH_MAX_KERNELS 16
++/* Room for a GPT partition GUID or a device path used as a volume identity. */
++#define AARAMBH_VOLUME_ID_MAX 96
+ 
+ typedef enum {
+     ENTRY_ACTION_EFI,
+@@ -47,6 +49,8 @@ typedef struct {
+     char background_name[128];
+     char key[32];
+     CHAR16 loader[256];
++    /* GPT partition GUID of the loader's volume; empty means this image's own. */
++    char volume[AARAMBH_VOLUME_ID_MAX];
+     EntryAction action;
+     UINT32 accent;
+     Image logo;
+diff --git a/src/boot/image_loader.c b/src/boot/image_loader.c
+index 003eff4..c5ba4f8 100644
+--- a/src/boot/image_loader.c
++++ b/src/boot/image_loader.c
+@@ -8,22 +8,31 @@
+ #include "efi/system.h"
+ #include "efi/video.h"
+ #include "lib/memory.h"
++#include "lib/str.h"
+ 
+-EFI_STATUS image_loader_load(const CHAR16 *path, EFI_HANDLE *child)
++static EFI_STATUS load_from(const CHAR16 *path, const char *volume, EFI_HANDLE *child)
+ {
+     EFI_DEVICE_PATH *device_path;
++    EFI_HANDLE device;
+     EFI_STATUS status;
+     void *buffer;
+     UINTN size;
+ 
+     *child = NULL;
+ 
+-    buffer = fs_read_path(path, &size);
++    if (str_is_empty(volume)) {
++        device = system_device_handle();
++        buffer = fs_read_path(path, &size);
++    } else {
++        device = fs_volume_handle(volume);
++        buffer = fs_read_volume(volume, path, &size);
++    }
++
+     if (buffer == NULL) {
+         return EFI_NOT_FOUND;
+     }
+ 
+-    device_path = FileDevicePath(system_device_handle(), (CHAR16 *)path);
++    device_path = device == NULL ? NULL : FileDevicePath(device, (CHAR16 *)path);
+     if (device_path == NULL) {
+         mem_free(buffer);
+         return EFI_NOT_FOUND;
+@@ -39,16 +48,21 @@ EFI_STATUS image_loader_load(const CHAR16 *path, EFI_HANDLE *child)
+     return status;
+ }
+ 
+-EFI_STATUS image_loader_start(const CHAR16 *path)
++EFI_STATUS image_loader_load(const CHAR16 *path, EFI_HANDLE *child)
++{
++    return load_from(path, "", child);
++}
++
++EFI_STATUS image_loader_start(const CHAR16 *path, const char *volume)
+ {
+     EFI_HANDLE child;
+     EFI_STATUS status;
+ 
+-    status = image_loader_load(path, &child);
++    status = load_from(path, volume, &child);
+     if (EFI_ERROR(status)) {
+         return status;
+     }
+ 
+     video_release();
+     return BS->StartImage(child, NULL, NULL);
+-}
+\ No newline at end of file
++}
+diff --git a/src/boot/image_loader.h b/src/boot/image_loader.h
+index f15e938..68e7dd8 100644
+--- a/src/boot/image_loader.h
++++ b/src/boot/image_loader.h
+@@ -3,7 +3,8 @@
+ 
+ #include <efi.h>
+ 
++/* `volume` is a volume identity from aarambh.conf; empty means this volume. */
+ EFI_STATUS image_loader_load(const CHAR16 *path, EFI_HANDLE *child);
+-EFI_STATUS image_loader_start(const CHAR16 *path);
++EFI_STATUS image_loader_start(const CHAR16 *path, const char *volume);
+ 
+ #endif
+diff --git a/src/boot/launcher.c b/src/boot/launcher.c
+index 3e1f3b8..f1435d7 100644
+--- a/src/boot/launcher.c
++++ b/src/boot/launcher.c
+@@ -66,5 +66,5 @@ LaunchError launcher_run(const Entry *entry, int kernel, const char *cmdline,
+         return LAUNCH_CHOICE_NOT_SAVED;
+     }
+ 
+-    return launch_error(image_loader_start(entry->loader));
++    return launch_error(image_loader_start(entry->loader, entry->volume));
+ }
+\ No newline at end of file
+diff --git a/src/core/autodetect.c b/src/core/autodetect.c
+index 1f0f7cb..df7abdc 100644
+--- a/src/core/autodetect.c
++++ b/src/core/autodetect.c
+@@ -13,6 +13,9 @@ typedef struct {
+ 
+ typedef struct {
+     EntryList *list;
++    int volume_index;
++    const char *volume;
++    int own_volume;
+ } ScanContext;
+ 
+ static const KnownLoader known_loaders[] = {
+@@ -74,6 +77,18 @@ static int names_match(const char *left, const char *right)
+     return str_length(left) == str_length(right) && str_starts_with_nocase(left, right);
+ }
+ 
++static int ends_with_nocase(const char *text, const char *suffix)
++{
++    int text_length = (int)str_length(text);
++    int suffix_length = (int)str_length(suffix);
++
++    if (suffix_length > text_length) {
++        return 0;
++    }
++
++    return str_starts_with_nocase(text + text_length - suffix_length, suffix);
++}
++
+ static int is_skipped(const char *directory)
+ {
+     int count = (int)(sizeof(skipped_directories) / sizeof(skipped_directories[0]));
+@@ -102,7 +117,7 @@ static const KnownLoader *find_known(const char *directory)
+     return NULL;
+ }
+ 
+-static int find_loader(const char *directory, char *loader, int capacity)
++static int find_loader(const ScanContext *scan, const char *directory, char *loader, int capacity)
+ {
+     int count = (int)(sizeof(loader_candidates) / sizeof(loader_candidates[0]));
+     int i;
+@@ -116,7 +131,7 @@ static int find_loader(const char *directory, char *loader, int capacity)
+         str_append(loader, loader_candidates[i], capacity);
+ 
+         fs_make_path(path, FS_PATH_MAX, loader);
+-        if (fs_exists(path)) {
++        if (fs_volume_exists(scan->volume_index, path)) {
+             return 1;
+         }
+     }
+@@ -141,7 +156,8 @@ static void lowercase(char *output, const char *input, int capacity)
+     output[i] = '\0';
+ }
+ 
+-static void add_detected(EntryList *list, const char *directory, const char *loader)
++static void add_detected(EntryList *list, const char *directory, const char *loader,
++                         const char *volume)
+ {
+     const KnownLoader *known = find_known(directory);
+     char title[NAME_MAX];
+@@ -175,11 +191,23 @@ static void add_detected(EntryList *list, const char *directory, const char *loa
+     fields[3] = background;
+     fields[4] = key;
+ 
+-    entries_add(list, fields, 5);
++    entries_add_detected(list, fields, 5, volume);
++}
+ 
+-    if (list->count > 0) {
+-        list->items[list->count - 1].autodetected = 1;
++/*
++ * An explicit entry that starts the same loader from the same volume wins.
++ * The image's own systemd-boot stays hidden: the firmware already reaches it
++ * as the fallback entry.
++ */
++int autodetect_should_skip(const EntryList *list, const char *volume, int own_volume,
++                           const char *directory, const char *loader)
++{
++    if (own_volume && names_match(directory, "systemd")
++        && ends_with_nocase(loader, "\\systemd-bootx64.efi")) {
++        return 1;
+     }
++
++    return entries_uses_target(list, volume, loader);
+ }
+ 
+ static int scan_directory(const CHAR16 *name, int is_directory, void *context)
+@@ -198,12 +226,13 @@ static int scan_directory(const CHAR16 *name, int is_directory, void *context)
+ 
+     to_ascii(directory, name, sizeof(directory));
+ 
+-    if (is_skipped(directory) || entries_uses_directory(scan->list, directory)) {
++    if (is_skipped(directory)) {
+         return 1;
+     }
+ 
+-    if (find_loader(directory, loader, sizeof(loader))) {
+-        add_detected(scan->list, directory, loader);
++    if (find_loader(scan, directory, loader, sizeof(loader))
++        && !autodetect_should_skip(scan->list, scan->volume, scan->own_volume, directory, loader)) {
++        add_detected(scan->list, directory, loader, scan->volume);
+     }
+ 
+     return 1;
+@@ -212,7 +241,17 @@ static int scan_directory(const CHAR16 *name, int is_directory, void *context)
+ void autodetect_entries(EntryList *list)
+ {
+     ScanContext context;
++    int count = fs_volumes_scan();
++    int i;
++
++    for (i = 0; i < count; i++) {
++        int own = fs_volume_is_own(i);
++
++        context.list = list;
++        context.volume_index = i;
++        context.volume = own ? "" : fs_volume_id(i);
++        context.own_volume = own;
+ 
+-    context.list = list;
+-    fs_list_directory(L"\\EFI", scan_directory, &context);
+-}
+\ No newline at end of file
++        fs_volume_list_directory(i, L"\\EFI", scan_directory, &context);
++    }
++}
+diff --git a/src/core/autodetect.h b/src/core/autodetect.h
+index 1cce041..d2df986 100644
+--- a/src/core/autodetect.h
++++ b/src/core/autodetect.h
+@@ -10,4 +10,12 @@
+  */
+ void autodetect_entries(EntryList *list);
+ 
++/*
++ * 1 when an autodetected loader at `directory` on `volume` should not become
++ * an entry: an explicit entry already covers it, or it is the image's own
++ * systemd-boot. `own_volume` marks the volume Aarambh itself was loaded from.
++ */
++int autodetect_should_skip(const EntryList *list, const char *volume, int own_volume,
++                           const char *directory, const char *loader);
++
+ #endif
+diff --git a/src/core/config.c b/src/core/config.c
+index 027db42..fb513da 100644
+--- a/src/core/config.c
++++ b/src/core/config.c
+@@ -61,8 +61,10 @@ static void apply_setting(Config *config, EntryList *entries, const char *key, c
+         str_copy(config->font_bold, value, sizeof(config->font_bold));
+     } else if (str_equal(key, "font_mono")) {
+         str_copy(config->font_mono, value, sizeof(config->font_mono));
++    } else if (str_equal(key, "volume")) {
++        entries_parse_volume(&config->volumes, value);
+     } else if (str_equal(key, "entry")) {
+-        entries_add_line(entries, value);
++        entries_add_line_with_volumes(entries, value, &config->volumes);
+     }
+ }
+ 
+diff --git a/src/core/config.h b/src/core/config.h
+index 21874eb..296e726 100644
+--- a/src/core/config.h
++++ b/src/core/config.h
+@@ -23,6 +23,7 @@ typedef struct {
+     char font_regular[CONFIG_NAME_MAX];
+     char font_bold[CONFIG_NAME_MAX];
+     char font_mono[CONFIG_NAME_MAX];
++    EntryVolumes volumes;
+ } Config;
+ 
+ void config_load(Config *config, EntryList *entries);
+diff --git a/src/core/entries.c b/src/core/entries.c
+index 21fcf3e..58b30bd 100644
+--- a/src/core/entries.c
++++ b/src/core/entries.c
+@@ -6,7 +6,7 @@
+ #include "lib/str.h"
+ 
+ #define LOADER_PATH_MAX 256
+-#define EFI_DIR_PREFIX  "\\EFI\\"
++#define VOLUME_VALUE_MAX 192
+ 
+ static const UINT32 accent_palette[] = {
+     0xe95420,
+@@ -44,7 +44,69 @@ static UINT32 accent_for(int index, const char *custom)
+     return accent_palette[index % palette_size];
+ }
+ 
+-static int resolve_target(Entry *entry, const char *target)
++/* FAT lookups ignore case and accept either slash, so the key must too. */
++static void from_wide(char *output, const CHAR16 *input, int capacity)
++{
++    int i = 0;
++
++    while (input[i] != 0 && i < capacity - 1) {
++        output[i] = input[i] < 128 ? (char)input[i] : '_';
++        i++;
++    }
++
++    output[i] = '\0';
++}
++
++static void normalize_target(char *output, const char *input, int capacity)
++{
++    int i = 0;
++
++    while (input[i] != '\0' && i < capacity - 1) {
++        char c = input[i];
++
++        if (c >= 'A' && c <= 'Z') {
++            c = (char)(c - 'A' + 'a');
++        } else if (c == '/') {
++            c = '\\';
++        }
++        output[i] = c;
++        i++;
++    }
++
++    output[i] = '\0';
++}
++
++static void normalize_volume(char *output, const char *input, int capacity)
++{
++    int i = 0;
++
++    while (input[i] != '\0' && i < capacity - 1) {
++        char c = input[i];
++
++        if (c >= 'A' && c <= 'Z') {
++            c = (char)(c - 'A' + 'a');
++        }
++        output[i] = c;
++        i++;
++    }
++
++    output[i] = '\0';
++}
++
++static int loader_exists(const char *volume, const char *target)
++{
++    CHAR16 path[LOADER_PATH_MAX];
++
++    fs_make_path(path, LOADER_PATH_MAX, target);
++
++    if (str_is_empty(volume)) {
++        return fs_exists(path);
++    }
++
++    return fs_exists_volume(volume, path);
++}
++
++static int resolve_target(Entry *entry, const char *target, const char *volume)
+ {
+     if (str_equal(target, "@firmware")) {
+         entry->action = ENTRY_ACTION_FIRMWARE;
+@@ -62,18 +124,74 @@ static int resolve_target(Entry *entry, const char *target)
+     }
+ 
+     entry->action = ENTRY_ACTION_EFI;
++    str_copy(entry->volume, volume, sizeof(entry->volume));
+     fs_make_path(entry->loader, LOADER_PATH_MAX, target);
+ 
+-    if (!fs_exists(entry->loader)) {
++    if (!loader_exists(volume, target)) {
+         return 0;
+     }
+ 
+-    kernels_load(entry);
+     return 1;
+ }
+ 
+-void entries_add(EntryList *list, char **fields, int field_count)
++static const EntryVolume *find_volume(const EntryVolumes *volumes, const char *name)
+ {
++    int i;
++
++    if (volumes == NULL) {
++        return NULL;
++    }
++
++    for (i = 0; i < volumes->count; i++) {
++        if (str_equal(volumes->items[i].name, name)) {
++            return &volumes->items[i];
++        }
++    }
++
++    return NULL;
++}
++
++/*
++ * "@name:\EFI\..." names a declared volume. Anything else, including the
++ * @firmware, @reboot and @shutdown actions, keeps its current meaning.
++ */
++static int split_volume_target(const EntryVolumes *volumes, char *target,
++                               const char **volume, int capacity)
++{
++    char *colon = target;
++
++    if (target[0] != '@') {
++        return 1;
++    }
++
++    while (*colon != '\0' && *colon != ':' && *colon != '\\' && *colon != '/') {
++        colon++;
++    }
++
++    if (*colon != ':') {
++        return 1;
++    }
++
++    *colon = '\0';
++    {
++        const EntryVolume *declared = find_volume(volumes, target + 1);
++
++        if (declared == NULL) {
++            return 0;
++        }
++
++        *volume = declared->id;
++    }
++
++    str_copy(target, colon + 1, capacity);
++    return 1;
++}
++
++static void add_entry(EntryList *list, char **fields, int field_count, const char *volume,
++                      const EntryVolumes *volumes, int check_exists)
++{
++    char target[LOADER_PATH_MAX];
++    const char *resolved_volume = volume;
+     Entry *entry;
+ 
+     if (list->count >= AARAMBH_MAX_ENTRIES || field_count < 2) {
+@@ -84,6 +202,11 @@ void entries_add(EntryList *list, char **fields, int field_count)
+         return;
+     }
+ 
++    str_copy(target, fields[1], sizeof(target));
++    if (!split_volume_target(volumes, target, &resolved_volume, sizeof(target))) {
++        return;
++    }
++
+     entry = &list->items[list->count];
+     mem_set(entry, 0, sizeof(*entry));
+ 
+@@ -95,17 +218,53 @@ void entries_add(EntryList *list, char **fields, int field_count)
+     entry->accent = accent_for(list->count, optional_field(fields, field_count, 5));
+     entry->oneshot = ONESHOT_GRUB;
+ 
+-    if (resolve_target(entry, fields[1])) {
+-        list->count++;
++    if (!check_exists) {
++        entry->action = ENTRY_ACTION_EFI;
++        str_copy(entry->volume, resolved_volume, sizeof(entry->volume));
++        fs_make_path(entry->loader, LOADER_PATH_MAX, target);
++    } else if (!resolve_target(entry, target, resolved_volume)) {
++        return;
+     }
++
++    if (entry->action == ENTRY_ACTION_EFI
++        && entries_uses_target(list, entry->volume, target)) {
++        return;
++    }
++
++    if (entry->action == ENTRY_ACTION_EFI) {
++        kernels_load(entry);
++    }
++
++    list->count++;
++}
++
++void entries_add(EntryList *list, char **fields, int field_count)
++{
++    add_entry(list, fields, field_count, "", NULL, 1);
+ }
+ 
+ void entries_add_line(EntryList *list, char *line)
++{
++    entries_add_line_with_volumes(list, line, NULL);
++}
++
++void entries_add_line_with_volumes(EntryList *list, char *line, const EntryVolumes *volumes)
+ {
+     char *fields[ENTRY_FIELD_COUNT];
+     int field_count = str_split(line, '|', fields, ENTRY_FIELD_COUNT);
+ 
+-    entries_add(list, fields, field_count);
++    add_entry(list, fields, field_count, "", volumes, 1);
++}
++
++void entries_add_detected(EntryList *list, char **fields, int field_count, const char *volume)
++{
++    int before = list->count;
++
++    add_entry(list, fields, field_count, volume, NULL, 0);
++
++    if (list->count > before) {
++        list->items[list->count - 1].autodetected = 1;
++    }
+ }
+ 
+ void entries_add_actions(EntryList *list)
+@@ -121,59 +280,110 @@ void entries_add_actions(EntryList *list)
+     }
+ }
+ 
+-int entries_has_system(const EntryList *list)
++int entries_parse_volume(EntryVolumes *volumes, const char *value)
+ {
++    char buffer[VOLUME_VALUE_MAX];
++    char name[ENTRY_VOLUME_NAME_MAX];
++    char id[AARAMBH_VOLUME_ID_MAX];
++    char *cursor;
++    char *partuuid = NULL;
++    int first = 1;
+     int i;
+ 
+-    for (i = 0; i < list->count; i++) {
+-        if (entry_is_system(&list->items[i])) {
+-            return 1;
++    str_copy(buffer, value, sizeof(buffer));
++    cursor = buffer;
++
++    while (*cursor != '\0') {
++        char *token;
++
++        while (*cursor == ' ' || *cursor == '\t') {
++            cursor++;
++        }
++        if (*cursor == '\0') {
++            break;
++        }
++
++        token = cursor;
++        while (*cursor != '\0' && *cursor != ' ' && *cursor != '\t') {
++            cursor++;
++        }
++        if (*cursor != '\0') {
++            *cursor = '\0';
++            cursor++;
++        }
++
++        if (first) {
++            if (!str_fits(token, sizeof(name))) {
++                return 0;
++            }
++            str_copy(name, token, sizeof(name));
++            first = 0;
++        } else if (str_length(token) > 9 && str_starts_with_nocase(token, "partuuid=")) {
++            partuuid = token + 9;
+         }
+     }
+ 
+-    return 0;
+-}
++    if (first || partuuid == NULL || !str_fits(partuuid, sizeof(id))) {
++        return 0;
++    }
+ 
+-static int loader_in_directory(const CHAR16 *loader, const char *directory)
+-{
+-    const char *prefix = EFI_DIR_PREFIX;
+-    int i = 0;
+-    int j = 0;
++    normalize_volume(id, partuuid, sizeof(id));
+ 
+-    while (prefix[j] != '\0') {
+-        if (loader[i] != (CHAR16)prefix[j]) {
+-            return 0;
++    for (i = 0; i < volumes->count; i++) {
++        if (str_equal(volumes->items[i].name, name)) {
++            str_copy(volumes->items[i].id, id, sizeof(volumes->items[i].id));
++            return 1;
+         }
+-        i++;
+-        j++;
+     }
+ 
+-    for (j = 0; directory[j] != '\0'; j++) {
+-        CHAR16 a = loader[i + j];
+-        char b = directory[j];
++    if (volumes->count >= ENTRY_VOLUME_MAX) {
++        return 0;
++    }
+ 
+-        if (a >= L'A' && a <= L'Z') {
+-            a = (CHAR16)(a - L'A' + L'a');
+-        }
+-        if (b >= 'A' && b <= 'Z') {
+-            b = (char)(b - 'A' + 'a');
+-        }
+-        if (a != (CHAR16)b) {
+-            return 0;
++    str_copy(volumes->items[volumes->count].name, name,
++             sizeof(volumes->items[volumes->count].name));
++    str_copy(volumes->items[volumes->count].id, id, sizeof(volumes->items[volumes->count].id));
++    volumes->count++;
++    return 1;
++}
++
++int entries_has_system(const EntryList *list)
++{
++    int i;
++
++    for (i = 0; i < list->count; i++) {
++        if (entry_is_system(&list->items[i])) {
++            return 1;
+         }
+     }
+ 
+-    return loader[i + j] == L'\\';
++    return 0;
++}
++
++static int same_nocase(const char *left, const char *right)
++{
++    return str_length(left) == str_length(right) && str_starts_with_nocase(left, right);
+ }
+ 
+-int entries_uses_directory(const EntryList *list, const char *directory)
++int entries_uses_target(const EntryList *list, const char *volume, const char *loader)
+ {
++    char normalized[LOADER_PATH_MAX];
+     int i;
+ 
++    normalize_target(normalized, loader, sizeof(normalized));
++
+     for (i = 0; i < list->count; i++) {
+         const Entry *entry = &list->items[i];
++        char ascii[LOADER_PATH_MAX];
++        char stored[LOADER_PATH_MAX];
++
++        if (!entry_is_system(entry) || !same_nocase(entry->volume, volume)) {
++            continue;
++        }
+ 
+-        if (entry_is_system(entry) && loader_in_directory(entry->loader, directory)) {
++        from_wide(ascii, entry->loader, sizeof(ascii));
++        normalize_target(stored, ascii, sizeof(stored));
++        if (str_equal(stored, normalized)) {
+             return 1;
+         }
+     }
+diff --git a/src/core/entries.h b/src/core/entries.h
+index 581f2e6..aa76cb1 100644
+--- a/src/core/entries.h
++++ b/src/core/entries.h
+@@ -4,6 +4,19 @@
+ #include "aarambh/entry.h"
+ 
+ #define ENTRY_FIELD_COUNT 6
++#define ENTRY_VOLUME_MAX 8
++#define ENTRY_VOLUME_NAME_MAX 32
++
++/* A "volume <name> partuuid=<guid>" line: a loader can name it as @name:. */
++typedef struct {
++    char name[ENTRY_VOLUME_NAME_MAX];
++    char id[AARAMBH_VOLUME_ID_MAX];
++} EntryVolume;
++
++typedef struct {
++    EntryVolume items[ENTRY_VOLUME_MAX];
++    int count;
++} EntryVolumes;
+ 
+ typedef struct {
+     Entry items[AARAMBH_MAX_ENTRIES];
+@@ -12,10 +25,16 @@ typedef struct {
+ 
+ void entries_add(EntryList *list, char **fields, int field_count);
+ void entries_add_line(EntryList *list, char *line);
++void entries_add_line_with_volumes(EntryList *list, char *line, const EntryVolumes *volumes);
++/* An autodetected loader: `volume` is its identity, already known to exist. */
++void entries_add_detected(EntryList *list, char **fields, int field_count, const char *volume);
+ void entries_add_actions(EntryList *list);
+ 
++int entries_parse_volume(EntryVolumes *volumes, const char *value);
++
+ int entries_has_system(const EntryList *list);
+-int entries_uses_directory(const EntryList *list, const char *directory);
++/* 1 when an entry already starts this loader from the same volume. */
++int entries_uses_target(const EntryList *list, const char *volume, const char *loader);
+ void entries_move_actions_last(EntryList *list);
+ 
+ #endif
+diff --git a/src/efi/fs.c b/src/efi/fs.c
+index c5e7bc1..16a4571 100644
+--- a/src/efi/fs.c
++++ b/src/efi/fs.c
+@@ -4,8 +4,24 @@
+ #include "lib/str.h"
+ 
+ #define READ_CHUNK_SIZE 0x400000
++#define FS_MAX_VOLUMES 16
++
++#define FS_VOLUME_ID_MAX 96
++
++typedef struct {
++    EFI_HANDLE handle;
++    EFI_FILE_HANDLE root;
++    char id[FS_VOLUME_ID_MAX];
++    int own;
++} FsVolume;
++
++static void volume_identity(EFI_HANDLE handle, char *output, int capacity);
+ 
+ static EFI_FILE_HANDLE root;
++static EFI_HANDLE own_handle;
++static char own_id[FS_VOLUME_ID_MAX];
++static FsVolume volumes[FS_MAX_VOLUMES];
++static int volume_count = -1;
+ 
+ EFI_STATUS fs_init(EFI_HANDLE device)
+ {
+@@ -13,6 +29,10 @@ EFI_STATUS fs_init(EFI_HANDLE device)
+     if (root == NULL) {
+         return EFI_LOAD_ERROR;
+     }
++
++    own_handle = device;
++    own_id[0] = '\0';
++    volume_identity(device, own_id, sizeof(own_id));
+     return EFI_SUCCESS;
+ }
+ 
+@@ -60,12 +80,12 @@ int fs_exists(const CHAR16 *path)
+     return 1;
+ }
+ 
+-static EFI_FILE_HANDLE open_path(const CHAR16 *path, UINTN *size)
++static EFI_FILE_HANDLE open_path_on(EFI_FILE_HANDLE base, const CHAR16 *path, UINTN *size)
+ {
+     EFI_FILE_HANDLE file;
+     EFI_FILE_INFO *info;
+ 
+-    if (root->Open(root, &file, (CHAR16 *)path, EFI_FILE_MODE_READ, 0) != EFI_SUCCESS) {
++    if (base->Open(base, &file, (CHAR16 *)path, EFI_FILE_MODE_READ, 0) != EFI_SUCCESS) {
+         return NULL;
+     }
+ 
+@@ -80,6 +100,11 @@ static EFI_FILE_HANDLE open_path(const CHAR16 *path, UINTN *size)
+     return file;
+ }
+ 
++static EFI_FILE_HANDLE open_path(const CHAR16 *path, UINTN *size)
++{
++    return open_path_on(root, path, size);
++}
++
+ static EFI_FILE_HANDLE open_for_read(const char *name, UINTN *size)
+ {
+     CHAR16 path[FS_PATH_MAX];
+@@ -285,12 +310,13 @@ int fs_write_data(const char *name, const void *data, UINTN size)
+ 
+ #define DIRECTORY_INFO_SIZE (SIZE_OF_EFI_FILE_INFO + 512)
+ 
+-void fs_list_directory(const CHAR16 *path, FsDirectoryCallback callback, void *context)
++static void list_directory_from(EFI_FILE_HANDLE base, const CHAR16 *path,
++                                 FsDirectoryCallback callback, void *context)
+ {
+     EFI_FILE_HANDLE directory;
+     UINT8 buffer[DIRECTORY_INFO_SIZE];
+ 
+-    if (root->Open(root, &directory, (CHAR16 *)path, EFI_FILE_MODE_READ, 0) != EFI_SUCCESS) {
++    if (base->Open(base, &directory, (CHAR16 *)path, EFI_FILE_MODE_READ, 0) != EFI_SUCCESS) {
+         return;
+     }
+ 
+@@ -314,4 +340,301 @@ void fs_list_directory(const CHAR16 *path, FsDirectoryCallback callback, void *c
+     }
+ 
+     directory->Close(directory);
++}
++
++void fs_list_directory(const CHAR16 *path, FsDirectoryCallback callback, void *context)
++{
++    list_directory_from(root, path, callback, context);
++}
++
++static EFI_GUID device_path_guid = {
++    0x09576e91, 0x6d3f, 0x11d2, { 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b }
++};
++
++static void put_hex(char *output, int *position, UINT8 value)
++{
++    static const char digits[] = "0123456789abcdef";
++
++    output[*position] = digits[(value >> 4) & 0x0f];
++    output[*position + 1] = digits[value & 0x0f];
++    *position += 2;
++}
++
++static void put_byte(char *output, int *position, UINT8 value)
++{
++    output[*position] = (char)value;
++    *position += 1;
++}
++
++/* GPT partition GUID, so a config partuuid= line can find this volume. */
++static void format_partuuid(const UINT8 *signature, char *output, int capacity)
++{
++    int position = 0;
++    int i;
++
++    if (capacity < 37) {
++        output[0] = '\0';
++        return;
++    }
++
++    put_hex(output, &position, signature[3]);
++    put_hex(output, &position, signature[2]);
++    put_hex(output, &position, signature[1]);
++    put_hex(output, &position, signature[0]);
++    put_byte(output, &position, '-');
++    put_hex(output, &position, signature[5]);
++    put_hex(output, &position, signature[4]);
++    put_byte(output, &position, '-');
++    put_hex(output, &position, signature[7]);
++    put_hex(output, &position, signature[6]);
++    put_byte(output, &position, '-');
++    put_hex(output, &position, signature[8]);
++    put_hex(output, &position, signature[9]);
++    put_byte(output, &position, '-');
++    for (i = 10; i < 16; i++) {
++        put_hex(output, &position, signature[i]);
++    }
++
++    output[position] = '\0';
++}
++
++/* Without an HD node, the device path text still identifies the volume. */
++static void format_device_path(const EFI_DEVICE_PATH *device_path, char *output, int capacity)
++{
++    CHAR16 *text;
++    int position = 0;
++
++    output[0] = '\0';
++    if (device_path == NULL) {
++        return;
++    }
++
++    text = DevicePathToStr((EFI_DEVICE_PATH *)device_path);
++    if (text != NULL) {
++        while (text[position] != 0 && position < capacity - 1) {
++            output[position] = text[position] < 128 ? (char)text[position] : '_';
++            position++;
++        }
++        output[position] = '\0';
++        FreePool(text);
++
++        if (position > 0) {
++            return;
++        }
++    }
++
++    position = 0;
++    {
++        const EFI_DEVICE_PATH *node;
++
++        for (node = device_path; position < capacity - 3; node = NextDevicePathNode(node)) {
++            int i;
++
++            for (i = 0; i < DevicePathNodeLength(node) && position < capacity - 3; i++) {
++                put_hex(output, &position, ((const UINT8 *)node)[i]);
++            }
++
++            if (IsDevicePathEnd(node)) {
++                break;
++            }
++        }
++    }
++
++    output[position] = '\0';
++}
++
++static void volume_identity(EFI_HANDLE handle, char *output, int capacity)
++{
++    EFI_DEVICE_PATH *device_path = NULL;
++    const EFI_DEVICE_PATH *node;
++
++    output[0] = '\0';
++    if (handle == NULL || BS == NULL || BS->HandleProtocol == NULL) {
++        return;
++    }
++
++    if (BS->HandleProtocol(handle, &device_path_guid, (void **)&device_path) != EFI_SUCCESS
++        || device_path == NULL) {
++        return;
++    }
++
++    for (node = device_path; !IsDevicePathEnd(node); node = NextDevicePathNode(node)) {
++        if (DevicePathType(node) == MEDIA_DEVICE_PATH
++            && DevicePathSubType(node) == MEDIA_HARDDRIVE_DP) {
++            const HARDDRIVE_DEVICE_PATH *hard_drive = (const HARDDRIVE_DEVICE_PATH *)node;
++
++            if (hard_drive->SignatureType == SIGNATURE_TYPE_GUID) {
++                format_partuuid(hard_drive->Signature, output, capacity);
++                return;
++            }
++        }
++    }
++
++    format_device_path(device_path, output, capacity);
++}
++
++int fs_volumes_scan(void)
++{
++    EFI_GUID protocol = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
++    EFI_HANDLE *handles = NULL;
++    UINTN count = 0;
++    UINTN i;
++
++    if (volume_count >= 0) {
++        return volume_count;
++    }
++
++    volume_count = 0;
++    if (BS == NULL || BS->LocateHandleBuffer == NULL) {
++        return 0;
++    }
++
++    if (BS->LocateHandleBuffer(ByProtocol, &protocol, NULL, &count, &handles) != EFI_SUCCESS) {
++        return 0;
++    }
++
++    for (i = 0; i < count && volume_count < FS_MAX_VOLUMES; i++) {
++        FsVolume *volume = &volumes[volume_count];
++        EFI_FILE_HANDLE base = LibOpenRoot(handles[i]);
++
++        if (base == NULL) {
++            continue;
++        }
++
++        volume->handle = handles[i];
++        volume->root = base;
++        volume->own = handles[i] == own_handle;
++        volume_identity(handles[i], volume->id, sizeof(volume->id));
++
++        if (!volume->own && own_id[0] != '\0' && str_equal(volume->id, own_id)) {
++            volume->own = 1;
++        }
++
++        if (volume->own) {
++            str_copy(own_id, volume->id, sizeof(own_id));
++        }
++
++        volume_count++;
++    }
++
++    FreePool(handles);
++    return volume_count;
++}
++
++int fs_volume_count(void)
++{
++    return fs_volumes_scan();
++}
++
++const char *fs_volume_id(int index)
++{
++    if (index < 0 || index >= fs_volumes_scan()) {
++        return "";
++    }
++
++    return volumes[index].id;
++}
++
++int fs_volume_is_own(int index)
++{
++    if (index < 0 || index >= fs_volumes_scan()) {
++        return 0;
++    }
++
++    return volumes[index].own;
++}
++
++void fs_volume_list_directory(int index, const CHAR16 *path, FsDirectoryCallback callback,
++                              void *context)
++{
++    if (index < 0 || index >= fs_volumes_scan()) {
++        return;
++    }
++
++    list_directory_from(volumes[index].root, path, callback, context);
++}
++
++int fs_volume_exists(int index, const CHAR16 *path)
++{
++    EFI_FILE_HANDLE file;
++
++    if (index < 0 || index >= fs_volumes_scan()) {
++        return 0;
++    }
++
++    if (volumes[index].root->Open(volumes[index].root, &file, (CHAR16 *)path,
++                                  EFI_FILE_MODE_READ, 0) != EFI_SUCCESS) {
++        return 0;
++    }
++
++    file->Close(file);
++    return 1;
++}
++
++static int same_nocase(const char *left, const char *right)
++{
++    return str_length(left) == str_length(right) && str_starts_with_nocase(left, right);
++}
++
++static int find_volume(const char *volume)
++{
++    int count = fs_volumes_scan();
++    int i;
++
++    for (i = 0; i < count; i++) {
++        if (same_nocase(volumes[i].id, volume)) {
++            return i;
++        }
++    }
++
++    return -1;
++}
++
++EFI_HANDLE fs_volume_handle(const char *volume)
++{
++    int index;
++
++    if (str_is_empty(volume)) {
++        return own_handle;
++    }
++
++    index = find_volume(volume);
++    return index < 0 ? NULL : volumes[index].handle;
++}
++
++int fs_exists_volume(const char *volume, const CHAR16 *path)
++{
++    EFI_FILE_HANDLE file;
++    int index;
++
++    if (str_is_empty(volume)) {
++        if (root->Open(root, &file, (CHAR16 *)path, EFI_FILE_MODE_READ, 0) != EFI_SUCCESS) {
++            return 0;
++        }
++
++        file->Close(file);
++        return 1;
++    }
++
++    index = find_volume(volume);
++    return fs_volume_exists(index, path);
++}
++
++void *fs_read_volume(const char *volume, const CHAR16 *path, UINTN *size)
++{
++    int index = find_volume(volume);
++    UINTN file_size = 0;
++    EFI_FILE_HANDLE file;
++
++    if (str_is_empty(volume)) {
++        file = open_path(path, &file_size);
++        return read_whole(file, file_size, size);
++    }
++
++    if (index < 0) {
++        return NULL;
++    }
++
++    file = open_path_on(volumes[index].root, path, &file_size);
++    return read_whole(file, file_size, size);
+ }
+\ No newline at end of file
+diff --git a/src/efi/fs.h b/src/efi/fs.h
+index 20d169b..00ade21 100644
+--- a/src/efi/fs.h
++++ b/src/efi/fs.h
+@@ -26,4 +26,21 @@ int fs_make_directory(const char *name);
+ 
+ void fs_list_directory(const CHAR16 *path, FsDirectoryCallback callback, void *context);
+ 
++/*
++ * Every UEFI SimpleFileSystem volume, the image's own included. The identity
++ * is the GPT partition GUID from the device path's HD node, or the device path
++ * bytes when the volume has no HD node.
++ */
++int fs_volumes_scan(void);
++int fs_volume_count(void);
++const char *fs_volume_id(int index);
++int fs_volume_is_own(int index);
++void fs_volume_list_directory(int index, const CHAR16 *path, FsDirectoryCallback callback,
++                              void *context);
++int fs_volume_exists(int index, const CHAR16 *path);
++
++int fs_exists_volume(const char *volume, const CHAR16 *path);
++void *fs_read_volume(const char *volume, const CHAR16 *path, UINTN *size);
++EFI_HANDLE fs_volume_handle(const char *volume);
++
+ #endif
+\ No newline at end of file
+diff --git a/tests/unit/config_test.c b/tests/unit/config_test.c
+index ec370b9..41a5d90 100644
+--- a/tests/unit/config_test.c
++++ b/tests/unit/config_test.c
+@@ -25,6 +25,8 @@ void *fs_read(const char *name, UINTN *size)
+ 
+ /* Two systems and Restart, as config_load would find them. */
+ void entries_add_line(EntryList *list, char *line) {}
++void entries_add_line_with_volumes(EntryList *list, char *line, const EntryVolumes *volumes) {}
++int entries_parse_volume(EntryVolumes *volumes, const char *value) { return 0; }
+ void autodetect_entries(EntryList *list) {}
+ void entries_move_actions_last(EntryList *list) {}
+ int clock_parse_offset(const char *text) { return 0; }
+diff --git a/tests/unit/fs_test.c b/tests/unit/fs_test.c
+index 767814a..c551718 100644
+--- a/tests/unit/fs_test.c
++++ b/tests/unit/fs_test.c
+@@ -110,6 +110,11 @@ EFI_FILE_INFO *LibFileInfo(EFI_FILE_HANDLE handle)
+     return info;
+ }
+ 
++CHAR16 *DevicePathToStr(EFI_DEVICE_PATH *device_path)
++{
++    return NULL;
++}
++
+ VOID FreePool(VOID *buffer)
+ {
+     free(buffer);
+diff --git a/tests/unit/launcher_test.c b/tests/unit/launcher_test.c
+index 8291313..0fca4ab 100644
+--- a/tests/unit/launcher_test.c
++++ b/tests/unit/launcher_test.c
+@@ -48,7 +48,7 @@ int fs_write(const char *name, const char *data)
+     return 1;
+ }
+ 
+-EFI_STATUS image_loader_start(const CHAR16 *path)
++EFI_STATUS image_loader_start(const CHAR16 *path, const char *volume)
+ {
+     loader_starts++;
+     return EFI_LOAD_ERROR;
+diff --git a/tests/unit/run.sh b/tests/unit/run.sh
+index 60bc884..51613be 100755
+--- a/tests/unit/run.sh
++++ b/tests/unit/run.sh
+@@ -81,11 +81,12 @@ run() {
+         launcher) unit launcher $LIBRARY src/boot/launcher.c src/boot/next_boot.c src/core/entry.c ;;
+         fs) unit fs $LIBRARY src/efi/fs.c ;;
+         config) unit config $LIBRARY src/core/config.c src/core/navigation.c src/core/tween.c src/core/entry.c src/ui/easing.c ;;
++        volumes) unit volumes $LIBRARY src/core/entries.c src/core/autodetect.c src/core/entry.c ;;
+         *) echo "unknown test: $1"; FAILURES=$((FAILURES + 1)) ;;
+     esac
+ }
+ 
+-for name in ${*:-font font_structure text assets kernels navigation launcher fs config}; do
++for name in ${*:-font font_structure text assets kernels navigation launcher fs config volumes}; do
+     run "$name"
+ done
+ 
+diff --git a/tests/unit/volumes_test.c b/tests/unit/volumes_test.c
+new file mode 100644
+index 0000000..bfce413
+--- /dev/null
++++ b/tests/unit/volumes_test.c
+@@ -0,0 +1,169 @@
++/*
++ * Volume-qualified entries: the "volume" line, the @name: loader prefix, the
++ * (volume, path) dedupe key and the autodetect skip rules. FAT lookups ignore
++ * case, so every comparison here must too.
++ */
++
++#include <string.h>
++
++#include "core/autodetect.h"
++#include "core/entries.h"
++#include "efi/fs.h"
++#include "support/efi_mock.h"
++#include "support/test.h"
++
++static const char *WORK_ID = "4a512320-ad94-44b6-883f-ba9c8a3335c2";
++
++/* Everything exists: these tests are about parsing and dedupe, not the ESP. */
++void fs_make_path(CHAR16 *output, int capacity, const char *name)
++{
++    int i = 0;
++
++    while (name[i] != '\0' && i < capacity - 1) {
++        output[i] = (CHAR16)(UINT8)name[i];
++        i++;
++    }
++    output[i] = 0;
++}
++
++int fs_exists(const CHAR16 *path) { return 1; }
++int fs_exists_volume(const char *volume, const CHAR16 *path) { return 1; }
++int fs_volume_exists(int index, const CHAR16 *path) { return 1; }
++void fs_volume_list_directory(int index, const CHAR16 *path, FsDirectoryCallback callback,
++                              void *context) {}
++int fs_volumes_scan(void) { return 0; }
++const char *fs_volume_id(int index) { return ""; }
++int fs_volume_is_own(int index) { return 0; }
++
++void kernels_load(Entry *entry) {}
++int power_firmware_setup_supported(void) { return 1; }
++
++static int wide_equals(const CHAR16 *wide, const char *ascii)
++{
++    int i = 0;
++
++    while (ascii[i] != '\0') {
++        if (wide[i] != (CHAR16)(UINT8)ascii[i]) {
++            return 0;
++        }
++        i++;
++    }
++
++    return wide[i] == 0;
++}
++
++static void add_line(EntryList *list, const EntryVolumes *volumes, const char *text)
++{
++    char line[384];
++
++    strcpy(line, text);
++    entries_add_line_with_volumes(list, line, volumes);
++}
++
++static void check_volume_line(void)
++{
++    EntryVolumes volumes;
++    char value[128];
++
++    memset(&volumes, 0, sizeof(volumes));
++    CHECK(entries_parse_volume(&volumes, "work partuuid=4A512320-AD94-44B6-883F-BA9C8A3335C2")
++          && volumes.count == 1,
++          "a volume line with a partuuid is accepted");
++    CHECK(strcmp(volumes.items[0].name, "work") == 0, "the volume name is kept");
++    CHECK(strcmp(volumes.items[0].id, WORK_ID) == 0, "the volume identity is lowercase");
++
++    strcpy(value, "broken");
++    CHECK(!entries_parse_volume(&volumes, value) && volumes.count == 1,
++          "a volume line without partuuid= adds nothing");
++}
++
++static void check_name_prefix(void)
++{
++    EntryList list;
++    EntryVolumes volumes;
++
++    memset(&list, 0, sizeof(list));
++    memset(&volumes, 0, sizeof(volumes));
++    entries_parse_volume(&volumes, "work partuuid=4a512320-ad94-44b6-883f-ba9c8a3335c2");
++
++    add_line(&list, &volumes,
++             "entry NixOS (work) | @work:\\EFI\\SYSTEMD\\SYSTEMD-BOOTX64.EFI | logos/nixos.png | "
++             "backgrounds/nixos.jpg | nixos-work");
++    CHECK(list.count == 1, "an @name: loader adds one entry");
++    CHECK(list.count == 1 && strcmp(list.items[0].volume, WORK_ID) == 0,
++          "@name: stores the named volume's identity");
++    CHECK(list.count == 1
++          && wide_equals(list.items[0].loader, "\\EFI\\SYSTEMD\\SYSTEMD-BOOTX64.EFI"),
++          "@name: leaves only the loader path");
++
++    add_line(&list, &volumes,
++             "entry Local | \\EFI\\BOOT\\BOOTX64.EFI | logos/nixos.png | backgrounds/nixos.jpg | "
++             "local");
++    CHECK(list.count == 2 && list.items[1].volume[0] == '\0',
++          "an entry without @name: stays on the image's own volume");
++
++    add_line(&list, &volumes,
++             "entry Missing | @unknown:\\EFI\\BOOT\\BOOTX64.EFI | | | missing");
++    CHECK(list.count == 2, "an undeclared volume name adds no entry");
++}
++
++static void check_dedupe(void)
++{
++    EntryList list;
++    EntryVolumes volumes;
++
++    memset(&list, 0, sizeof(list));
++    memset(&volumes, 0, sizeof(volumes));
++    entries_parse_volume(&volumes, "work partuuid=4a512320-ad94-44b6-883f-ba9c8a3335c2");
++    entries_parse_volume(&volumes, "other partuuid=b85a008a-8f4f-45d8-a72e-26b9794d9cd4");
++
++    add_line(&list, &volumes,
++             "entry Work | @work:\\EFI\\SYSTEMD\\SYSTEMD-BOOTX64.EFI | | | work");
++    add_line(&list, &volumes,
++             "entry Other | @other:\\EFI\\SYSTEMD\\SYSTEMD-BOOTX64.EFI | | | other");
++    CHECK(list.count == 2, "the same loader path on two volumes is kept twice");
++
++    add_line(&list, &volumes,
++             "entry Work again | @work:\\efi/systemd/systemd-bootx64.EFI | | | work-again");
++    CHECK(list.count == 2, "the same (volume, path) in another case is deduped");
++}
++
++static void check_autodetect_skip(void)
++{
++    EntryList list;
++    EntryVolumes volumes;
++
++    memset(&list, 0, sizeof(list));
++    memset(&volumes, 0, sizeof(volumes));
++    entries_parse_volume(&volumes, "work partuuid=4a512320-ad94-44b6-883f-ba9c8a3335c2");
++
++    CHECK(autodetect_should_skip(&list, "", 1, "systemd",
++                                 "\\EFI\\SYSTEMD\\SYSTEMD-BOOTX64.EFI"),
++          "the own volume's systemd-boot is hidden, whatever the case");
++    CHECK(!autodetect_should_skip(&list, "4a512320-ad94-44b6-883f-ba9c8a3335c2", 0, "systemd",
++                                  "\\EFI\\SYSTEMD\\SYSTEMD-BOOTX64.EFI"),
++          "another volume's systemd-boot is still autodetected");
++    CHECK(!autodetect_should_skip(&list, "", 1, "refind", "\\EFI\\refind\\refind_x64.efi"),
++          "the hide rule only covers systemd-boot");
++
++    add_line(&list, &volumes,
++             "entry Windows | @work:\\EFI\\MICROSOFT\\BOOT\\BOOTMGFW.EFI | | | windows");
++    CHECK(autodetect_should_skip(&list, "4a512320-ad94-44b6-883f-ba9c8a3335c2", 0, "microsoft",
++                                 "\\EFI\\MICROSOFT\\Boot\\bootmgfw.efi"),
++          "an explicit entry covers the same loader path in another case");
++    CHECK(!autodetect_should_skip(&list, "4a512320-ad94-44b6-883f-ba9c8a3335c2", 0, "ubuntu",
++                                  "\\EFI\\ubuntu\\shimx64.efi"),
++          "an uncovered loader is still autodetected");
++}
++
++int main(void)
++{
++    mock_efi_init();
++
++    check_volume_line();
++    check_name_prefix();
++    check_dedupe();
++    check_autodetect_skip();
++
++    return test_result();
++}
+-- 
+2.56.0
+
