@@ -1,0 +1,725 @@
+From d88446a01cbacde5d6062cbcf1b56377e470b49b Mon Sep 17 00:00:00 2001
+From: Rodey Seijkens <me@rodey.nl>
+Date: Sat, 14 Nov 2026 22:48:24 +0100
+Subject: [PATCH 4/4] feat(config): pick the default entry on a weekly schedule
+
+---
+ config/aarambh.conf           |   9 ++
+ src/core/clock.c              |   4 +-
+ src/core/clock.h              |   5 +
+ src/core/config.c             | 268 ++++++++++++++++++++++++++++++++++
+ src/core/config.h             |  17 +++
+ tests/unit/config_test.c      |   1 -
+ tests/unit/run.sh             |   5 +-
+ tests/unit/schedule_test.c    | 211 ++++++++++++++++++++++++++
+ tests/unit/support/efi_mock.c |  27 ++++
+ tests/unit/support/efi_mock.h |   3 +
+ 10 files changed, 545 insertions(+), 5 deletions(-)
+ create mode 100644 tests/unit/schedule_test.c
+
+diff --git a/config/aarambh.conf b/config/aarambh.conf
+index c6a09c0..cedf1f3 100644
+--- a/config/aarambh.conf
++++ b/config/aarambh.conf
+@@ -20,6 +20,15 @@
+ # "autodetect yes", loaders found under \EFI\ that no entry uses (Windows,
+ # other Linux installs) are added at boot.
+ #
++# schedule <entry> <days> <start>-<end>
++#
++#   While the local clock (UEFI time plus utc_offset) is inside the window on
++#   one of the days, that entry becomes the default. Days are three-letter
++#   names or ranges separated by commas ("mon-fri", "sat,sun", "*"); the time
++#   is 24-hour and the end is exclusive. Later matching lines win.
++#
++#   schedule nixos-work mon-fri 07:00-18:00
++#
+ # default is an OS key (ubuntu, fedora, windows), a menu title or an index.
+ # Change theme, default and timeout from any connected OS with:
+ #   aarambh --theme cinema --default fedora --timeout 5
+diff --git a/src/core/clock.c b/src/core/clock.c
+index 4c88f8c..d07f473 100644
+--- a/src/core/clock.c
++++ b/src/core/clock.c
+@@ -14,7 +14,7 @@ void clock_init(Clock *clock, int utc_offset_minutes)
+     clock->utc_offset_minutes = utc_offset_minutes;
+ }
+ 
+-static int local_minutes(const EFI_TIME *time, int offset)
++int clock_local_minutes(const EFI_TIME *time, int offset)
+ {
+     int minutes = time->Hour * 60 + time->Minute + offset;
+ 
+@@ -56,7 +56,7 @@ void clock_update(Clock *clock, float now)
+         return;
+     }
+ 
+-    minutes = local_minutes(&time, clock->utc_offset_minutes);
++    minutes = clock_local_minutes(&time, clock->utc_offset_minutes);
+     format_time(clock, minutes / 60, minutes % 60);
+ }
+ 
+diff --git a/src/core/clock.h b/src/core/clock.h
+index 83c14f7..a82e2dd 100644
+--- a/src/core/clock.h
++++ b/src/core/clock.h
+@@ -1,6 +1,8 @@
+ #ifndef AARAMBH_CORE_CLOCK_H
+ #define AARAMBH_CORE_CLOCK_H
+ 
++#include <efi.h>
++
+ typedef struct {
+     char time[16];
+     char period[4];
+@@ -13,4 +15,7 @@ void clock_update(Clock *clock, float now);
+ 
+ int clock_parse_offset(const char *text);
+ 
++/* Minutes since midnight, local time: the UEFI time plus the offset, wrapped. */
++int clock_local_minutes(const EFI_TIME *time, int offset);
++
+ #endif
+diff --git a/src/core/config.c b/src/core/config.c
+index fb513da..8568cea 100644
+--- a/src/core/config.c
++++ b/src/core/config.c
+@@ -37,12 +37,16 @@ static char *split_key_value(char *line)
+     return str_trim(value);
+ }
+ 
++static void add_schedule(Config *config, const char *value);
++
+ static void apply_setting(Config *config, EntryList *entries, const char *key, char *value)
+ {
+     if (str_equal(key, "timeout")) {
+         str_parse_count(value, CONFIG_TIMEOUT_MAX, &config->timeout_seconds);
+     } else if (str_equal(key, "default")) {
+         str_copy(config->default_entry, value, sizeof(config->default_entry));
++    } else if (str_equal(key, "schedule")) {
++        add_schedule(config, value);
+     } else if (str_equal(key, "utc_offset")) {
+         config->utc_offset_minutes = clock_parse_offset(value);
+     } else if (str_equal(key, "autodetect")) {
+@@ -102,6 +106,269 @@ static int find_default(const EntryList *entries, const char *name)
+     return 0;
+ }
+ 
++
++static const char *day_names[] = {
++    "mon", "tue", "wed", "thu", "fri", "sat", "sun"
++};
++
++/* Monday = 0 .. Sunday = 6 from a three-letter name, -1 when unknown. */
++static int parse_weekday(const char *text, int length)
++{
++    int day;
++
++    if (length != 3) {
++        return -1;
++    }
++
++    for (day = 0; day < 7; day++) {
++        if (str_starts_with_nocase(text, day_names[day])) {
++            return day;
++        }
++    }
++
++    return -1;
++}
++
++/* One day or one inclusive range, e.g. "mon" or "mon-fri". */
++static int parse_day_part(const char *text, unsigned *days)
++{
++    const char *dash = text;
++    int from;
++    int to;
++    int day;
++    int length = (int)str_length(text);
++
++    while (dash[0] != '\0' && dash[0] != '-') {
++        dash++;
++    }
++
++    from = parse_weekday(text, (int)(dash - text));
++    if (from < 0) {
++        return 0;
++    }
++
++    to = from;
++    if (dash[0] == '-') {
++        to = parse_weekday(dash + 1, length - (int)(dash - text) - 1);
++        if (to < 0) {
++            return 0;
++        }
++    }
++
++    for (day = from;; day = (day + 1) % 7) {
++        *days |= 1u << day;
++        if (day == to) {
++            break;
++        }
++    }
++
++    return 1;
++}
++
++/* "*", or comma separated names and ranges: "mon-fri", "sat,sun". */
++static int parse_days(const char *text, unsigned *days)
++{
++    char buffer[64];
++    char *cursor;
++
++    *days = 0;
++    if (str_equal(text, "*")) {
++        *days = 0x7fu;
++        return 1;
++    }
++
++    if (str_length(text) >= sizeof(buffer)) {
++        return 0;
++    }
++
++    str_copy(buffer, text, sizeof(buffer));
++    cursor = buffer;
++    while (*cursor != '\0') {
++        char *comma = cursor;
++        int ok;
++
++        while (*comma != '\0' && *comma != ',') {
++            comma++;
++        }
++        *comma = '\0';
++
++        ok = parse_day_part(str_trim(cursor), days);
++        if (!ok) {
++            return 0;
++        }
++        if (comma[1] == '\0') {
++            break;
++        }
++        cursor = comma + 1;
++    }
++
++    return *days != 0;
++}
++
++/* "HH:MM" in 24-hour local time, or -1. */
++static int parse_clock_minutes(const char *text)
++{
++    int hour;
++    int minute;
++
++    if (str_length(text) != 5 || text[2] != ':') {
++        return -1;
++    }
++    if (text[0] < '0' || text[0] > '9' || text[1] < '0' || text[1] > '9'
++        || text[3] < '0' || text[3] > '9' || text[4] < '0' || text[4] > '9') {
++        return -1;
++    }
++
++    hour = (text[0] - '0') * 10 + (text[1] - '0');
++    minute = (text[3] - '0') * 10 + (text[4] - '0');
++    if (hour > 23 || minute > 59) {
++        return -1;
++    }
++
++    return hour * 60 + minute;
++}
++
++/*
++ * "schedule <entry> <days> <start>-<end>": the entry key, the days, and a
++ * local window whose end is exclusive. Anything malformed is ignored.
++ */
++static void add_schedule(Config *config, const char *value)
++{
++    char buffer[CONFIG_DEFAULT_MAX + 64];
++    char *cursor;
++    char *entry;
++    char *days;
++    char *window;
++    char *dash;
++    Schedule *schedule;
++
++    if (config->schedule_count >= CONFIG_MAX_SCHEDULES) {
++        return;
++    }
++    if (str_length(value) >= sizeof(buffer)) {
++        return;
++    }
++
++    str_copy(buffer, value, sizeof(buffer));
++    cursor = buffer;
++
++    entry = cursor;
++    while (*cursor != '\0' && *cursor != ' ' && *cursor != '\t') {
++        cursor++;
++    }
++    if (*cursor == '\0') {
++        return;
++    }
++    *cursor++ = '\0';
++
++    days = str_trim(cursor);
++    cursor = days;
++    while (*cursor != '\0' && *cursor != ' ' && *cursor != '\t') {
++        cursor++;
++    }
++    if (*cursor == '\0') {
++        return;
++    }
++    *cursor++ = '\0';
++    window = str_trim(cursor);
++
++    dash = window;
++    while (dash[0] != '\0' && dash[0] != '-') {
++        dash++;
++    }
++    if (dash[0] != '-') {
++        return;
++    }
++    *dash = '\0';
++
++    schedule = &config->schedules[config->schedule_count];
++    mem_set(schedule, 0, sizeof(*schedule));
++    str_copy(schedule->entry, entry, sizeof(schedule->entry));
++
++    if (!parse_days(days, &schedule->days)) {
++        return;
++    }
++
++    schedule->start_minutes = parse_clock_minutes(window);
++    schedule->end_minutes = parse_clock_minutes(dash + 1);
++    if (schedule->start_minutes < 0 || schedule->end_minutes < 0
++        || schedule->start_minutes >= schedule->end_minutes) {
++        return;
++    }
++
++    config->schedule_count++;
++}
++
++/* Sakamoto: 0 = Sunday .. 6 = Saturday for a date. */
++static int weekday_from_date(int year, int month, int day)
++{
++    static const int offsets[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
++
++    if (month < 3) {
++        year -= 1;
++    }
++
++    return (year + year / 4 - year / 100 + year / 400 + offsets[month - 1] + day) % 7;
++}
++
++/* The Monday-based weekday and minute of day, shifted by the local offset. */
++static void local_clock(const EFI_TIME *time, int offset, int *weekday, int *minutes)
++{
++    int day;
++    int total;
++
++    *minutes = clock_local_minutes(time, offset);
++    *weekday = (weekday_from_date(time->Year, time->Month, time->Day) + 6) % 7;
++
++    /* The offset can move the minute of day across midnight, and the day too. */
++    total = time->Hour * 60 + time->Minute + offset;
++    day = total / 1440;
++    if (total < 0) {
++        day = -1;
++    }
++    *weekday = ((*weekday + day) % 7 + 7) % 7;
++}
++
++static int schedule_matches(const Schedule *schedule, int weekday, int minutes)
++{
++    return (schedule->days & (1u << weekday)) != 0
++        && minutes >= schedule->start_minutes && minutes < schedule->end_minutes;
++}
++
++/*
++ * A matching schedule picks the default entry; the last matching line wins so
++ * later rules can narrow earlier ones. Without a usable clock, nothing
++ * changes and the plain "default" applies.
++ */
++static void apply_schedules(Config *config, EntryList *entries)
++{
++    EFI_TIME time;
++    int weekday;
++    int minutes;
++    int i;
++
++    if (config->schedule_count == 0 || RT == NULL || RT->GetTime == NULL) {
++        return;
++    }
++    if (RT->GetTime(&time, NULL) != EFI_SUCCESS) {
++        return;
++    }
++
++    local_clock(&time, config->utc_offset_minutes, &weekday, &minutes);
++
++    for (i = 0; i < config->schedule_count; i++) {
++        int index;
++
++        if (!schedule_matches(&config->schedules[i], weekday, minutes)) {
++            continue;
++        }
++        index = find_default(entries, config->schedules[i].entry);
++        if (index >= 0) {
++            config->default_index = index;
++        }
++    }
++}
++
+ static void parse_config(Config *config, EntryList *entries, char *text)
+ {
+     char *cursor = text;
+@@ -141,4 +408,5 @@ void config_load(Config *config, EntryList *entries)
+     entries_move_actions_last(entries);
+ 
+     config->default_index = find_default(entries, config->default_entry);
++    apply_schedules(config, entries);
+ }
+\ No newline at end of file
+diff --git a/src/core/config.h b/src/core/config.h
+index 296e726..dc35d50 100644
+--- a/src/core/config.h
++++ b/src/core/config.h
+@@ -10,6 +10,21 @@
+ /* The longest countdown; a larger value in aarambh.conf counts as this. */
+ #define CONFIG_TIMEOUT_MAX 999
+ 
++/* How many "schedule" lines aarambh.conf may carry. */
++#define CONFIG_MAX_SCHEDULES 4
++
++/*
++ * One "schedule <entry> <days> <start>-<end>" line: while the local clock is
++ * in the window on one of the days, entry becomes the default selection.
++ * Days are bits 0..6 for Monday..Sunday; the end is exclusive.
++ */
++typedef struct {
++    char entry[CONFIG_DEFAULT_MAX];
++    unsigned days;
++    int start_minutes;
++    int end_minutes;
++} Schedule;
++
+ typedef struct {
+     int timeout_seconds;
+     int default_index;
+@@ -24,6 +39,8 @@ typedef struct {
+     char font_bold[CONFIG_NAME_MAX];
+     char font_mono[CONFIG_NAME_MAX];
+     EntryVolumes volumes;
++    Schedule schedules[CONFIG_MAX_SCHEDULES];
++    int schedule_count;
+ } Config;
+ 
+ void config_load(Config *config, EntryList *entries);
+diff --git a/tests/unit/config_test.c b/tests/unit/config_test.c
+index 41a5d90..2326f97 100644
+--- a/tests/unit/config_test.c
++++ b/tests/unit/config_test.c
+@@ -29,7 +29,6 @@ void entries_add_line_with_volumes(EntryList *list, char *line, const EntryVolum
+ int entries_parse_volume(EntryVolumes *volumes, const char *value) { return 0; }
+ void autodetect_entries(EntryList *list) {}
+ void entries_move_actions_last(EntryList *list) {}
+-int clock_parse_offset(const char *text) { return 0; }
+ 
+ void entries_add_actions(EntryList *list)
+ {
+diff --git a/tests/unit/run.sh b/tests/unit/run.sh
+index 51613be..02aaa35 100755
+--- a/tests/unit/run.sh
++++ b/tests/unit/run.sh
+@@ -80,13 +80,14 @@ run() {
+         navigation) unit navigation $LIBRARY src/core/navigation.c src/core/tween.c src/core/entry.c src/ui/easing.c ;;
+         launcher) unit launcher $LIBRARY src/boot/launcher.c src/boot/next_boot.c src/core/entry.c ;;
+         fs) unit fs $LIBRARY src/efi/fs.c ;;
+-        config) unit config $LIBRARY src/core/config.c src/core/navigation.c src/core/tween.c src/core/entry.c src/ui/easing.c ;;
++        config) unit config $LIBRARY src/core/config.c src/core/clock.c src/core/navigation.c src/core/tween.c src/core/entry.c src/ui/easing.c ;;
+         volumes) unit volumes $LIBRARY src/core/entries.c src/core/autodetect.c src/core/entry.c ;;
++        schedule) unit schedule $LIBRARY src/core/config.c src/core/clock.c src/core/entries.c src/core/autodetect.c src/core/entry.c src/core/navigation.c src/core/tween.c src/ui/easing.c ;;
+         *) echo "unknown test: $1"; FAILURES=$((FAILURES + 1)) ;;
+     esac
+ }
+ 
+-for name in ${*:-font font_structure text assets kernels navigation launcher fs config volumes}; do
++for name in ${*:-font font_structure text assets kernels navigation launcher fs config volumes schedule}; do
+     run "$name"
+ done
+ 
+diff --git a/tests/unit/schedule_test.c b/tests/unit/schedule_test.c
+new file mode 100644
+index 0000000..6a7f80e
+--- /dev/null
++++ b/tests/unit/schedule_test.c
+@@ -0,0 +1,211 @@
++/*
++ * The "schedule" line: which default aarambh.conf picks from the local clock.
++ * Days are matched Monday-first, the window is minutes since midnight with an
++ * exclusive end, and the UEFI clock is read through RT->GetTime.
++ */
++
++#include <string.h>
++
++#include "core/clock.h"
++#include "core/config.h"
++#include "core/entries.h"
++#include "efi/fs.h"
++#include "lib/memory.h"
++#include "support/efi_mock.h"
++#include "support/test.h"
++
++static const char *config_text;
++
++void *fs_read(const char *name, UINTN *size)
++{
++    char *copy = mem_alloc(strlen(config_text) + 1);
++
++    strcpy(copy, config_text);
++    return copy;
++}
++
++/* Every loader exists: these tests are about the schedule, not the ESP. */
++void fs_make_path(CHAR16 *output, int capacity, const char *name)
++{
++    int i = 0;
++
++    while (name[i] != '\0' && i < capacity - 1) {
++        output[i] = (CHAR16)(UINT8)name[i];
++        i++;
++    }
++    output[i] = 0;
++}
++
++int fs_exists(const CHAR16 *path) { return 1; }
++int fs_exists_volume(const char *volume, const CHAR16 *path) { return 1; }
++int fs_volume_exists(int index, const CHAR16 *path) { return 1; }
++void fs_volume_list_directory(int index, const CHAR16 *path, FsDirectoryCallback callback,
++                              void *context) {}
++int fs_volumes_scan(void) { return 0; }
++const char *fs_volume_id(int index) { return ""; }
++int fs_volume_is_own(int index) { return 0; }
++
++void kernels_load(Entry *entry) {}
++int power_firmware_setup_supported(void) { return 1; }
++
++static const char *base_config =
++    "timeout 5\n"
++    "default nixos\n"
++    "schedule nixos-work mon-fri 07:00-18:00\n"
++    "volume work partuuid=4a512320-ad94-44b6-883f-ba9c8a3335c2\n"
++    "entry NixOS | \\EFI\\systemd\\systemd-bootx64.efi | logos/nixos.png | backgrounds/nixos.jpg | nixos\n"
++    "entry NixOS (work) | @work:\\EFI\\systemd\\systemd-bootx64.efi | logos/nixos.png | backgrounds/nixos.jpg | nixos-work\n";
++
++static int load_with_time(int year, int month, int day, int hour, int minute, int offset)
++{
++    static char config_buffer[1024];
++    Config config;
++    EntryList entries;
++
++    /* The offset lives in the config, like the installer writes it. */
++    if (offset == 0) {
++        snprintf(config_buffer, sizeof(config_buffer), "%s", base_config);
++    } else {
++        int sign = offset < 0 ? '-' : '+';
++        int absolute = offset < 0 ? -offset : offset;
++
++        snprintf(config_buffer, sizeof(config_buffer), "utc_offset %c%02d%02d\n%s", sign,
++                 absolute / 60, absolute % 60, base_config);
++    }
++    config_text = config_buffer;
++    mem_set(&entries, 0, sizeof(entries));
++
++    mock_set_time(year, month, day, hour, minute, offset);
++
++    config_load(&config, &entries);
++    return config.default_index;
++}
++
++static void test_weekday_morning_picks_work(void)
++{
++    /* 2026-11-16 is a Monday. */
++    CHECK(load_with_time(2026, 11, 16, 10, 0, 0) == 1, "monday 10:00 defaults to the work entry");
++}
++
++static void test_before_seven_picks_nixos(void)
++{
++    CHECK(load_with_time(2026, 11, 16, 6, 59, 0) == 0, "monday 06:59 stays on the plain default");
++}
++
++static void test_start_is_inclusive(void)
++{
++    CHECK(load_with_time(2026, 11, 16, 7, 0, 0) == 1, "monday 07:00 counts as work");
++}
++
++static void test_end_is_exclusive(void)
++{
++    CHECK(load_with_time(2026, 11, 16, 18, 0, 0) == 0, "monday 18:00 is already over");
++}
++
++static void test_weekend_ignored(void)
++{
++    /* 2026-11-14 is a Saturday, 2026-11-15 a Sunday. */
++    CHECK(load_with_time(2026, 11, 14, 10, 0, 0) == 0, "saturday 10:00 stays on the plain default");
++    CHECK(load_with_time(2026, 11, 15, 10, 0, 0) == 0, "sunday 10:00 stays on the plain default");
++}
++
++static void test_friday_evening_over(void)
++{
++    CHECK(load_with_time(2026, 11, 20, 18, 0, 0) == 0, "friday 18:00 is over");
++}
++
++static void test_offset_moves_the_window(void)
++{
++    /* 06:30 UTC + 60 = 07:30 local on the same Monday: work. */
++    CHECK(load_with_time(2026, 11, 16, 6, 30, 60) == 1, "positive offset brings the window in");
++    /* 17:30 UTC + 60 = 18:30 local: over. */
++    CHECK(load_with_time(2026, 11, 16, 17, 30, 60) == 0, "positive offset pushes past the end");
++}
++
++static void test_offset_crossing_midnight_moves_the_day(void)
++{
++    /* Sunday 23:30 UTC + 60 = Monday 00:30 local: workday by date, but before
++       07:00, so the plain default. */
++    CHECK(load_with_time(2026, 11, 15, 23, 30, 60) == 0, "monday just after midnight is before the window");
++    /* Friday 23:30 UTC + 60 = Saturday 00:30: weekend, so the plain default;
++       either way it is outside the window, so this pins the weekday shift. */
++    CHECK(load_with_time(2026, 11, 20, 23, 30, 60) == 0, "saturday just after midnight is the weekend");
++}
++
++static void test_malformed_lines_ignored(void)
++{
++    config_text =
++        "default nixos\n"
++        "schedule nixos-work someday 07:00-18:00\n"
++        "schedule nixos-work mon-fri 18:00-07:00\n"
++        "schedule nixos-work mon-fri 7:00-18:00\n"
++        "volume work partuuid=4a512320-ad94-44b6-883f-ba9c8a3335c2\n"
++        "entry NixOS | \\EFI\\systemd\\systemd-bootx64.efi | logos/nixos.png | backgrounds/nixos.jpg | nixos\n"
++        "entry NixOS (work) | @work:\\EFI\\systemd\\systemd-bootx64.efi | logos/nixos.png | backgrounds/nixos.jpg | nixos-work\n";
++    mock_set_time(2026, 11, 16, 10, 0, 0);
++
++    {
++        Config config;
++        EntryList entries;
++
++        mem_set(&entries, 0, sizeof(entries));
++        config_load(&config, &entries);
++        CHECK(config.default_index == 0, "bad schedule lines do not change the default");
++    }
++}
++
++static void test_later_rule_wins(void)
++{
++    config_text =
++        "default nixos\n"
++        "schedule nixos-work mon-fri 07:00-18:00\n"
++        "schedule nixos mon-fri 12:00-13:00\n"
++        "volume work partuuid=4a512320-ad94-44b6-883f-ba9c8a3335c2\n"
++        "entry NixOS | \\EFI\\systemd\\systemd-bootx64.efi | logos/nixos.png | backgrounds/nixos.jpg | nixos\n"
++        "entry NixOS (work) | @work:\\EFI\\systemd\\systemd-bootx64.efi | logos/nixos.png | backgrounds/nixos.jpg | nixos-work\n";
++    mock_set_time(2026, 11, 16, 12, 30, 0);
++
++    {
++        Config config;
++        EntryList entries;
++
++        mem_set(&entries, 0, sizeof(entries));
++        config_load(&config, &entries);
++        CHECK(config.default_index == 0, "a later matching rule wins");
++    }
++}
++
++static void test_clock_format_is_24_hour(void)
++{
++    Clock clock;
++    EFI_TIME time;
++
++    mock_set_time(2026, 11, 16, 19, 37, 0);
++    RT->GetTime(&time, NULL);
++
++    clock_init(&clock, 0);
++    clock.updated_at = -10.0f;
++    clock_update(&clock, 0.0f);
++
++    CHECK(strcmp(clock.time, "19:37") == 0, "clock shows 19:37");
++    CHECK(clock.period[0] == '\0', "clock has no am/pm period");
++}
++
++int main(void)
++{
++    mock_efi_init();
++
++    test_weekday_morning_picks_work();
++    test_before_seven_picks_nixos();
++    test_start_is_inclusive();
++    test_end_is_exclusive();
++    test_weekend_ignored();
++    test_friday_evening_over();
++    test_offset_moves_the_window();
++    test_offset_crossing_midnight_moves_the_day();
++    test_malformed_lines_ignored();
++    test_later_rule_wins();
++    test_clock_format_is_24_hour();
++
++    return test_result();
++}
+diff --git a/tests/unit/support/efi_mock.c b/tests/unit/support/efi_mock.c
+index 5ca26f4..38df7d6 100644
+--- a/tests/unit/support/efi_mock.c
++++ b/tests/unit/support/efi_mock.c
+@@ -44,11 +44,38 @@ static EFI_STATUS EFIAPI set_variable(CHAR16 *name, EFI_GUID *vendor, UINT32 att
+     return mock_set_variable_status;
+ }
+ 
++static EFI_TIME mock_time = {
++    .Year = 2026,
++    .Month = 1,
++    .Day = 1,
++    .Hour = 0,
++    .Minute = 0,
++    .Second = 0,
++};
++
++static EFI_STATUS EFIAPI get_time(EFI_TIME *time, EFI_TIME_CAPABILITIES *capabilities)
++{
++    *time = mock_time;
++    return EFI_SUCCESS;
++}
++
++void mock_set_time(int year, int month, int day, int hour, int minute, int offset_minutes)
++{
++    mock_time.Year = (UINT16)year;
++    mock_time.Month = (UINT8)month;
++    mock_time.Day = (UINT8)day;
++    mock_time.Hour = (UINT8)hour;
++    mock_time.Minute = (UINT8)minute;
++    mock_time.Second = 0;
++    mock_time.TimeZone = (INT16)(-(offset_minutes / 60));
++}
++
+ void mock_efi_init(void)
+ {
+     boot_services.AllocatePool = allocate_pool;
+     boot_services.FreePool = free_pool;
+     runtime_services.SetVariable = set_variable;
++    runtime_services.GetTime = get_time;
+ 
+     BS = &boot_services;
+     RT = &runtime_services;
+diff --git a/tests/unit/support/efi_mock.h b/tests/unit/support/efi_mock.h
+index 6dfca54..10fb65b 100644
+--- a/tests/unit/support/efi_mock.h
++++ b/tests/unit/support/efi_mock.h
+@@ -11,6 +11,9 @@ void mock_efi_init(void);
+ void mock_fail_allocations_from(int number);
+ void mock_allow_allocations(void);
+ 
++/* The clock RT->GetTime returns; the offset only fills EFI_TIME.TimeZone. */
++void mock_set_time(int year, int month, int day, int hour, int minute, int offset_minutes);
++
+ /* What the next SetVariable call returns, and how often it was called. */
+ extern EFI_STATUS mock_set_variable_status;
+ extern int mock_set_variable_calls;
+-- 
+2.56.0
+

@@ -98,10 +98,13 @@ make_disk() {
 provision_desktop() {
     local img="$1@@$OFFSET" menu="$AARAMBH_OUT/share/aarambh"
 
-    mmd -i "$img" ::/EFI ::/EFI/BOOT ::/EFI/aarambh
+    mmd -i "$img" ::/EFI ::/EFI/BOOT ::/EFI/aarambh ::/EFI/SYSTEMD
     mcopy -i "$img" "$menu/aarambh.efi" ::/EFI/BOOT/BOOTX64.EFI
     mcopy -i "$img" "$menu/aarambh.efi" ::/EFI/aarambh/aarambh.efi
     mcopy -s -i "$img" "$menu/fonts" "$menu/logos" "$menu/backgrounds" ::/EFI/aarambh/
+    # The own-systemd-boot slot holds a marker loader: a schedule case that
+    # falls back to the plain default should start it.
+    mcopy -i "$img" "$WORK/deskboot.efi" ::/EFI/SYSTEMD/SYSTEMD-BOOTX64.EFI
 }
 
 provision_work() {
@@ -123,16 +126,20 @@ wait_for_socket() {
     return 1
 }
 
-# run_case <name> <fixture> <default key> <marker>
-# The marker must appear on the work ESP, and nothing may appear on the desktop
-# ESP.
+# run_case <name> <fixture> <default key> <rtc or ""> <want volume> <want marker>
+# Exactly one marker may be written: the wanted one, on its volume.
 run_case() {
-    local name=$1 fixture=$2 default=$3 marker=$4
+    local name=$1 fixture=$2 default=$3 rtc=$4 want_volume=$5 marker=$6
     local desk="$WORK/$name-desktop.img" work="$WORK/$name-work.img"
     local vars="$WORK/$name-vars.fd" sock="$WORK/$name.sock" log="$WORK/$name.log"
     local shot="$WORK/$name.ppm" pid waited theme_ok=0
+    local -a clock=()
 
-    echo "== $name: default $default, expecting $marker on the work ESP"
+    if [ -n "$rtc" ]; then
+        clock=(-rtc "base=$rtc")
+    fi
+
+    echo "== $name: default $default, rtc ${rtc:-now}, expecting $marker on the ${want_volume} ESP"
 
     cp "$WORK/base-desktop.img" "$desk"
     cp "$WORK/base-work.img" "$work"
@@ -143,7 +150,7 @@ run_case() {
 
     rm -f "$sock" "$shot"
     qemu-system-x86_64 \
-        -no-reboot -machine q35 -m 1024 \
+        -no-reboot -machine q35 -m 1024 "${clock[@]}" \
         -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
         -drive if=pflash,format=raw,file="$vars" \
         -drive if=none,id=desktop,format=raw,file="$desk" \
@@ -186,14 +193,21 @@ run_case() {
     done
     wait "$pid" 2>/dev/null || true
 
-    if mtype -i "$work@@$OFFSET" "::/$marker" >/dev/null 2>&1; then
-        echo "ok: $marker written to the work ESP"
-    else
-        fail "$name: $marker not found on the work ESP, see $log"
-    fi
+    # Exactly one marker across both volumes, and it is the expected one.
+    found=""
+    for probe in WORKBOOT.TXT WINBOOT.TXT DESKBOOT.TXT; do
+        if mtype -i "$desk@@$OFFSET" "::/$probe" >/dev/null 2>&1; then
+            found="$found desktop:$probe"
+        fi
+        if mtype -i "$work@@$OFFSET" "::/$probe" >/dev/null 2>&1; then
+            found="$found work:$probe"
+        fi
+    done
 
-    if mdir -i "$desk@@$OFFSET" ::/ 2>/dev/null | grep -qi "WORKBOOT\|WINBOOT"; then
-        fail "$name: a fake loader wrote to the desktop ESP"
+    if [ "$found" = " $want_volume:$marker" ]; then
+        echo "ok: $marker written to the $want_volume ESP"
+    else
+        fail "$name: expected only $want_volume:$marker, got${found:- nothing}, see $log"
     fi
 }
 
@@ -215,16 +229,21 @@ main() {
 
     build_marker workboot WORKBOOT.TXT
     build_marker winboot WINBOOT.TXT
+    build_marker deskboot DESKBOOT.TXT
 
     make_disk "$WORK/base-desktop.img" "$DESKTOP_PARTUUID"
     make_disk "$WORK/base-work.img" "$WORK_PARTUUID"
     provision_desktop "$WORK/base-desktop.img"
     provision_work "$WORK/base-work.img"
 
-    run_case explicit-work aarambh.conf nixos-work WORKBOOT.TXT
-    run_case explicit-windows aarambh.conf windows WINBOOT.TXT
-    run_case autodetect-systemd aarambh-autodetect.conf systemd-boot WORKBOOT.TXT
-    run_case autodetect-windows aarambh-autodetect.conf windows WINBOOT.TXT
+    run_case explicit-work aarambh.conf nixos-work "" work WORKBOOT.TXT
+    run_case explicit-windows aarambh.conf windows "" work WINBOOT.TXT
+    run_case autodetect-systemd aarambh-autodetect.conf systemd-boot "" work WORKBOOT.TXT
+    run_case autodetect-windows aarambh-autodetect.conf windows "" work WINBOOT.TXT
+    # 2026-11-16 is a Monday. Inside the window the work install starts by
+    # itself; outside it the plain default (this desktop's NixOS) does.
+    run_case schedule-monday-day aarambh-schedule.conf nixos 2026-11-16T10:00:00 work WORKBOOT.TXT
+    run_case schedule-monday-evening aarambh-schedule.conf nixos 2026-11-16T20:00:00 desktop DESKBOOT.TXT
 
     if [ "$FAILURES" -eq 0 ]; then
         echo "PASS: all Aarambh QEMU cases"

@@ -10,6 +10,16 @@
     enable = true;
     espPartuuid = "b85a008a-8f4f-45d8-a72e-26b9794d9cd4";
     volumes.work = "4a512320-ad94-44b6-883f-ba9c8a3335c2";
+
+    # On weekdays between 07:00 and 18:00 the work install starts by itself.
+    schedules = [
+      {
+        entry = "nixos-work";
+        days = "mon-fri";
+        from = "07:00";
+        until = "18:00";
+      }
+    ];
     entries = [
       {
         title = "NixOS (work)";

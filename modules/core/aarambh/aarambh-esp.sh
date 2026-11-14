@@ -229,6 +229,9 @@ stage_menu() {
     cp -r --no-preserve=mode "$AARAMBH_SHARE/aarambh.efi" "$AARAMBH_SHARE/fonts" \
         "$AARAMBH_SHARE/logos" "$AARAMBH_SHARE/backgrounds" "$staging/"
     install -m 0644 "$CONF" "$staging/aarambh.conf"
+    # The RTC runs in UTC; the menu adds this offset for its clock and for the
+    # schedule windows. Written fresh with every staging, so it never doubles.
+    printf 'utc_offset %s\n' "$(date +%z)" >>"$staging/aarambh.conf"
     write_kernels >"$staging/nixos.kernels"
     printf 'Managed by the NixOS aarambh module. Remove with aarambh-uninstall.\n' >"$staging/$MARKER"
 }

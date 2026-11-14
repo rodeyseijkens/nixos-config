@@ -111,6 +111,8 @@
 
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: partuuid: "volume ${name} partuuid=${partuuid}") cfg.volumes)}
 
+    ${lib.concatMapStringsSep "\n" (s: "schedule ${s.entry} ${s.days} ${s.from}-${s.until}") cfg.schedules}
+
     ${lib.concatMapStringsSep "\n" entryLine ([ownEntry] ++ cfg.entries ++ powerEntries)}
   '';
 
@@ -172,6 +174,39 @@ in {
       default = {};
       example = {work = "4a512320-ad94-44b6-883f-ba9c8a3335c2";};
       description = "Other ESPs by name and PARTUUID, used by @name: loaders.";
+    };
+
+    schedules = lib.mkOption {
+      type = lib.types.listOf (lib.types.submodule {
+        options = {
+          entry = lib.mkOption {
+            type = lib.types.str;
+            description = "Key or title of the entry that becomes the default.";
+          };
+          days = lib.mkOption {
+            type = lib.types.str;
+            default = "mon-fri";
+            example = "sat,sun";
+            description = "Days, as three-letter names or ranges: mon-fri, sat,sun, *.";
+          };
+          from = lib.mkOption {
+            type = lib.types.str;
+            example = "07:00";
+            description = "Start of the local window, HH:MM, inclusive.";
+          };
+          until = lib.mkOption {
+            type = lib.types.str;
+            example = "18:00";
+            description = "End of the local window, HH:MM, exclusive.";
+          };
+        };
+      });
+      default = [];
+      description = ''
+        While the local clock is inside a window on one of its days, that
+        entry becomes the default, and so the entry the countdown starts.
+        Later matching rules win. Outside every window, aarambh.default applies.
+      '';
     };
 
     entries = lib.mkOption {
