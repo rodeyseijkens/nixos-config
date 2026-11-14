@@ -210,7 +210,7 @@ Git (EXPAND)
 
 ## 🛠️ Scripts
 
-All the scripts are in `modules/home/scripts/scripts/` and are exported as packages in `modules/home/scripts/scripts.nix`
+All the scripts are in `modules/home/scripts/scripts/` and are exported as packages in `modules/home/scripts/default.nix`
 
 <details>
 <summary>
