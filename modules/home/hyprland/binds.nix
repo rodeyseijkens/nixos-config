@@ -45,7 +45,7 @@ in {
         (bind "SUPER ALT, Return" (exec "[fullscreen] ${terminal}"))
         (bind "SUPER, B" (exec "${browser}"))
         (bind "SUPER, E" (exec "${filebrowser}"))
-        (bind "SUPER SHIFT, D" (exec "legcord & steam"))
+        (bind "SUPER SHIFT, D" (exec "vesktop & steam"))
 
         # window management
         (bind "SUPER, Q" closeactive)

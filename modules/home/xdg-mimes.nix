@@ -15,7 +15,7 @@ with lib; let
     pdf = ["org.gnome.Evince.desktop"];
     terminal = ["ghostty.desktop"];
     archive = ["org.gnome.FileRoller.desktop"];
-    discord = ["legcord.desktop"];
+    discord = ["vesktop.desktop"];
   };
 
   mimeMap = {

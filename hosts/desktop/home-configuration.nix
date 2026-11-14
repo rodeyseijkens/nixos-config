@@ -101,7 +101,7 @@
 
     # Misc
     spicetify.enable = true;
-    legcord.enable = true;
+    vesktop.enable = true;
     obs-studio.enable = true;
     printing3d.enable = true;
     tiled.enable = true;

@@ -76,6 +76,7 @@ Hyprlock (EXPAND)
 | **System resource monitor**    |                                    [Btop][Btop]                                     |
 | **System Fetch**               |                               [Fastfetch][Fastfetch]                                |
 | **Browser**                    |                             [Zen Browser][zen-browser]                              |
+| **Discord Client**              |                                [Vesktop][Vesktop]                                   |
 | **File Manager**               |            [Nautilus][Nautilus] + [yazi][yazi] + [superfile][superfile]             |
 | **Fonts**                      |                              [Maple Mono][Maple Mono]                               |
 | **Color Scheme**               |                            [Gruvbox Dark Hard][Gruvbox]                             |
@@ -490,7 +491,7 @@ Keybindings
 - `$mod ALT, Return, exec, [fullscreen] $terminal`
 - `$mod, B, exec, $browser`
 - `$mod, E, exec, $filebrowser`
-- `$mod SHIFT, D, exec, legcord & steam`
+- `$mod SHIFT, D, exec, vesktop & steam`
 
 #### window management
 
@@ -654,7 +655,7 @@ After rebooting, the config should be applied, you'll be greeted by the Quickshe
 
 Even though I use home manager and Stylix for automated theming, there is still a little bit of manual configuration to do:
 
-- Enable Discord theme (in Discord settings under VENCORD > Themes).
+- Enable the Discord theme in Vesktop under Settings > Vencord > Themes.
 - Configure the browser (some browser configuration is done automatically for zen).
 - Change the git account information in `./modules/home/git.nix`
 
@@ -919,6 +920,7 @@ Other dotfiles that I learned / copy from:
 [Papirus-Dark]: https://github.com/PapirusDevelopmentTeam/papirus-icon-theme
 [Bibata-Modern-Ice]: https://www.gnome-look.org/p/1197198
 [zen-browser]: https://github.com/zen-browser/desktop
+[Vesktop]: https://github.com/Vencord/Vesktop
 [Maple Mono]: https://github.com/subframe7536/maple-font
 [micro]: https://micro-editor.github.io/
 [Zed]: https://zed.dev/

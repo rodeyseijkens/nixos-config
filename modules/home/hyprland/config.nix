@@ -49,7 +49,7 @@
         workspace = "9";
       }
       {
-        match.class = "^(legcord)$";
+        match.class = "(?i)^vesktop$";
         workspace = "10";
       }
       {
@@ -157,7 +157,7 @@ in {
           workspace = "8";
         }
         {
-          match.class = "^(legcord)$";
+          match.class = "(?i)^vesktop$";
           workspace = "10";
         }
       ];

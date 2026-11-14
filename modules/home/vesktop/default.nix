@@ -5,12 +5,12 @@
   ...
 }:
 with lib; let
-  cfg = config.modules.legcord;
+  cfg = config.modules.vesktop;
 in {
-  options.modules.legcord = {enable = mkEnableOption "legcord";};
+  options.modules.vesktop = {enable = mkEnableOption "vesktop";};
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      legcord
+      vesktop
     ];
   };
 }

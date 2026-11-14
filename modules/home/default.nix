@@ -14,7 +14,7 @@
     ./gtk.nix # gtk theme
     ./herdr # terminal agent multiplexer (gruvbox theme)
     ./hyprland # window manager
-    ./legcord # discord client with gruvbox
+    ./vesktop # discord client (Vencord)
     ./llm # llm tools and plugins
     ./micro.nix # nano replacement
     ./mise # dev tool version manager

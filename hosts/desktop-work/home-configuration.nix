@@ -72,7 +72,7 @@
 
     # Misc
     spicetify.enable = true;
-    legcord.enable = true;
+    vesktop.enable = true;
     tigervnc.enable = true;
     telegram.enable = true;
   };
