@@ -14,24 +14,12 @@ export TMPDIR
 
 # The built script comes from a plain nix build.
 set -e
-# The ESP script's store path shows up in the aarambh-uninstall wrapper, which
-# execs it by absolute path.
-UNINSTALL=$(
-    nix eval --json --impure --expr "
-      let
-        flake = builtins.getFlake \"path:$ROOT\";
-        lib = flake.inputs.nixpkgs.lib;
-        system = flake.nixosConfigurations.desktop.config;
-        matches = builtins.filter (p: lib.hasSuffix \"aarambh-uninstall\" (baseNameOf p)) system.environment.systemPackages;
-      in
-        map (p: p) matches" |
-        python3 -c 'import json,sys; v=[s for s in json.load(sys.stdin) if s]; print(v[0] if v else "")'
-)
-if [ -z "$UNINSTALL" ]; then
-    echo "FAIL: aarambh-uninstall not found among the desktop's system packages"
-    exit 1
-fi
-SCRIPT=$(sed -n "s/.*exec \(.*\/bin\/aarambh-esp\).*/\1/p" "$UNINSTALL/bin/aarambh-uninstall" | head -n1)
+# The ESP script rides in the system closure through the aarambh-uninstall
+# wrapper (the only system package exposing it). Build the cached toplevel and
+# resolve the wrapper's exec path.
+TL=$(nix build --no-link --print-out-paths '.#nixosConfigurations.desktop.config.system.build.toplevel' | tail -n1)
+wrapper=$(readlink -f "$TL/sw/bin/aarambh-uninstall")
+SCRIPT=$(sed -n 's/^exec \(.*\/bin\/aarambh-esp\).*/\1/p' "$wrapper" | head -n1)
 set -uo pipefail
 
 if [ ! -x "$SCRIPT" ]; then
@@ -116,6 +104,65 @@ check "the no-linux entry skipped" 0 "$(grep -c "Firmware test" "$WORK/nixos.ker
 
 if [ "$fail" = 0 ]; then
     echo "PASS: kernel list writer"
+else
+    echo "FAILED"
+    exit 1
+fi
+
+# The firmware entry matcher, against the efibootmgr -v shape this firmware
+# prints (no File() label on the path node). A stub efibootmgr feeds the
+# captured real output.
+cat >"$ESP/efibootmgr-sample.txt" <<'EOF'
+BootCurrent: 0003
+Timeout: 1 seconds
+BootOrder: 0006,0003,0005,0000,0008,0001,0002,0004
+Boot0000* Windows Boot Manager  HD(1,GPT,4a512320-ad94-44b6-883f-ba9c8a3335c2,0x1000,0xf8fff)/\EFI\MICROSOFT\BOOT\BOOTMGFW.EFI57494e444f5753000100000088000000780000004200430044004f0042004a004500430054003d007b00390064006500610038003600320063002d0035006300640064002d0034006500370030002d0061006300630031002d006600330032006200330034003400640034003700390035007d00000033000100000010000000040000007fff0400
+Boot0001* UEFI:CD/DVD Drive     BBS(129,,0x0)
+Boot0002* UEFI:Removable Device BBS(130,,0x0)
+Boot0003* Linux Boot Manager    HD(1,GPT,b85a008a-8f4f-45d8-a72e-26b9794d9cd4,0x1000,0x100000)/\EFI\SYSTEMD\SYSTEMD-BOOTX64.EFI
+Boot0004* UEFI:Network Device   BBS(131,,0x0)
+Boot0005* Linux Boot Manager    HD(1,GPT,4a512320-ad94-44b6-883f-ba9c8a3335c2,0x1000,0xf8fff)/\EFI\SYSTEMD\SYSTEMD-BOOTX64.EFI
+Boot0006* Aarambh       HD(1,GPT,b85a008a-8f4f-45d8-a72e-26b9794d9cd4,0x1000,0x100000)/\EFI\aarambh\aarambh.efi
+Boot0008* UEFI OS       HD(1,GPT,b85a008a-8f4f-45d8-a72e-26b9794d9cd4,0x1000,0x100000)/\EFI\BOOT\BOOTX64.EFI0000424f
+EOF
+
+fail=0
+check() {
+    if [ "$2" = "$3" ]; then
+        echo "ok: $1"
+    else
+        echo "FAIL: $1"
+        echo "  expected: $2"
+        echo "  got:      $3"
+        fail=1
+    fi
+}
+
+# A fake efibootmgr that prints the sample; put it first on PATH.
+mkdir -p "$WORK/bin"
+cat >"$WORK/bin/efibootmgr" <<EOF
+#!$(command -v bash)
+cat "$ESP/efibootmgr-sample.txt"
+EOF
+chmod +x "$WORK/bin/efibootmgr"
+
+{
+    sed -n '/^find_boot_entry()/,/^}/p' "$SCRIPT"
+} >"$WORK/match.sh"
+
+match() {
+    PATH="$WORK/bin:$PATH" bash -c 'set -eo pipefail; source "$0"; find_boot_entry "$1" "$2"' \
+        "$WORK/match.sh" "$1" "$2"
+}
+
+check "aarambh entry found" "0006" "$(match "b85a008a-8f4f-45d8-a72e-26b9794d9cd4" '\EFI\aarambh\aarambh.efi')"
+check "systemd-boot entry found" "0003" "$(match "b85a008a-8f4f-45d8-a72e-26b9794d9cd4" '\EFI\systemd\systemd-bootx64.efi')"
+check "windows entry found" "0000" "$(match "4a512320-ad94-44b6-883f-ba9c8a3335c2" '\EFI\MICROSOFT\BOOT\BOOTMGFW.EFI')"
+check "work systemd-boot entry found" "0005" "$(match "4a512320-ad94-44b6-883f-ba9c8a3335c2" '\EFI\systemd\systemd-bootx64.efi')"
+check "other volume not matched" "" "$(match "4a512320-ad94-44b6-883f-ba9c8a3335c2" '\EFI\aarambh\aarambh.efi')"
+
+if [ "$fail" = 0 ]; then
+    echo "PASS: firmware entry matcher"
 else
     echo "FAILED"
     exit 1

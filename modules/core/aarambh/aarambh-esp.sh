@@ -90,11 +90,14 @@ check_esp() {
 
 # Prints the boot number (e.g. 0007) of the firmware entry that starts the
 # loader $2 from the ESP with PARTUUID $1. Prints nothing when there is none.
+# The efibootmgr line looks like:
+#   Boot0006* Aarambh  HD(1,GPT,<uuid>,0x1000,0x100000)/\EFI\aarambh\aarambh.efi
+# There is no File() label on the path node, so the match is on the raw path.
 find_boot_entry() {
     efibootmgr -v | PART="${1,,}" FILE="${2,,}" awk '
         /^Boot[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]/ {
             line = tolower($0)
-            if (index(line, "gpt," ENVIRON["PART"] ",") > 0 && index(line, "file(" ENVIRON["FILE"] ")") > 0) {
+            if (index(line, "gpt," ENVIRON["PART"] ",") > 0 && index(line, ENVIRON["FILE"]) > 0) {
                 print substr($1, 5, 4)
                 exit
             }
