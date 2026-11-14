@@ -45,11 +45,12 @@ Column {
       if (root.calendars[i].id === root.form.calendarId) return root.calendars[i]
     return { id: root.form.calendarId || "", name: root.form.calendarId || "", color: "transparent" }
   }
-  // A CalDAV calendar has no Meet, no Google colours and no guests the
-  // panel can invite (see the sync's caldav.py), so the form leaves them out.
+  // A calendar that cannot store a feature lists it under "lacks" (the sync's
+  // caldir.LACKS), and the form leaves that feature out.
   readonly property bool hasGuests: !Model.calendarLacks(root.calendar, "guests")
   readonly property bool hasMeet: !Model.calendarLacks(root.calendar, "meet")
   readonly property bool hasColor: !Model.calendarLacks(root.calendar, "color")
+  readonly property bool hasRepeat: !Model.calendarLacks(root.calendar, "repeat")
 
   spacing: Style.space(8)
 
@@ -260,6 +261,7 @@ Column {
 
   FieldRow {
     id: repeatRow
+    visible: root.hasRepeat
     label: root.tr("form.repeat")
     RepeatPicker {
       width: repeatRow.slotWidth
@@ -360,7 +362,7 @@ Column {
 
   // Always say where the event goes. There is a choice only for a new event
   // with several writable calendars: moving an existing event to another
-  // calendar needs Google's events.move, which the event command does not do.
+  // calendar is not something the event command does.
   FieldRow {
     id: calendarRow
     readonly property bool choosable: root.calendars.length > 1 && !root.isEditing

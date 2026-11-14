@@ -41,13 +41,11 @@ Panel {
   implicitWidth: panel ? panel.implicitWidth : 0
   implicitHeight: panel ? panel.implicitHeight : 0
 
-  readonly property string language: Strings.resolveLanguage(setting("language", "auto"), Qt.locale().name)
-  readonly property var uiLocale: Qt.locale(Strings.localeName(language))
-  // Day and month names come from uiLocale; the order they go in is the
-  // language's own.
-  readonly property var datePatterns: language === "pt"
-    ? { hero: "d 'de' MMMM", long: "dddd, d 'de' MMMM", short: "ddd, d MMM", month: "MMMM 'de' yyyy" }
-    : { hero: "MMMM d", long: "dddd, MMMM d", short: "ddd, MMM d", month: "MMMM yyyy" }
+  readonly property string language: "en"
+  readonly property var uiLocale: Qt.locale("en_US")
+  readonly property var datePatterns: ({
+    hero: "MMMM d", long: "dddd, MMMM d", short: "ddd, MMM d", month: "MMMM yyyy"
+  })
 
   function tr(key, args) {
     return Strings.tr(root.language, key, args)
@@ -116,9 +114,8 @@ Panel {
   // location, so it is right however the plugin was installed.
   readonly property string setupCommand: Model.commandPathFromUrl(
     Qt.resolvedUrl("sync/setup"), Quickshell.env("HOME") || "")
-  // A CalDAV account turns writing on in its own setup: --write would start
-  // the Google Cloud one.
-  readonly property string writeSetupCommand: root.setupCommand + (root.caldavSource ? " --caldav" : " --write")
+  // setup connects the provider through caldir and turns writing on.
+  readonly property string writeSetupCommand: root.setupCommand
 
   // Which blocks the panel shows. See Model.layoutFromSettings.
   readonly property var layout: Model.layoutFromSettings(root.settings)
@@ -154,11 +151,10 @@ Panel {
   }
 
   // ---- Writing. The sync lists the calendars the panel may change; with no
-  //      list, quick add goes to Google Calendar in the browser instead,
-  //      except for CalDAV, whose events are not in Google.
+  //      list, quick add says writing is off instead of guessing where the
+  //      event belongs: caldir can read any provider.
   readonly property var writableCalendars: (eventDoc && eventDoc.writableCalendars) || []
   readonly property bool canWrite: writableCalendars.length > 0
-  readonly property bool caldavSource: Model.sourceBackend(eventDoc ? eventDoc.source : "") === "caldav"
   property bool formOpen: false
   // The form the event form opens with: a get's reply, or a new one.
   property var formInitial: null
@@ -240,12 +236,15 @@ Panel {
   }
 
   // ---- Quick add.
-  readonly property var quickParsed: QuickAddParser.parseQuickAdd(agenda.quickText, nowTick, language)
-  readonly property var quickUnderstood: QuickAddParser.quickAddUnderstood(agenda.quickText, nowTick, language)
-  // The rows under the field, written in the panel's locale. A read-only
-  // setup hands every event to Google, so nothing opens the form there.
+  readonly property var quickParsed: QuickAddParser.parseQuickAdd(agenda.quickText, nowTick)
+  readonly property var quickUnderstood: QuickAddParser.quickAddUnderstood(agenda.quickText, nowTick)
+  // What the calendar a quick add would go to cannot store; the preview
+  // leaves those rows out and the form starts without them.
+  readonly property var quickLacks: (root.writableCalendars.length ? root.writableCalendars[0].lacks : []) || []
+  // The rows under the field, written in the panel's locale. A read-only setup
+  // keeps the text in the field and says how to turn writing on.
   readonly property var quickPreview: {
-    var preview = QuickAddParser.quickAddPreview(agenda.quickText, nowTick, language, {
+    var preview = QuickAddParser.quickAddPreview(agenda.quickText, nowTick, {
       day: function(key) {
         return key === root.todayKey ? root.tr("day.today") : root.formatDate(Model.dateFromKey(key, root.today), "short")
       },
@@ -264,7 +263,7 @@ Panel {
         return preset
       },
       allDay: function() { return root.tr("quick.allDay") }
-    })
+    }, root.quickLacks)
     if (!root.canWrite) {
       preview.opensForm = false
       if (preview.hint === "quick.hintGuest") preview.hint = ""
@@ -625,7 +624,7 @@ Panel {
   function submitQuickAdd(moreOptions) {
     var parsed = root.quickParsed
     if (moreOptions && root.canWrite) {
-      if (parsed) root.openForm(QuickAddParser.quickAddForm(parsed, root.writableCalendars[0].id))
+      if (parsed) root.openForm(QuickAddParser.quickAddForm(parsed, root.writableCalendars[0].id, root.quickLacks))
       else root.newEvent()
       agenda.clearQuickAdd()
       return
@@ -634,21 +633,15 @@ Panel {
       if (agenda.quickText.trim() !== "") root.showToast(root.tr("quick.needsTitle"))
       return
     }
-    if (!root.canWrite && root.caldavSource) {
+    if (!root.canWrite) {
       // The text stays in the field for when writing is on.
       root.showToast(root.tr("toast.writeOff"))
-      return
-    }
-    if (!root.canWrite) {
-      Qt.openUrlExternally(Model.safeUrl(QuickAddParser.googleTemplateUrl(parsed)))
-      root.showToast(root.tr("toast.openedInGoogle"))
-      agenda.clearQuickAdd()
       return
     }
     // Guests get the form first: a mistyped address shows there, and
     // saving asks whether to email the invitations.
     if (parsed.guests.length > 0) {
-      root.openForm(QuickAddParser.quickAddForm(parsed, root.writableCalendars[0].id))
+      root.openForm(QuickAddParser.quickAddForm(parsed, root.writableCalendars[0].id, root.quickLacks))
       agenda.clearQuickAdd()
       return
     }
@@ -658,7 +651,7 @@ Panel {
       action: "create",
       scope: "this",
       sendUpdates: "none",
-      event: QuickAddParser.quickAddForm(parsed, root.writableCalendars[0].id)
+      event: QuickAddParser.quickAddForm(parsed, root.writableCalendars[0].id, root.quickLacks)
     }, "save")
     agenda.clearQuickAdd()
     root.selectDay(parsed.dateKey)
@@ -1085,7 +1078,6 @@ Panel {
                 foreground: root.contentForeground
                 fontFamily: root.contentFontFamily
                 language: root.language
-                languageSetting: String(root.setting("language", "auto"))
                 calendars: root.knownCalendars
                 hiddenCalendars: root.hiddenCalendars
                 calendarCounts: root.calendarCounts
@@ -1126,7 +1118,6 @@ Panel {
                 onWorkingLocationToggled: root.persistSettings({ showWorkingLocation: !root.showWorkingLocation })
                 onHideDeclinedToggled: root.persistSettings({ hideDeclined: !root.hideDeclined })
                 onWeekStartToggled: root.toggleWeekStart()
-                onLanguagePicked: function(value) { root.persistSettings({ language: value }) }
               }
             }
           }

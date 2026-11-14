@@ -6,8 +6,8 @@ import qs.Ui
 import "Strings.js" as Strings
 
 // One line of feedback over the bottom of the agenda: "Created: …",
-// "Opened in Google Calendar", or an error. The panel owns the text and the
-// timeout; this only draws it and offers a way to dismiss it early.
+// "Saved", or an error. The panel owns the text and the timeout; this only
+// draws it and offers a way to dismiss it early.
 Rectangle {
   id: root
 

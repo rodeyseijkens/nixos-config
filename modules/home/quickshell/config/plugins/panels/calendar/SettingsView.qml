@@ -15,7 +15,7 @@ Item {
 
   property color foreground: "white"
   property string fontFamily: ""
-  // The resolved display language ("en" | "pt").
+  // Calendar panel strings are English-only.
   property string language: "en"
   property string section: "panel"
 
@@ -47,8 +47,6 @@ Item {
   property bool hideDeclined: false
 
   // General
-  // The stored setting ("auto" | "en" | "pt"), not the resolved language.
-  property string languageSetting: "auto"
   property bool weekStartsMonday: true
   property bool showLunarDates: false
   property string lunarCalendar: "vietnamese"
@@ -70,7 +68,6 @@ Item {
   signal workingLocationToggled()
   signal hideDeclinedToggled()
   signal weekStartToggled()
-  signal languagePicked(string value)
   signal setupCommandCopyRequested()
   signal writeSetupCopyRequested()
 
@@ -279,7 +276,6 @@ Item {
         foreground: root.foreground
         fontFamily: root.fontFamily
         language: root.language
-        languageSetting: root.languageSetting
         weekStartsMonday: root.weekStartsMonday
         showLunarDates: root.showLunarDates
         lunarCalendar: root.lunarCalendar
@@ -291,7 +287,6 @@ Item {
         eventCount: root.eventCount
         sourceLabel: root.sourceLabel
         syncedAt: root.syncedAt
-        onLanguagePicked: function(value) { root.languagePicked(value) }
         onWeekStartToggled: root.weekStartToggled()
         onLunarDatesToggled: root.picked({ showLunarDates: !root.showLunarDates })
         onLunarCalendarPicked: function(value) { root.picked({ lunarCalendar: value }) }

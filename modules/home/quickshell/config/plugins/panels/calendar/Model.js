@@ -1356,19 +1356,12 @@ function isWritable(event, writableCalendars) {
 }
 
 // A writable calendar's "lacks" lists what the form offers that it cannot
-// store ("guests", "meet", "color"). Absent means it lacks nothing, which
-// is Google.
+// store ("guests", "meet", "color", "repeat"). Absent means it lacks nothing.
 function calendarLacks(calendar, feature) {
   var lacks = (calendar && calendar.lacks) || []
   for (var i = 0; i < lacks.length; i++)
     if (lacks[i] === feature) return true
   return false
-}
-
-// The backend that wrote the events file: "caldav" for a source of
-// "caldav/7.3.0", blank before the first sync.
-function sourceBackend(source) {
-  return text(source).split("/")[0]
 }
 
 // Today: the next half hour. Another day: 09:00. Always 30 minutes, and
@@ -1543,14 +1536,13 @@ function nthWeekday(key) {
 function repeatOptions(key, lang, withCustom) {
   var p = partsOfKey(key)
   var nth = nthWeekday(key)
-  var gender = Strings.weekdayGender(lang, nth.weekday)
   var weekday = Strings.tr(lang, "weekday." + nth.weekday)
   var options = [
     { value: "none", label: Strings.tr(lang, "repeat.none") },
     { value: "daily", label: Strings.tr(lang, "repeat.daily") },
-    { value: "weekly", label: Strings.trFor(lang, "repeat.weekly", gender, [weekday]) },
-    { value: "monthly", label: Strings.trFor(lang, "repeat.monthly", gender,
-        [Strings.trFor(lang, "ordinal." + nth.n, gender), weekday]) },
+    { value: "weekly", label: Strings.tr(lang, "repeat.weekly", [weekday]) },
+    { value: "monthly", label: Strings.tr(lang, "repeat.monthly",
+        [Strings.tr(lang, "ordinal." + nth.n), weekday]) },
     { value: "monthlyDate", label: Strings.tr(lang, "repeat.monthlyDate", [p.day]) },
     { value: "yearly", label: Strings.tr(lang, "repeat.yearly", [p.day, Strings.tr(lang, "month." + p.month)]) },
     { value: "weekdays", label: Strings.tr(lang, "repeat.weekdays") }

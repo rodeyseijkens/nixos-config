@@ -2,13 +2,11 @@
 .import "Model.js" as Model
 .import "QuickAddWords.js" as Words
 
-// Quick add. One line in either language ("call with Ana tomorrow 2pm
-// for 45m", "dentista sexta às 15h") becomes a draft event. English and
-// Portuguese are always both understood; `lang` only decides whether
-// 12/10 is a day-month or month-day date. Matching runs on a folded
-// copy of the text (lower case, no accents, same length), and every
-// phrase it understands is blanked out of the original, so the title
-// is whatever words are left, in the user's own spelling.
+// Quick add. One English line ("call with Ana tomorrow 2pm for 45m") becomes
+// a draft event. Matching runs on a lower-case copy of the text, and every
+// phrase it understands is blanked out of the original, so the title is
+// whatever words are left, in the user's own spelling. Numeric dates use
+// month/day order.
 //
 // When it lands: a time with no day is today, a day with no time is all
 // day, and neither is the next half hour, for half an hour.
@@ -57,104 +55,93 @@ function keyOf(word, table) {
 }
 
 var QUICK_FULL_MONTH = alternation([Words.MONTHS, Words.MONTHS_EN_SHORT])
-var QUICK_PT_SHORT_MONTH = alternation([Words.MONTHS_PT_SHORT])
-var QUICK_EN_MONTH = alternation([Words.MONTHS.map(function(row) { return [row[0]] }), Words.MONTHS_EN_SHORT])
+var QUICK_EN_MONTH = QUICK_FULL_MONTH
 var QUICK_WEEKDAY = alternation([Words.WEEKDAYS])
 var QUICK_MERIDIEM = "(?:am|pm|a\\.m\\.?|p\\.m\\.?)"
-var QUICK_CLOCK = "\\d{1,2}(?::\\d{2})?\\s?" + QUICK_MERIDIEM + "|\\d{1,2}:\\d{2}|\\d{1,2}h(?:\\d{2}(?:min|m)?)?(?: e meia)?"
-  + "|\\d{1,2} e meia|noon|midday|midnight|meio-dia|meio dia|meia-noite|meia noite"
-var QUICK_DATE_PREFIX = "(?:(?:on|em|no dia|dia|by|until|ate|para|pra) )?"
+var QUICK_CLOCK = "\\d{1,2}(?::\\d{2})?\\s?" + QUICK_MERIDIEM + "|\\d{1,2}:\\d{2}|noon|midday|midnight"
+var QUICK_DATE_PREFIX = "(?:(?:on|by|until) )?"
 var QUICK_ORDINAL = "(?:st|nd|rd|th)?"
 var QUICK_EN_HOUR = oneOf(Words.EN_HOURS)
 
 // A count: digits, or words with a space before the unit ("two hours").
 var QUICK_NUMBER_WORDS = "(?:a couple of|" + oneOf(Words.EN_TENS) + "(?:[- ]" + oneOf(Words.EN_DIGITS) + ")?|"
-  + oneOf(Words.PT_TENS) + "(?: e " + oneOf(Words.PT_DIGITS) + ")?|" + oneOf(Words.TEENS) + "|"
-  + oneOf(Words.EN_DIGITS.concat(Words.PT_DIGITS)) + "|an|a)"
+  + oneOf(Words.TEENS) + "|" + oneOf(Words.EN_DIGITS) + "|an|a)"
 var QUICK_COUNT = "(?:\\d+(?:[.,]\\d+)?(?: and a half)?\\s?|" + QUICK_NUMBER_WORDS + "(?: and a half)? )"
-var QUICK_HALF = "(?: and a half| e meia)?"
-// A length: "45m", "1h30", "two hours", "uma hora e meia", "3 days".
-var QUICK_AMOUNT = "(?:half an hour|meia hora|(?:a |um )?quarter of an hour|um quarto de hora|"
+var QUICK_HALF = "(?: and a half)?"
+// A length: "45m", "1h30", "two hours" or "3 days".
+var QUICK_AMOUNT = "(?:half an hour|(?:a )?quarter of an hour|"
   + QUICK_COUNT + oneOf(Words.HOUR_UNITS) + "(?:\\s?\\d{1,2}\\s?" + oneOf(Words.MINUTE_UNITS) + "?)?" + QUICK_HALF + "|"
   + QUICK_COUNT + oneOf(Words.MINUTE_UNITS.concat(Words.DAY_UNITS, Words.WEEK_UNITS, Words.MONTH_UNITS))
   + QUICK_HALF + ")"
 var QUICK_AMOUNT_PARTS = new RegExp("^(\\d+(?:[.,]\\d+)?|" + QUICK_NUMBER_WORDS + ")( and a half)?\\s?([a-z]+)"
-  + "(?:\\s?(\\d{1,2})\\s?[a-z]*)?( and a half| e meia)?$")
-// What joins the two days of a range: "friday to sunday", "sexta a domingo".
-var QUICK_DAY_JOIN = /^\s*(?:-|\u2013|to|until|till|through|thru|ate|a)\s+/
+  + "(?:\\s?(\\d{1,2})\\s?[a-z]*)?( and a half)?$")
+// What joins the two days of a range: "friday to sunday".
+var QUICK_DAY_JOIN = /^\s*(?:-|\u2013|to|until|till|through|thru|and)\s+/
 
 var QUICK_PATTERNS = {
-  allDay: /\s(?:all day|all-day|the whole day|whole day|o dia todo|dia todo|o dia inteiro|dia inteiro)(?=\s)/,
+  allDay: /\s(?:all day|all-day|the whole day|whole day)(?=\s)/,
   // Groups: 1 a word that introduces the address, 2 the address.
-  guest: /\s((?:with|com|and|e|invite|convidar|convide|&|\+)\s+)?([a-z0-9._%+\-]+@[a-z0-9\-]+(?:\.[a-z0-9\-]+)*\.[a-z]{2,})(?=\s)/,
-  // Groups: 1 every/toda/on/nas, 2 the weekday, 3 a plural s, 4 "-feiras".
+  guest: /\s((?:with|and|invite|&|\+)\s+)?([a-z0-9._%+\-]+@[a-z0-9\-]+(?:\.[a-z0-9\-]+)*\.[a-z]{2,})(?=\s)/,
+  // Groups: 1 every/each/on, 2 the weekday, 3 a plural s.
   repeatWeekday: new RegExp("\\s(" + oneOf(Words.EVERY_WORDS.concat(Words.PLURAL_DAY_WORDS)) + ") "
-    + QUICK_WEEKDAY + "(s)?((?:-| )feiras?)?(?=\\s)"),
+    + QUICK_WEEKDAY + "(s)?(?=\\s)"),
   repeatPhrase: new RegExp("\\s(" + oneOf(wordsOf(Words.REPEAT_PHRASES)) + ")(?=\\s)"),
-  // "todo dia 5": the 5th of each month. Group 1 the day.
-  repeatMonthDay: /\s(?:todo|todos os) dia (\d{1,2})(?=\s)/,
-  relative: new RegExp("\\s(?:in|em|daqui a|daqui|dentro de) (?:about |around |cerca de )?(" + QUICK_AMOUNT + ")(?=\\s)"),
-  now: /\s(?:right now|now|agora mesmo|agora)(?=\s)/,
-  // Groups: 1 and 2 the days, 3 or 4 the month, 5 the year.
-  dayRange: new RegExp("\\s(?:(?:from|de|do dia|dos dias|between|entre) )?(?:the |dia )?(\\d{1,2})" + QUICK_ORDINAL
-    + "\\s?(?:-|\u2013|to|until|till|through|thru|a|ate|and|e)\\s?(?:the |o dia |dia )?(\\d{1,2})" + QUICK_ORDINAL
-    + " (?:(?:de |of )?" + QUICK_FULL_MONTH + "|de " + QUICK_PT_SHORT_MONTH + ")(?:,?\\s+(?:de )?(\\d{4}))?(?=\\s)"),
+  relative: new RegExp("\\sin (?:about |around )?(" + QUICK_AMOUNT + ")(?=\\s)"),
+  now: /\s(?:right now|now)(?=\s)/,
+  // Groups: 1 and 2 the days, 3 the month, 4 the year.
+  dayRange: new RegExp("\\s(?:(?:from|between) )?(?:the )?(\\d{1,2})" + QUICK_ORDINAL
+    + "\\s?(?:-|\u2013|to|until|till|through|thru|and)\\s?(?:the )?(\\d{1,2})" + QUICK_ORDINAL
+    + " (?:(?:of )?" + QUICK_FULL_MONTH + ")(?:,?\\s+(?:of )?(\\d{4}))?(?=\\s)"),
   // Groups: 1 the month, 2 the first day, 3 a second month, 4 the last day, 5 the year.
   monthDayRange: new RegExp("\\s(?:from )?" + QUICK_EN_MONTH + " (\\d{1,2})" + QUICK_ORDINAL
     + "\\s?(?:-|\u2013|to|until|till|through|thru)\\s?(?:" + QUICK_EN_MONTH + " )?(\\d{1,2})" + QUICK_ORDINAL
     + "(?:,?\\s+(\\d{4}))?(?=\\s)"),
-  // Groups: 1 this/next/no, 2 "que vem".
-  weekend: /\s(?:(this|next|on the|the|o|no|neste|este|nesse|esse|no proximo|proximo) )?(?:weekend|fim de semana|fds)( que vem)?(?=\s)/,
+  weekend: /\s(?:(this|next|on the|the) )?weekend(?=\s)/,
   isoDate: new RegExp("\\s" + QUICK_DATE_PREFIX + "(\\d{4})-(\\d{2})-(\\d{2})(?=\\s)"),
   numericDate: new RegExp("\\s" + QUICK_DATE_PREFIX + "(\\d{1,2})/(\\d{1,2})(?:/(\\d{4}|\\d{2}))?(?=\\s)"),
   dayMonth: new RegExp("\\s" + QUICK_DATE_PREFIX + "(?:the )?(\\d{1,2})" + QUICK_ORDINAL
-    + " (?:(?:de |of )?" + QUICK_FULL_MONTH + "|de " + QUICK_PT_SHORT_MONTH + ")(?:,?\\s+(?:de )?(\\d{4}))?(?=\\s)"),
+    + " (?:of )?" + QUICK_FULL_MONTH + "(?:,?\\s+(\\d{4}))?(?=\\s)"),
   monthDay: new RegExp("\\s(?:on )?" + QUICK_EN_MONTH + " (\\d{1,2})" + QUICK_ORDINAL + "(?:,?\\s+(\\d{4}))?(?=\\s)"),
-  dayAfterTomorrow: /\s(?:depois de amanha|day after tomorrow)(?=\s)/,
-  tomorrow: /\s(?:amanha|tomorrow|tmrw|tmr|tomorow|tommorow|tommorrow)(?=\s)/,
-  today: /\s(?:hoje|today)(?=\s)/,
-  yesterday: /\s(?:ontem|yesterday)(?=\s)/,
-  nextWeek: /\s(?:next week|(?:na )?semana que vem|(?:na )?proxima semana)(?=\s)/,
-  // Groups: 1 a word introducing the day, 2 next/próxima/coming, 3 the
-  // weekday, 4 "que vem", 5 a time straight after (looked at, not consumed).
-  weekday: new RegExp("\\s((?:on|na|no|nesta|neste|esta|este|this|by|until|ate) )?((?:next|proxima|proximo|coming) )?"
-    + QUICK_WEEKDAY + "(?:-feira| feira)?( que vem)?"
-    + "(?=\\s(?:((?:(?:at|as|a partir das|starting at|from|das|entre|@)\\s?)?(?:" + QUICK_CLOCK + ")"
-    + "|(?:at|as|@)\\s?\\d{1,2})(?=[\\s\\-\u2013]))?)"),
-  monthDayOnly: /\s(?:(?:on )?the (\d{1,2})(?:st|nd|rd|th)?|(?:on )?(\d{1,2})(?:st|nd|rd|th)|(?:no )?dia (\d{1,2}))(?=\s)/,
+  dayAfterTomorrow: /\sday after tomorrow(?=\s)/,
+  tomorrow: /\s(?:tomorrow|tmrw|tmr|tomorow|tommorow|tommorrow)(?=\s)/,
+  today: /\stoday(?=\s)/,
+  yesterday: /\syesterday(?=\s)/,
+  nextWeek: /\snext week(?=\s)/,
+  // Groups: 1 a word introducing the day, 2 next/coming, 3 the weekday,
+  // 4 a time immediately after, looked at but not consumed.
+  weekday: new RegExp("\\s((?:on|this|by|until) )?((?:next|coming) )?"
+    + QUICK_WEEKDAY
+    + "(?=\\s((?:(?:at|starting at|from|@)\\s?)?(?:" + QUICK_CLOCK + "|\\d{1,2})(?=[\\s\\-\\u2013]))?)"),
+  monthDayOnly: /\s(?:(?:on )?the (\d{1,2})(?:st|nd|rd|th)?|(?:on )?(\d{1,2})(?:st|nd|rd|th))(?=\s)/,
   dayPart: new RegExp("\\s(" + oneOf(wordsOf(Words.DAY_PART_PHRASES)) + ")(?=\\s)"),
   dayPartWord: new RegExp("\\s(" + oneOf(wordsOf(Words.DAY_PART_WORDS)) + ")(?=\\s)"),
-  // Groups: 1 the word that opens a range, 2 its start, 3 its end.
-  timeRange: new RegExp("\\s(?:(from|de|das|entre|between) )?(" + QUICK_CLOCK + "|\\d{1,2})"
-    + "\\s?(?:-|\u2013|to|until|till|ate|as|a|e|and)\\s?(" + QUICK_CLOCK + "|\\d{1,2})(?=\\s)"),
-  // An end with no start: "until 11am", "até às 11h".
-  untilTime: new RegExp("\\s(?:until|till|til|ate(?: as| a)?)\\s?(" + QUICK_CLOCK + "|\\d{1,2})(?=\\s)"),
+  timeRange: new RegExp("\\s(?:(from|between) )?(" + QUICK_CLOCK + "|\\d{1,2})"
+    + "\\s?(?:-|\u2013|to|until|till|through|and)\\s?(" + QUICK_CLOCK + "|\\d{1,2})(?=\\s)"),
+  untilTime: new RegExp("\\s(?:until|till|til)\\s?(" + QUICK_CLOCK + "|\\d{1,2})(?=\\s)"),
   // Groups: 1 half past/quarter past/quarter to, 2 the hour, 3 am/pm.
   pastTime: new RegExp("\\s(?:(?:at|@)\\s?)?(half past|quarter past|quarter to) (\\d{1,2}|" + QUICK_EN_HOUR + ")"
     + "(?:\\s?(" + QUICK_MERIDIEM + "))?(?=\\s)"),
   // Groups: 1 the hour, 2 am/pm.
   oclock: new RegExp("\\s(?:(?:at|@)\\s?)?(\\d{1,2}|" + QUICK_EN_HOUR + ") o(?:['\u2019]| )?clock"
     + "(?:\\s?(" + QUICK_MERIDIEM + "))?(?=\\s)"),
-  // Groups: 1 an English hour, 2 a Portuguese hour, 3 "e meia".
-  wordTime: new RegExp("\\s(?:at (" + QUICK_EN_HOUR + ")|as (" + oneOf(Words.PT_HOURS) + ")( e meia)?)(?=\\s)"),
-  prefixedTime: new RegExp("\\s(?:at|as|a partir das|starting at|@)\\s?(" + QUICK_CLOCK + "|\\d{1,2})(?=\\s)"),
+  wordTime: new RegExp("\\sat (" + QUICK_EN_HOUR + ")(?=\\s)"),
+  prefixedTime: new RegExp("\\s(?:at|starting at|@)\\s?(" + QUICK_CLOCK + "|\\d{1,2})(?=\\s)"),
   plainTime: new RegExp("\\s(\\d{1,2}(?::\\d{2})?\\s?" + QUICK_MERIDIEM + "|\\d{1,2}:\\d{2}"
-    + "|noon|midday|midnight|meio-dia|meio dia|meia-noite|meia noite)(?=\\s)"),
-  hourPhrase: /\s(\d{1,2}h(?:\d{2}(?:min|m)?)?(?: e meia)?)(?=\s)/,
-  prefixedDuration: new RegExp("\\s(?:for|por|durante) (?:about |around |cerca de |the next )?(" + QUICK_AMOUNT + ")(?=\\s)"),
-  plainDuration: /\s(\d+\s?(?:m|min|mins|minute|minutes|minuto|minutos)|\d+[.,]\d+\s?(?:h|hr|hrs|hours?|horas?)|\d+ (?:hours?|horas?|hrs?|days|dias|weeks|semanas)|half an hour|meia hora)(?=\s)/,
-  meet: /\s(?:google meet|meet|call|video call|videocall|video|zoom|videochamada|chamada|videoconferencia|reuniao online)(?=\s)/
+    + "|noon|midday|midnight)(?=\\s)"),
+  hourPhrase: /\s(\d{1,2}h(?:\d{2}(?:min|m)?)?)(?=\s)/,
+  prefixedDuration: new RegExp("\\sfor (?:about |around |the next )?(" + QUICK_AMOUNT + ")(?=\\s)"),
+  plainDuration: /\s(\d+\s?(?:m|min|mins|minute|minutes)|\d+[.,]\d+\s?(?:h|hr|hrs|hours?)|\d+ (?:hours?|hrs?|days|weeks)|half an hour)(?=\s)/,
+  meet: /\s(?:google meet|meet|call|video call|videocall|video|zoom)(?=\s)/
 }
 
-// Words that only introduce the phrase after them ("até dia 5", "for 45m")
-// and would otherwise be left dangling in the title.
-var QUICK_LEADING_WORDS = ["on", "at", "for", "from", "by", "until", "ate", "as", "em", "no", "na", "de", "do",
-  "da", "das", "para", "pra", "por", "durante", "this", "next", "proxima", "proximo"]
+// Words that only introduce the phrase after them and would otherwise be
+// left dangling in the title.
+var QUICK_LEADING_WORDS = ["on", "at", "for", "from", "by", "until", "this", "next", "coming"]
 
 function foldForMatching(original) {
   var lower = original.toLowerCase()
   if (lower.length !== original.length) lower = original
-  var folded = lower.replace(/[^\x00-\x7f]/g, function(c) { return Words.FOLDED_LETTERS[c] || c })
+  var folded = lower
   // Sentence punctuation separates words; inside "1,5h", "14:30" or "a.m."
   // it does not.
   return folded.replace(/[;!?()\[\]"]/g, " ").replace(/[.,:](?=\s|$)/g, " ")
@@ -241,7 +228,7 @@ function daysBetween(start, end) {
 function numberValue(phrase) {
   if (/^\d/.test(phrase)) return Number(phrase.replace(",", "."))
   if (phrase === "a couple of") return 2
-  var parts = phrase.split(/ e |[- ]/)
+  var parts = phrase.split(/[- ]/)
   var total = 0
   for (var i = 0; i < parts.length; i++) {
     if (!Words.NUMBER_WORDS.hasOwnProperty(parts[i])) return NaN
@@ -252,8 +239,8 @@ function numberValue(phrase) {
 
 // A length as { minutes } (a day at most), { days } or { months }, or null.
 function amountOf(phrase) {
-  if (/^(?:half an hour|meia hora)$/.test(phrase)) return { minutes: 30 }
-  if (/quarter of an hour|quarto de hora/.test(phrase)) return { minutes: 15 }
+  if (/^half an hour$/.test(phrase)) return { minutes: 30 }
+  if (/quarter of an hour/.test(phrase)) return { minutes: 15 }
   var m = phrase.match(QUICK_AMOUNT_PARTS)
   if (!m) return null
   var amount = numberValue(m[1]) + (m[2] || m[5] ? 0.5 : 0)
@@ -288,19 +275,13 @@ function readGuests(scanner) {
   }
 }
 
-// { preset, weekday, monthDay } with a preset of the event form, the
-// WEEKDAYS row of "every monday" and the day of "todo dia 5" (-1 when
-// the repeat names neither), or null.
+// { preset, weekday } with a preset of the event form and the WEEKDAYS row
+// of "every monday", or null.
 function readRepeat(scanner) {
   var p = QUICK_PATTERNS
-  var monthly = take(scanner, p.repeatMonthDay, function(m) {
-    var day = Number(m[1])
-    return day >= 1 && day <= 31 ? { preset: "monthlyDate", weekday: -1, monthDay: day } : null
-  })
-  if (monthly) return monthly
   var weekly = take(scanner, p.repeatWeekday, function(m) {
     var every = Words.EVERY_WORDS.indexOf(m[1]) !== -1
-    var plural = !!m[3] || /feiras/.test(m[4] || "")
+    var plural = !!m[3]
     if (!every && !plural) return null
     if (!every && Words.AMBIGUOUS_WEEKDAYS.indexOf(m[2]) !== -1) return null
     return { preset: "weekly", weekday: rowOf(m[2], [Words.WEEKDAYS]), monthDay: -1 }
@@ -314,8 +295,8 @@ function readRepeat(scanner) {
 
 // ---- Days.
 
-// "in 20 min", "daqui a duas horas", "in 3 days", "now": { at } for a
-// start, { date } for a day, or null.
+// "in 20 min", "in 3 days" or "now": { at } for a start, { date } for a
+// day, or null.
 function readRelative(scanner, now, today) {
   var found = take(scanner, QUICK_PATTERNS.relative, function(m) {
     var amount = amountOf(m[1])
@@ -328,20 +309,17 @@ function readRelative(scanner, now, today) {
   return take(scanner, QUICK_PATTERNS.now, function() { return { at: now } })
 }
 
-function readDate(scanner, today, lang) {
-  var dayFirst = lang === "pt"
+function readDate(scanner, today) {
   var p = QUICK_PATTERNS
   var date = take(scanner, p.isoDate, function(m) {
     return validDay(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
   })
   if (!date) date = take(scanner, p.numericDate, function(m) {
-    var a = Number(m[1])
-    var b = Number(m[2])
-    return upcomingDate(today, (dayFirst ? b : a) - 1, dayFirst ? a : b, m[3])
+    return upcomingDate(today, Number(m[1]) - 1, Number(m[2]), m[3])
   })
   if (!date) date = take(scanner, p.dayMonth, function(m) {
-    return upcomingDate(today, rowOf(m[2] || m[3], [Words.MONTHS, Words.MONTHS_EN_SHORT, Words.MONTHS_PT_SHORT]),
-      Number(m[1]), m[4])
+    return upcomingDate(today, rowOf(m[2], [Words.MONTHS, Words.MONTHS_EN_SHORT]),
+      Number(m[1]), m[3])
   })
   if (!date) date = take(scanner, p.monthDay, function(m) {
     return upcomingDate(today, rowOf(m[1], [Words.MONTHS, Words.MONTHS_EN_SHORT]), Number(m[2]), m[3])
@@ -354,22 +332,21 @@ function readDate(scanner, today, lang) {
   if (!date) date = take(scanner, p.nextWeek, function() {
     return offsetDate(today, (1 - today.getDay() + 7) % 7 || 7)
   })
-  // A weekday is the next one coming, today included; "next friday" /
-  // "próxima sexta" / "sexta que vem" skip today, so on a Friday they mean
-  // a week from now.
+  // A weekday is the next one coming, today included; "next friday" skips
+  // today, so on a Friday it means a week from now.
   if (!date) date = take(scanner, p.weekday, function(m) {
-    if (Words.AMBIGUOUS_WEEKDAYS.indexOf(m[3]) !== -1 && !(m[1] || m[2] || m[4] || isStartTime(m[5]))) return null
+    if (Words.AMBIGUOUS_WEEKDAYS.indexOf(m[3]) !== -1 && !(m[1] || m[2] || isStartTime(m[4]))) return null
     var ahead = (rowOf(m[3], [Words.WEEKDAYS]) - today.getDay() + 7) % 7
-    if (ahead === 0 && (m[2] || m[4])) ahead = 7
+    if (ahead === 0 && m[2]) ahead = 7
     return offsetDate(today, ahead)
   })
   if (!date) date = take(scanner, p.monthDayOnly, function(m) {
-    return nextMonthDay(today, Number(m[1] || m[2] || m[3]))
+    return nextMonthDay(today, Number(m[1] || m[2]))
   })
   return date
 }
 
-// "dia 12" / "on the 12th": this month, or the next month that has that
+// "the 12th": this month, or the next month that has that
 // day once it has gone by.
 function nextMonthDay(today, day) {
   for (var ahead = 0; ahead <= 12 && day >= 1 && day <= 31; ahead++) {
@@ -386,11 +363,11 @@ function span(start, end) {
 
 // The day or days the text names, as { start, end }, end null for one
 // day; or null.
-function readDates(scanner, today, lang) {
+function readDates(scanner, today) {
   var p = QUICK_PATTERNS
   var range = take(scanner, p.dayRange, function(m) {
-    var month = rowOf(m[3] || m[4], [Words.MONTHS, Words.MONTHS_EN_SHORT, Words.MONTHS_PT_SHORT])
-    var start = upcomingDate(today, month, Number(m[1]), m[5])
+    var month = rowOf(m[3], [Words.MONTHS, Words.MONTHS_EN_SHORT])
+    var start = upcomingDate(today, month, Number(m[1]), m[4])
     return start && span(start, validDay(start.getFullYear(), month, Number(m[2])))
   })
   if (!range) range = take(scanner, p.monthDayRange, function(m) {
@@ -404,23 +381,23 @@ function readDates(scanner, today, lang) {
   })
   // This weekend is the coming Saturday and Sunday, or what is left of it.
   if (!range) range = take(scanner, p.weekend, function(m) {
-    if (!m[1] && !m[2]) return null
+    if (!m[1]) return null
     var day = today.getDay()
-    var next = /next|proximo/.test(m[1] || "") || !!m[2]
+    var next = /next/.test(m[1])
     if (day === 0 && !next) return { start: today, end: today }
     var start = offsetDate(today, (6 - day + 7) % 7 + (next && day === 6 ? 7 : 0))
     return { start: start, end: offsetDate(start, 1) }
   })
   if (range) return range
 
-  // Two days with a word between them: "friday to sunday", "12/10 - 14/10".
-  var start = readDate(scanner, today, lang)
+  // Two days with a word between them: "friday to sunday", "nov 12 to 14".
+  var start = readDate(scanner, today)
   if (!start) return null
   var startEnd = scanner.lastTo
   var join = scanner.folded.substring(startEnd).match(QUICK_DAY_JOIN)
   if (!join) return { start: start, end: null }
   var saved = snapshot(scanner)
-  var end = readDate(scanner, today, lang)
+  var end = readDate(scanner, today)
   var adjacent = !!end && scanner.lastFrom >= startEnd && scanner.lastFrom <= startEnd + join[0].length
   // "sunday to tuesday" on a Tuesday ends on next Tuesday.
   if (adjacent && end < start && offsetDate(end, 7) >= start) end = offsetDate(end, 7)
@@ -433,7 +410,7 @@ function readDates(scanner, today, lang) {
   return { start: start, end: end }
 }
 
-// "morning", "à tarde", "tonight": a DAY_PART_START key, or null. A bare
+// "morning", "afternoon" or "tonight": a DAY_PART_START key, or null. A bare
 // word only counts right after the day, which ended at `dateEnd`.
 function readDayPart(scanner, dateEnd) {
   var p = QUICK_PATTERNS
@@ -448,18 +425,15 @@ function readDayPart(scanner, dateEnd) {
 // ---- Times.
 
 // One time phrase as { minutes, meridiem, bare }, or null. `bare` is a
-// lone number ("at 3", "às 3 e meia"), which reads 1-7 as afternoon:
-// nobody books "at 3" meaning three in the morning.
+// lone number ("at 3"), which reads 1-7 as afternoon: nobody books
+// "at 3" meaning three in the morning.
 function readClock(word) {
-  var named = { "noon": 720, "midday": 720, "meio-dia": 720, "meio dia": 720,
-                "midnight": 0, "meia-noite": 0, "meia noite": 0 }
+  var named = { "noon": 720, "midday": 720, "midnight": 0 }
   if (named.hasOwnProperty(word)) return { minutes: named[word], meridiem: "", bare: false }
-  var half = / e meia$/.test(word)
-  var core = word.replace(/ e meia$/, "")
-  var m = core.match(/^(\d{1,2})(?:[:h](\d{2})?(?:min|m)?)?\s?(am|pm|a\.m\.?|p\.m\.?)?$/)
-  if (!m || (half && m[2])) return null
+  var m = word.match(/^(\d{1,2})(?:[:h](\d{2})?(?:min|m)?)?\s?(am|pm|a\.m\.?|p\.m\.?)?$/)
+  if (!m) return null
   var hours = Number(m[1])
-  var minutes = half ? 30 : Number(m[2] || 0)
+  var minutes = Number(m[2] || 0)
   var meridiem = m[3] ? m[3].charAt(0) : ""
   if (minutes > 59) return null
   if (meridiem) {
@@ -468,7 +442,7 @@ function readClock(word) {
   } else if (hours > 23) {
     return null
   }
-  return { minutes: hours * 60 + minutes, meridiem: meridiem, bare: /^\d{1,2}$/.test(core) }
+  return { minutes: hours * 60 + minutes, meridiem: meridiem, bare: /^\d{1,2}$/.test(word) }
 }
 
 function resolvedClock(clock) {
@@ -483,11 +457,10 @@ function startAt(clock, resolve) {
   return { start: resolve ? resolvedClock(clock) : clock.minutes, end: null, loose: !clock.meridiem, raw: clock.minutes }
 }
 
-// An hour written as digits or a word: "3", "three", "três".
+// An hour written as digits or a word: "3" or "three".
 function hourValue(word) {
   if (/^\d+$/.test(word)) return Number(word)
-  var en = Words.EN_HOURS.indexOf(word)
-  return en !== -1 ? en + 1 : Words.PT_HOURS.indexOf(word) + 1
+  return Words.EN_HOURS.indexOf(word) + 1
 }
 
 // "half past 3", "three o'clock": read like "at 3", unless am/pm says.
@@ -503,16 +476,13 @@ function wordClock(minutes, meridiemWord) {
   return startAt({ minutes: minutes, meridiem: meridiem, bare: !meridiem }, true)
 }
 
-// A bare "14h" is a time and a bare "1h30" a length: nobody quick-adds a
-// meeting for half past one in the morning. Once the start is known, any
-// hour phrase left ("14h 2h") is a length.
+// An hour phrase like "1h30" is a length, not a clock time.
 var EARLIEST_HOUR_PHRASE = 6
 
-// Whether a phrase readTimes would take as a start time, by the same rules:
-// "14h", "at 3", "2pm" are; "2h" on its own is a length.
+// Whether a phrase readTimes would take as a start time: "at 3" and "2pm" are.
 function isStartTime(phrase) {
   if (!phrase) return false
-  var prefixed = phrase.match(/^(?:at|as|a partir das|starting at|from|das|entre|@)\s?(.+)$/)
+  var prefixed = phrase.match(/^(?:at|starting at|from|@)\s?(.+)$/)
   var clock = readClock(prefixed ? prefixed[1] : phrase)
   if (!clock) return false
   return !!prefixed || !/^\d{1,2}h/.test(phrase) || clock.minutes >= EARLIEST_HOUR_PHRASE * 60
@@ -527,7 +497,7 @@ function readTimes(scanner) {
     var second = readClock(m[3])
     if (!first || !second) return null
     if (first.bare && second.bare) {
-      // "Kids 2-3" is no time; "from 2 to 4", "das 9 às 13" and "9-13" are.
+      // "Kids 2-3" is no time; "from 2 to 4" and "9-13" are.
       if (!m[1] && first.minutes < 13 * 60 && second.minutes < 13 * 60) return null
       // Read as the hours people book: "from 2 to 4" is the afternoon, and
       // "from 9 to 1" ends at 13:00.
@@ -562,7 +532,7 @@ function readTimes(scanner) {
     return hour >= 1 && hour <= 12 ? wordClock(hour * 60, m[2]) : null
   })
   if (start === null) start = take(scanner, p.wordTime, function(m) {
-    return wordClock(hourValue(m[1] || m[2]) * 60 + (m[3] ? 30 : 0), "")
+    return wordClock(hourValue(m[1]) * 60, "")
   })
   if (start === null) start = take(scanner, p.prefixedTime, function(m) {
     var clock = readClock(m[1])
@@ -571,10 +541,6 @@ function readTimes(scanner) {
   if (start === null) start = take(scanner, p.plainTime, function(m) {
     var clock = readClock(m[1])
     return clock ? startAt(clock, false) : null
-  })
-  if (start === null) start = take(scanner, p.hourPhrase, function(m) {
-    var clock = readClock(m[1])
-    return clock && clock.minutes >= EARLIEST_HOUR_PHRASE * 60 ? startAt(clock, false) : null
   })
   return start
 }
@@ -629,8 +595,8 @@ function blankedSince(before, after) {
 // and endTime "" and durationMinutes 0. `repeat` is a preset of the event
 // form ("none", "daily", "weekly", "monthly", "monthlyDate", "yearly",
 // "weekdays"), and `guests` a list of email addresses.
-function parseQuickAdd(input, now, lang) {
-  return scanQuickAdd(input, now, lang).parsed
+function parseQuickAdd(input, now) {
+  return scanQuickAdd(input, now).parsed
 }
 
 // The words quick add read as something else than the title, in the order
@@ -639,13 +605,13 @@ function parseQuickAdd(input, now, lang) {
 // and end where the words sit in `input`. The panel marks them in the
 // field, so the user can see what was understood. A meeting word stays in
 // the title too.
-function quickAddUnderstood(input, now, lang) {
-  return scanQuickAdd(input, now, lang).found
+function quickAddUnderstood(input, now) {
+  return scanQuickAdd(input, now).found
 }
 
 // { parsed, found, assumed }: parseQuickAdd's result, quickAddUnderstood's,
 // and { start, length }, true for what no typed word set.
-function scanQuickAdd(input, now, lang) {
+function scanQuickAdd(input, now) {
   var typed = Model.text(input)
   var raw = typed.trim()
   var leading = typed.length - typed.replace(/^\s+/, "").length
@@ -677,7 +643,7 @@ function scanQuickAdd(input, now, lang) {
   note("repeat")
   var relative = readRelative(scanner, nowDate, today)
   note(relative && relative.at ? "time" : "date")
-  var dates = readDates(scanner, today, lang)
+  var dates = readDates(scanner, today)
   var dateEnd = dates ? scanner.lastTo : -1
   note("date")
   var dayPart = readDayPart(scanner, dateEnd)
@@ -783,11 +749,17 @@ function scanQuickAdd(input, now, lang) {
 // `hint` is a Strings key, or "". `opensForm`: Enter opens the form, as it
 // does with a guest. `format` writes the parts in the panel's locale:
 // { day(dateKey), time(minutes), span(minutes), days(count), ends(text),
-// repeat(preset, dateKey), allDay() }.
-function quickAddPreview(input, now, lang, format) {
-  var scan = scanQuickAdd(input, now, lang)
+// repeat(preset, dateKey), allDay() }. `lacks` lists what the target
+// calendar cannot store, so those rows are left out of the preview.
+function quickAddPreview(input, now, format, lacks) {
+  var scan = scanQuickAdd(input, now)
   var parsed = scan.parsed
   if (!parsed) return { rows: [], hint: "", opensForm: false }
+  // What the calendar cannot store is not promised in the rows; the hint
+  // says so instead of dropping it quietly.
+  lacks = lacks || []
+  var noMeet = parsed.meet && lacks.indexOf("meet") !== -1
+  var noRepeat = parsed.repeat !== "none" && lacks.indexOf("repeat") !== -1
   function words(kinds) {
     return scan.found.filter(function(f) { return kinds.indexOf(f.kind) !== -1 })
       .map(function(f) { return f.text })
@@ -813,12 +785,13 @@ function quickAddPreview(input, now, lang, format) {
     rows.push(row("lasts", format.span(parsed.durationMinutes) + " · " + format.ends(end), words(["duration"]),
       scan.assumed.length))
   }
-  if (parsed.repeat !== "none") rows.push(row("repeats", format.repeat(parsed.repeat, parsed.dateKey), words(["repeat"]), false))
+  if (parsed.repeat !== "none" && !noRepeat) rows.push(row("repeats", format.repeat(parsed.repeat, parsed.dateKey), words(["repeat"]), false))
   if (parsed.guests.length > 0) rows.push(row("guests", parsed.guests.join(", "), words(["guest"]), false))
-  if (parsed.meet) rows.push(row("video", "Google Meet", words(["meet"]), false))
+  if (parsed.meet && !noMeet) rows.push(row("video", "Google Meet", words(["meet"]), false))
 
   var hint = ""
-  if (parsed.guests.length > 0) hint = "quick.hintGuest"
+  if (noMeet || noRepeat) hint = "quick.hintNotStored"
+  else if (parsed.guests.length > 0) hint = "quick.hintGuest"
   else if (scan.found.length === 0) hint = "quick.nothingUnderstood"
   else if (!parsed.allDay && scan.assumed.length) hint = "quick.hintLength"
   return { rows: rows, hint: hint, opensForm: parsed.guests.length > 0 }
@@ -845,42 +818,15 @@ function markedText(text, found, color) {
 }
 
 // The event form a quick add opens as, for "More options" or a direct save.
-function quickAddForm(parsed, calendarId) {
+function quickAddForm(parsed, calendarId, lacks) {
   var form = Model.newEventForm(parsed.dateKey, { start: parsed.startTime, end: parsed.endTime }, calendarId)
+  lacks = lacks || []
   form.title = parsed.title
   form.allDay = parsed.allDay
   form.endDate = parsed.endDateKey || parsed.dateKey
-  form.meet = !!parsed.meet
-  form.repeat = parsed.repeat || "none"
+  form.meet = !!parsed.meet && lacks.indexOf("meet") === -1
+  form.repeat = lacks.indexOf("repeat") === -1 ? (parsed.repeat || "none") : "none"
   var guests = parsed.guests || []
   for (var i = 0; i < guests.length; i++) form.guests = Model.addGuest(form.guests, guests[i])
   return form
-}
-
-function compactDate(key) {
-  return Model.text(key).replace(/-/g, "")
-}
-
-// The repeat presets as Google's prefilled page takes them. Google picks
-// the day of the week or month from the start date.
-var TEMPLATE_RULES = {
-  daily: "RRULE:FREQ=DAILY", weekly: "RRULE:FREQ=WEEKLY", monthlyDate: "RRULE:FREQ=MONTHLY",
-  yearly: "RRULE:FREQ=YEARLY", weekdays: "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR"
-}
-
-// Google Calendar's prefilled "new event" page, for a read-only setup. Times
-// are local and unzoned, which Google reads in the account's own timezone;
-// an all-day end is exclusive, as Google wants it.
-function googleTemplateUrl(parsed) {
-  if (!parsed || !parsed.dateKey) return ""
-  var endKey = parsed.endDateKey || parsed.dateKey
-  var dates = parsed.allDay
-    ? compactDate(parsed.dateKey) + "/" + compactDate(Model.addDays(endKey, 1))
-    : compactDate(parsed.dateKey) + "T" + parsed.startTime.replace(":", "") + "00/"
-      + compactDate(endKey) + "T" + parsed.endTime.replace(":", "") + "00"
-  var url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + Model.encodeQuery(parsed.title)
-    + "&dates=" + dates
-  if (TEMPLATE_RULES.hasOwnProperty(parsed.repeat)) url += "&recur=" + Model.encodeQuery(TEMPLATE_RULES[parsed.repeat])
-  if (parsed.guests && parsed.guests.length > 0) url += "&add=" + Model.encodeQuery(parsed.guests.join(","))
-  return url
 }

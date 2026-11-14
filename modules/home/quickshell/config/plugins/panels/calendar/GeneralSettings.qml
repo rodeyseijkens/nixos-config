@@ -5,18 +5,14 @@ import qs.Ui
 
 import "Strings.js" as Strings
 
-// The General section of Settings: the language, the first day of the week,
-// and the state of the Google account: whether the panel may write, and
-// whether the sync runs.
+// The General section of Settings: the first day of the week, lunar dates,
+// and the calendar account's write and sync state.
 Column {
   id: root
 
   property color foreground: Commons.Color.foreground
   property string fontFamily: Style.font.family
-  // The resolved display language ("en" | "pt").
   property string language: "en"
-  // The stored setting ("auto" | "en" | "pt"), not the resolved language.
-  property string languageSetting: "auto"
   property bool weekStartsMonday: true
   property bool showLunarDates: false
   property string lunarCalendar: "vietnamese"
@@ -31,7 +27,6 @@ Column {
   property string sourceLabel: ""
   property string syncedAt: ""
 
-  signal languagePicked(string value)
   signal weekStartToggled()
   signal lunarDatesToggled()
   signal lunarCalendarPicked(string value)
@@ -45,18 +40,6 @@ Column {
   }
 
   spacing: Style.space(8)
-
-  ChoiceGroup {
-    foreground: root.foreground
-    fontFamily: root.fontFamily
-    label: root.tr("settings.language")
-    hint: root.tr("settings.languageHint")
-    options: Strings.languageOptions(root.language)
-    value: root.languageSetting
-    onChosen: function(value) { root.languagePicked(value) }
-  }
-
-  Item { width: 1; height: Style.space(8) }
 
   ToggleRow {
     foreground: root.foreground
@@ -108,8 +91,9 @@ Column {
     text: root.tr("settings.account")
   }
 
-  // The panel cannot turn writing on by itself: it needs a Google sign-in
-  // in a terminal. So the row shows the state and hands over the command.
+  // The panel cannot turn writing on by itself: caldir has to have a provider
+  // connected, which setup does in a terminal. So the row shows the state and
+  // hands over the command.
   ToggleRow {
     foreground: root.foreground
     fontFamily: root.fontFamily
@@ -121,9 +105,9 @@ Column {
     onActivated: if (!root.canWrite) root.writeSetupCopyRequested()
   }
 
-  // Read-only on purpose: changing the Google account is an OAuth browser
-  // flow, which belongs to sync/setup and not to a popup in a status bar.
-  // What belongs here is knowing whether it is working.
+  // Read-only on purpose: connecting a provider is a browser sign-in flow,
+  // which belongs to sync/setup and not to a popup in a status bar. What
+  // belongs here is knowing whether it is working.
   Column {
     width: parent.width
     leftPadding: Style.space(4)

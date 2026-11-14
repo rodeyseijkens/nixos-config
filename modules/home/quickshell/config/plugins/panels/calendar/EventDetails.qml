@@ -333,8 +333,8 @@ Column {
     SecondaryButton {
       visible: root.eventUrl !== ""
       iconText: "󰏌"
-      text: !root.editable && !root.fromTodoist ? root.tr("insp.openInGoogle") : ""
-      tooltipText: root.tr("insp.openInGoogle")
+      text: !root.editable && !root.fromTodoist ? root.tr("insp.openInCalendar") : ""
+      tooltipText: root.tr("insp.openInCalendar")
       foreground: root.foreground
       fontFamily: root.fontFamily
       onClicked: root.linkOpened(root.eventUrl)

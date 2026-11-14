@@ -1,24 +1,9 @@
 .pragma library
 
-// Every user-visible string, in English and Brazilian Portuguese.
-//
-// Keys are "area.item" in lowerCamelCase. Two suffix conventions:
-//   ".one" / ".other"  plural forms, picked by trn() from a count
-//   ".m" / ".f"        grammatical gender, picked by trFor(); Portuguese
-//                      needs it where a weekday follows ("no sábado", "na
-//                      sexta-feira"), English never does
-// Headings are stored in sentence case; the UI upper-cases them, so the
-// same key reads right in a heading and in a tooltip.
-//
-// A key missing from "pt" falls back to "en", and a key missing from both
-// comes back as itself, which keeps a typo visible instead of blank.
-
-var DEFAULT_LANGUAGE = "en"
-var LANGUAGES = ["en", "pt"]
-
-// Each language is named in itself, whatever the current one, so it can be
-// found by someone who cannot read the current one.
-var LANGUAGE_NAMES = { en: "English", pt: "Português (Brasil)" }
+// Every user-visible string, in English. Keys are "area.item" in lowerCamelCase.
+// Plural forms use ".one" / ".other" and are selected by trn().
+// Headings are stored in sentence case; the UI upper-cases them, so the same
+// key reads right in a heading and in a tooltip.
 
 var STRINGS = {
   en: {
@@ -113,7 +98,7 @@ var STRINGS = {
     "keys.details": "details",
     "keys.edit": "edit",
     "keys.join": "join meeting",
-    "keys.open": "open in Google",
+    "keys.open": "open in calendar",
     "keys.days": "days",
     "keys.weeks": "weeks",
     "keys.month": "month",
@@ -138,11 +123,12 @@ var STRINGS = {
     "quick.days.one": "%1 day",
     "quick.days.other": "%1 days",
     "quick.hintLength": "Add “for 30m” to change the length.",
+    "quick.hintNotStored": "This calendar cannot store Meet links or repeats yet; the event is saved without them.",
     "quick.hintGuest": "A guest is invited: Enter opens the form, so you check the address first.",
     "quick.checkGuest": "Check guest",
     "quick.nothingUnderstood": "No day or time found, so the next half hour.",
     "quick.helpLabel": "What quick add understands",
-    "quick.help": "Day: tomorrow, friday, next monday, oct 12, in 3 days\nTime: 2pm, 14:30, 9-10am, in 20 min, tonight\nLength: for 45m, 1h30, for two hours\nSeveral days: friday to sunday, oct 12-14, for 3 days\nRepeat: every monday, daily, weekdays\nGuests: an email address, then the form opens to check it\nAll day: a day with no time, or all day\nNo day and no time: the next half hour\nVideo: call, meet or zoom adds Google Meet",
+    "quick.help": "Day: tomorrow, friday, next monday, oct 12, in 3 days\nTime: 2pm, 14:30, 9-10am, in 20 min, tonight\nLength: for 45m, 1h30, for two hours\nSeveral days: friday to sunday, oct 12-14, for 3 days\nRepeat: every monday, daily, weekdays\nGuests: an email address, then the form opens to check it\nAll day: a day with no time, or all day\nNo day and no time: the next half hour",
 
     "next.badge": "Next · in %1",
     "next.live": "Happening now",
@@ -172,7 +158,6 @@ var STRINGS = {
     "toast.created": "Created: %1",
     "toast.saved": "Changes saved",
     "toast.deleted": "Deleted: %1",
-    "toast.openedInGoogle": "Opened in Google Calendar to finish",
     "toast.writeOff": "Writing is off. Turn it on in Settings › General",
     "toast.linkCopied": "Link copied",
     "toast.error": "Something went wrong: %1",
@@ -203,11 +188,11 @@ var STRINGS = {
     "insp.noReminder": "No reminder",
     "insp.edit": "Edit",
     "insp.duplicate": "Duplicate",
-    "insp.openInGoogle": "Open in Google Calendar",
+    "insp.openInCalendar": "Open in your calendar",
     "insp.delete": "Delete",
     "insp.openInTodoist": "Open in Todoist ↗",
     "insp.todoistNote": "Task synced from Todoist. Edits made here would be undone by the next sync, so editing opens Todoist.",
-    "insp.readOnlyNote": "This calendar is read-only here. Edit it in Google Calendar.",
+    "insp.readOnlyNote": "This calendar is read-only here. Edit it in your calendar app.",
 
     "bar.soon": "%1 in %2",
     "bar.live": "Now: %1",
@@ -311,8 +296,8 @@ var STRINGS = {
     "error.commandFailed": "The event command failed: %1",
     "error.noOutput": "no output",
 
-    "sync.copied": "Copied. Paste it in a terminal:\n%1\n\nTo skip Google Cloud (read only), add --ics",
-    "sync.missingPanel": "No calendar synced yet. Click to copy, then run:\n%1\n\nTo skip Google Cloud (read only), add --ics",
+    "sync.copied": "Copied. Paste it in a terminal:\n%1",
+    "sync.missingPanel": "No calendar synced yet. Click to copy, then run:\n%1",
     "sync.versionPanel": "Events file was written by a newer version. Update the plugin.",
     "sync.stalePanel": "Calendar may be out of date. Check journalctl --user -u shell-calendar-sync",
 
@@ -340,8 +325,6 @@ var STRINGS = {
     "settings.writeCopied": "Copied. Paste it in a terminal",
     "settings.writeOff": "Off. Click to copy the command that turns it on",
     "settings.progress": "Year and life progress",
-    "settings.language": "Language",
-    "settings.languageHint": "Auto follows the system language",
     "settings.reminders": "Reminders",
     "settings.remindersHint": "Desktop notifications at each event's reminder time, or 10 min before a meeting that has none",
     "settings.reminderDetails": "Name the event in reminders",
@@ -395,415 +378,18 @@ var STRINGS = {
     "settings.never": "Never",
     "settings.minutes": "%1 min",
     "settings.sync": "Sync",
-    "settings.syncMissing": "No calendar connected yet. Click to copy, then run:\n%1\n\nTo skip Google Cloud (read only), add --ics",
+    "settings.syncMissing": "No calendar connected yet. Click to copy, then run:\n%1",
     "settings.syncVersion": "The events file was written by a newer version of this plugin.",
     "settings.syncEvents.one": "%1 event from %2",
     "settings.syncEvents.other": "%1 events from %2",
     "settings.syncStale": "Last sync looks old. Check: journalctl --user -u shell-calendar-sync",
-    "settings.syncLast": "Last sync %1",
-
-    "language.auto": "Automatic"
-  },
-
-  pt: {
-    "common.cancel": "Cancelar",
-    "common.close": "Fechar",
-    "common.noTitle": "(Sem título)",
-
-    "weekday.0": "domingo",
-    "weekday.1": "segunda-feira",
-    "weekday.2": "terça-feira",
-    "weekday.3": "quarta-feira",
-    "weekday.4": "quinta-feira",
-    "weekday.5": "sexta-feira",
-    "weekday.6": "sábado",
-    "weekday.gender.0": "m",
-    "weekday.gender.1": "f",
-    "weekday.gender.2": "f",
-    "weekday.gender.3": "f",
-    "weekday.gender.4": "f",
-    "weekday.gender.5": "f",
-    "weekday.gender.6": "m",
-    "month.0": "janeiro",
-    "month.1": "fevereiro",
-    "month.2": "março",
-    "month.3": "abril",
-    "month.4": "maio",
-    "month.5": "junho",
-    "month.6": "julho",
-    "month.7": "agosto",
-    "month.8": "setembro",
-    "month.9": "outubro",
-    "month.10": "novembro",
-    "month.11": "dezembro",
-
-    "rel.now": "agora",
-    "rel.in": "em %1",
-    "rel.left.one": "agora · falta %1",
-    "rel.left.other": "agora · faltam %1",
-    "rel.endedAgo": "terminou há %1",
-    "rel.today": "hoje",
-    "rel.tomorrow": "amanhã",
-    "rel.yesterday": "ontem",
-    "rel.inDays.one": "em %1 dia",
-    "rel.inDays.other": "em %1 dias",
-    "rel.daysAgo.one": "há %1 dia",
-    "rel.daysAgo.other": "há %1 dias",
-    "rel.long.startsIn": "começa em %1",
-    "rel.long.startingNow": "começando agora",
-    "rel.long.live": "acontecendo agora",
-    "rel.long.left.one": "acontecendo agora · falta %1",
-    "rel.long.left.other": "acontecendo agora · faltam %1",
-    "rel.long.inDays.one": "daqui a %1 dia",
-    "rel.long.inDays.other": "daqui a %1 dias",
-
-    "day.today": "Hoje",
-    "day.tomorrow": "Amanhã",
-    "day.yesterday": "Ontem",
-    "hero.subline": "%1 · %2 · semana %3",
-    "lunar.date": "Data lunar: %1/%2/%3",
-    "lunar.dateLeap": "Data lunar: %1/%2/%3 (mês intercalar)",
-    "lunar.vietnamese": "Vietnamita",
-    "lunar.chinese": "Chinês",
-    "lunar.korean": "Coreano",
-
-    "summary.meetings.one": "%1 compromisso",
-    "summary.meetings.other": "%1 compromissos",
-    "summary.events.one": "%1 evento",
-    "summary.events.other": "%1 eventos",
-    "summary.deadlines.one": "%1 prazo",
-    "summary.deadlines.other": "%1 prazos",
-    "summary.tasks.one": "%1 tarefa",
-    "summary.tasks.other": "%1 tarefas",
-    "summary.done.one": "%1 concluída",
-    "summary.done.other": "%1 concluídas",
-    "summary.empty": "Nada agendado",
-
-    "kind.event": "Evento",
-    "kind.task": "Tarefa",
-    "kind.deadline": "Prazo",
-
-    "nav.previousMonth": "Mês anterior",
-    "nav.nextMonth": "Próximo mês",
-    "nav.backToToday": "Voltar para hoje",
-    "nav.settings": "Configurações",
-    "nav.backToCalendar": "Voltar ao calendário",
-    "nav.newEvent": "Novo evento (N)",
-    "week.startSunday": "Começar a semana no domingo",
-    "week.startMonday": "Começar a semana na segunda-feira",
-
-
-    "keys.title": "Atalhos",
-    "keys.new": "novo",
-    "keys.navigate": "navegar",
-    "keys.details": "detalhes",
-    "keys.edit": "editar",
-    "keys.join": "entrar na reunião",
-    "keys.open": "abrir no Google",
-    "keys.days": "dias",
-    "keys.weeks": "semanas",
-    "keys.month": "mês",
-    "keys.year": "ano",
-    "keys.today": "hoje",
-    "keys.back": "voltar",
-
-    "quick.label": "Criar evento rápido",
-    "quick.placeholder": "Novo… ex.: call com Ana amanhã 14h por 45min",
-    "quick.moreOptions": "Mais opções",
-    "quick.create": "Criar",
-    "quick.allDay": "Dia todo",
-    "quick.needsTitle": "Digite um título primeiro",
-    "quick.row.title": "Título",
-    "quick.row.starts": "Início",
-    "quick.row.lasts": "Duração",
-    "quick.row.repeats": "Repete",
-    "quick.row.guests": "Convidados",
-    "quick.row.video": "Vídeo",
-    "quick.assumed": "padrão",
-    "quick.ends": "termina %1",
-    "quick.days.one": "%1 dia",
-    "quick.days.other": "%1 dias",
-    "quick.hintLength": "Adicione “por 30min” para mudar a duração.",
-    "quick.hintGuest": "Com convidado, o Enter abre o formulário para você conferir o endereço antes.",
-    "quick.checkGuest": "Conferir convidado",
-    "quick.nothingUnderstood": "Nenhum dia ou hora encontrado: a próxima meia hora.",
-    "quick.helpLabel": "O que o criar evento rápido entende",
-    "quick.help": "Dia: amanhã, sexta, próxima segunda, 12 de outubro, daqui a 3 dias\nHora: 14h, 14:30, 9h-10h, em 20 min, à noite\nDuração: por 45min, 1h30, por duas horas\nVários dias: de sexta a domingo, 12 a 14 de outubro, por 3 dias\nRepetir: toda segunda, todo dia, dias úteis\nConvidados: um email, e o formulário abre para conferir\nDia todo: um dia sem hora, ou dia todo\nSem dia nem hora: a próxima meia hora\nVídeo: call, meet ou chamada adiciona o Google Meet",
-
-    "next.badge": "Próximo · em %1",
-    "next.live": "Acontecendo agora",
-
-    "agenda.title": "Agenda",
-    "agenda.loading": "Carregando…",
-    "agenda.allDay": "Dia todo",
-    "agenda.timed": "Com horário",
-    "agenda.upcoming": "Próximos dias",
-    "agenda.deadlineBadge": "Prazo",
-    "agenda.join": "Entrar",
-    "agenda.joinHost": "Entrar no %1",
-    "agenda.openHost": "Abrir %1",
-    "agenda.declined": "Recusado",
-    "agenda.outOfOffice": "Fora do escritório",
-    "agenda.completeTask": "Concluir tarefa",
-    "agenda.reopenTask": "Reabrir tarefa",
-    "agenda.empty": "Nada neste dia. Digite no campo acima ou dê dois cliques aqui para criar.",
-    "agenda.emptyReadOnly": "Nada neste dia.",
-    "agenda.emptyNoQuickAdd": "Nada neste dia. Dê dois cliques aqui para criar.",
-    "agenda.more.one": "+%1 item",
-    "agenda.more.other": "+%1 itens",
-    "agenda.rowDeadline": "prazo",
-    "agenda.rowTask": "tarefa",
-    "agenda.rowAllDay": "dia todo",
-
-    "toast.created": "Criado: %1",
-    "toast.saved": "Alterações salvas",
-    "toast.deleted": "Excluído: %1",
-    "toast.openedInGoogle": "Aberto no Google Agenda para concluir",
-    "toast.writeOff": "A escrita está desativada. Ative em Configurações › Geral",
-    "toast.linkCopied": "Link copiado",
-    "toast.error": "Algo deu errado: %1",
-    "toast.noMeeting": "Nenhuma reunião para entrar",
-    "toast.undo": "Desfazer",
-    "toast.dismiss": "Dispensar",
-
-    "layout.saved": "Salvo automaticamente",
-    "layout.custom": "Personalizado",
-    "layout.minimal": "Mínimo",
-    "layout.standard": "Padrão",
-    "layout.agendaBeside": "Ao lado do calendário",
-    "layout.agendaBelow": "Abaixo do calendário",
-    "layout.calendarSection": "Calendário",
-    "layout.shortcutLegend": "Legenda de atalhos",
-    "layout.nextUp": "Cartão do próximo evento",
-
-    "insp.label": "Detalhes do evento",
-    "insp.close": "Fechar detalhes",
-    "insp.allDay": "dia todo",
-    "insp.join": "Entrar no %1",
-    "insp.joinMeeting": "Entrar na reunião",
-    "insp.copyLink": "Copiar link",
-    "insp.directions": "Rotas ↗",
-    "insp.location": "Local",
-    "insp.description": "Descrição",
-    "insp.reminders": "Notificação: %1",
-    "insp.noReminder": "Sem notificação",
-    "insp.edit": "Editar",
-    "insp.duplicate": "Duplicar",
-    "insp.openInGoogle": "Abrir no Google Agenda",
-    "insp.delete": "Excluir",
-    "insp.openInTodoist": "Abrir no Todoist ↗",
-    "insp.todoistNote": "Tarefa sincronizada pelo Todoist. Editar aqui seria desfeito pela próxima sincronização, então a edição abre no Todoist.",
-    "insp.readOnlyNote": "Esta agenda é somente leitura aqui. Edite no Google Agenda.",
-
-    "bar.soon": "%1 em %2",
-    "bar.live": "Agora: %1",
-    "bar.join": "Entrar",
-    "bar.tooltipPart": "%1: %2",
-    "bar.click.left": "Clique",
-    "bar.click.middle": "Clique do meio",
-    "bar.click.right": "Clique direito",
-    "bar.action.panel": "abre o painel",
-    "bar.action.join": "entra na próxima reunião",
-    "bar.action.format": "alterna o formato",
-
-    "notify.app": "Calendário",
-    "notify.title": "%1 em %2",
-    "notify.titleNow": "%1 está começando",
-    "notify.anEvent": "Evento",
-    "notify.join": "Entrar",
-    "notify.open": "Abrir",
-    "notify.snooze": "Adiar %1 min",
-
-    "form.newEvent": "Novo evento",
-    "form.editEvent": "Editar evento",
-    "form.titlePlaceholder": "Adicionar título",
-    "form.seriesNote": "Faz parte de uma série. Ao salvar, você escolhe entre este evento e todos os eventos.",
-    "form.starts": "Início",
-    "form.ends": "Fim",
-    "form.allDay": "Dia todo",
-    "form.repeat": "Repetir",
-    "form.meetOnSave": "O link do Google Meet é criado ao salvar",
-    "form.meetAdd": "Adicionar videoconferência do Google Meet",
-    "form.locationPlaceholder": "Adicionar local",
-    "form.descriptionPlaceholder": "Adicionar descrição",
-    "form.calendar": "Agenda",
-    "form.saving": "Salvando…",
-    "form.save": "Salvar",
-    "form.create": "Criar",
-
-    "options.more": "Mais opções",
-    "options.notification": "Notificação",
-    "options.showAs": "Mostrar como",
-    "options.busy": "Ocupado",
-    "options.free": "Disponível",
-    "options.visibility": "Visibilidade",
-    "options.visibilityDefault": "Visibilidade padrão",
-    "options.public": "Público",
-    "options.private": "Particular",
-    "options.colour": "Cor",
-    "options.guestsCanModify": "Convidados podem modificar o evento",
-    "options.guestsCanInviteOthers": "Convidados podem convidar outras pessoas",
-    "options.guestsCanSeeOtherGuests": "Convidados podem ver a lista de convidados",
-
-    "reminder.default": "Padrão",
-    "reminder.none": "Nenhuma",
-    "reminder.custom": "Personalizada (mantida como está)",
-    "reminder.atStart": "Na hora do evento",
-    "reminder.minutes.one": "%1 minuto antes",
-    "reminder.minutes.other": "%1 minutos antes",
-    "reminder.hours.one": "%1 hora antes",
-    "reminder.hours.other": "%1 horas antes",
-    "reminder.days.one": "%1 dia antes",
-    "reminder.days.other": "%1 dias antes",
-    "reminder.weeks.one": "%1 semana antes",
-    "reminder.weeks.other": "%1 semanas antes",
-
-    "repeat.none": "Não se repete",
-    "repeat.daily": "Todos os dias",
-    "repeat.weekly.m": "Toda semana no %1",
-    "repeat.weekly.f": "Toda semana na %1",
-    "repeat.monthly.m": "Todo mês no %1 %2",
-    "repeat.monthly.f": "Todo mês na %1 %2",
-    "repeat.monthlyDate": "Todo mês no dia %1",
-    "repeat.yearly": "Todo ano em %1 de %2",
-    "repeat.weekdays": "Dias úteis (segunda a sexta)",
-    "repeat.custom": "Regra personalizada (mantida como está)",
-    "ordinal.1.m": "primeiro",
-    "ordinal.2.m": "segundo",
-    "ordinal.3.m": "terceiro",
-    "ordinal.4.m": "quarto",
-    "ordinal.-1.m": "último",
-    "ordinal.1.f": "primeira",
-    "ordinal.2.f": "segunda",
-    "ordinal.3.f": "terceira",
-    "ordinal.4.f": "quarta",
-    "ordinal.-1.f": "última",
-
-    "guests.placeholder": "Adicionar convidados",
-    "guests.organizer": "(organizador)",
-    "guests.remove": "Remover",
-    "guests.going": "Confirmou",
-    "guests.maybe": "Talvez",
-    "guests.declined": "Recusou",
-    "guests.awaiting": "Aguardando resposta",
-
-    "ask.sendInvites": "Enviar convites por e-mail aos convidados?",
-    "ask.sendCancellations": "Avisar os convidados do cancelamento por e-mail?",
-    "ask.send": "Enviar",
-    "ask.dontSend": "Não enviar",
-    "ask.editRecurring": "Editar evento recorrente",
-    "ask.deleteRecurring": "Excluir evento recorrente",
-    "ask.thisEvent": "Este evento",
-    "ask.allEvents": "Todos os eventos",
-    "confirm.deleteMessage": "Excluir \"%1\"?",
-    "confirm.delete": "Excluir",
-
-    "error.timeout": "O comando de eventos não respondeu em um minuto.",
-    "error.commandFailed": "O comando de eventos falhou: %1",
-    "error.noOutput": "sem saída",
-
-    "sync.copied": "Copiado. Cole em um terminal:\n%1\n\nPara dispensar o Google Cloud (só leitura), adicione --ics",
-    "sync.missingPanel": "Nenhuma agenda sincronizada ainda. Clique para copiar e depois execute:\n%1\n\nPara dispensar o Google Cloud (só leitura), adicione --ics",
-    "sync.versionPanel": "O arquivo de eventos foi gravado por uma versão mais nova. Atualize o plugin.",
-    "sync.stalePanel": "A agenda pode estar desatualizada. Verifique journalctl --user -u shell-calendar-sync",
-
-    "life.born": "Nascimento",
-    "life.yearPlaceholder": "ano",
-    "life.liveTo": "Viver até",
-    "life.title": "Vida",
-
-    "settings.calendars": "Agendas",
-    "settings.hiddenCalendars.one": "%1 oculta",
-    "settings.hiddenCalendars.other": "%1 ocultas",
-    "settings.noCalendars": "Nada sincronizado ainda, então não há o que escolher.",
-    "settings.weekMonday": "Semana começa na segunda-feira",
-    "settings.weekMondayHint": "Desativado, a semana começa no domingo",
-    "settings.lunarDates": "Mostrar datas lunares",
-    "settings.lunarDatesHint": "1976–2050. * indica um mês intercalar.",
-    "settings.lunarCalendar": "Calendário lunar",
-    "settings.workingLocation": "Eventos de local de trabalho",
-    "settings.workingLocationHint": "Marcações de trabalho remoto do Google, ocultas por padrão",
-    "settings.declined": "Convites recusados",
-    "settings.declinedHint": "Aparecem riscados quando ativado",
-    "settings.write": "Criar e editar eventos",
-    "settings.writeOn": "Ativado",
-    "settings.writeCopied": "Copiado. Cole em um terminal",
-    "settings.writeOff": "Desativado. Clique para copiar o comando que ativa",
-    "settings.progress": "Progresso do ano e da vida",
-    "settings.language": "Idioma",
-    "settings.languageHint": "Automático segue o idioma do sistema",
-    "settings.reminders": "Notificações",
-    "settings.remindersHint": "Avisos na área de trabalho no horário da notificação de cada evento, ou 10 min antes de reuniões sem notificação",
-    "settings.reminderDetails": "Mostrar o nome do evento nas notificações",
-    "settings.reminderDetailsHint": "Mostra o título e o local. Outros usuários deste computador podem lê-los enquanto a notificação é enviada",
-    "settings.barLabel": "Anunciar o próximo evento",
-    "settings.barLabelHint": "Com quanta antecedência a barra troca o relógio pelo próximo compromisso.",
-    "settings.titleLimit": "Tamanho do título anunciado",
-    "settings.titleLimitHint": "Títulos mais longos terminam em reticências. Reduza quando o anúncio invade os widgets ao lado.",
-    "settings.chars": "%1 caracteres",
-    "settings.mouseButtons": "Botões do mouse",
-    "settings.mouseButtonsHint": "O que cada botão faz no relógio. Pelo menos um deles abre este painel.",
-    "settings.actionPanel": "Abre o painel",
-    "settings.actionJoin": "Entra na reunião",
-    "settings.actionFormat": "Alterna o formato",
-    "settings.sectionPanel": "Painel",
-    "settings.sectionBar": "Barra",
-    "settings.sectionGeneral": "Geral",
-    "settings.barPreview": "O que a barra mostra",
-    "settings.clockFormat": "Formato do relógio",
-    "settings.clockFormatHint": "Seu próprio formato para o relógio, no formato de data do Qt. %1 no relógio passa pelos formatos prontos e por este.",
-    "settings.clockFormatHintNoClick": "Seu próprio formato para o relógio, no formato de data do Qt.",
-    "settings.clockFormatBuiltIn": "Este já é um dos formatos prontos. %1 no relógio chega nele.",
-    "settings.clockFormatBuiltInNoClick": "Este já é um dos formatos prontos.",
-    "settings.clockFormatHintVertical": "Sua barra é vertical: cada linha do campo é uma linha do relógio. %1 no relógio passa pelos formatos prontos e por este.",
-    "settings.clockFormatHintVerticalNoClick": "Sua barra é vertical: cada linha do campo é uma linha do relógio.",
-    "settings.clockFormatNewLine": "Enter começa uma nova linha",
-    "settings.previewBefore": "%1 min antes",
-    "settings.previewDuring": "Durante",
-    "settings.previewTitle": "Daily",
-    "settings.previewClockOnly": "Só o relógio",
-    "settings.previewFirstMinutes": "2 primeiros min",
-    "settings.previewAfter": "Depois",
-    "settings.duringEvent": "Durante um evento",
-    "settings.duringEventHint": "Quanto tempo o \"Agora\" fica, na cor de urgência.",
-    "settings.untilEnd": "Até o fim",
-    "settings.firstMinutes": "Primeiros 2 minutos",
-    "settings.nextDuringEvent": "Quando o próximo chega",
-    "settings.nextDuringEventHint": "Durante um evento, quando o próximo está para começar.",
-    "settings.announceNext": "Anunciar o próximo",
-    "settings.keepCurrent": "Manter o atual",
-    "settings.calendarsShown": "Mostradas no painel e na barra",
-    "settings.alsoShow": "Mostrar também",
-    "settings.account": "Conta",
-    "layout.preset": "Predefinição",
-    "layout.presetHint": "Mínimo é uma coluna estreita. Padrão mostra todos os blocos.",
-    "layout.progressHint": "As duas barras abaixo da data.",
-    "layout.shortcutLegendHint": "As teclas do teclado, no ícone de teclado ao lado do botão de configurações.",
-    "layout.quickAddHint": "Digite um evento em palavras simples acima da agenda.",
-    "layout.nextUpHint": "O próximo evento de hoje, com contagem regressiva e botão Entrar.",
-    "layout.upcomingHint": "Os próximos dias abaixo da agenda.",
-    "settings.never": "Nunca",
-    "settings.sync": "Sincronização",
-    "settings.syncMissing": "Nenhuma agenda conectada ainda. Clique para copiar e depois execute:\n%1\n\nPara dispensar o Google Cloud (só leitura), adicione --ics",
-    "settings.syncVersion": "O arquivo de eventos foi gravado por uma versão mais nova deste plugin.",
-    "settings.syncEvents.one": "%1 evento de %2",
-    "settings.syncEvents.other": "%1 eventos de %2",
-    "settings.syncStale": "A última sincronização parece antiga. Verifique: journalctl --user -u shell-calendar-sync",
-    "settings.syncLast": "Última sincronização: %1",
-
-    "language.auto": "Automático"
+    "settings.syncLast": "Last sync %1"
   }
 }
 
-function normalizedLanguage(lang) {
-  return STRINGS.hasOwnProperty(lang) ? lang : DEFAULT_LANGUAGE
-}
-
-function lookup(lang, key) {
-  var table = STRINGS[normalizedLanguage(lang)]
-  if (table.hasOwnProperty(key)) return table[key]
-  if (STRINGS[DEFAULT_LANGUAGE].hasOwnProperty(key)) return STRINGS[DEFAULT_LANGUAGE][key]
-  return null
+function lookup(_lang, key) {
+  var table = STRINGS.en
+  return table.hasOwnProperty(key) ? table[key] : null
 }
 
 // `args` is an array for %1, %2…, or a single value for %1. A placeholder
@@ -816,53 +402,17 @@ function format(text, args) {
   })
 }
 
-function tr(lang, key, args) {
-  var text = lookup(lang, key)
+function tr(_lang, key, args) {
+  var text = lookup("en", key)
   return format(text === null ? key : text, args)
 }
 
-// Plurals: "key.one" for exactly 1, "key.other" otherwise (0 included, as
-// both languages say "0 tasks" / "0 tarefas"). The count is %1 unless
-// `args` says otherwise.
+// Plurals use "key.one" for exactly 1 and "key.other" otherwise (including 0).
 function trn(lang, key, count, args) {
   return tr(lang, key + (Number(count) === 1 ? ".one" : ".other"), args === undefined ? [count] : args)
 }
 
-// The `variant` form of a key ("key.m", "key.f") when the language has one,
-// else the plain key. English defines only plain keys, Portuguese only the
-// variants it needs.
-function trFor(lang, key, variant, args) {
-  var table = STRINGS[normalizedLanguage(lang)]
-  var specific = key + "." + variant
-  return variant && table.hasOwnProperty(specific) ? format(table[specific], args) : tr(lang, key, args)
-}
-
-// "m", "f", or "" for a language without grammatical gender.
-function weekdayGender(lang, weekday) {
-  var table = STRINGS[normalizedLanguage(lang)]
-  var key = "weekday.gender." + weekday
-  return table.hasOwnProperty(key) ? table[key] : ""
-}
-
-// The `language` setting ("auto", "en", "pt") resolved against the system
-// locale name (Qt.locale().name, e.g. "pt_BR").
-function resolveLanguage(setting, systemLocale) {
-  var chosen = String(setting === undefined || setting === null ? "" : setting).toLowerCase()
-  for (var i = 0; i < LANGUAGES.length; i++)
-    if (chosen.indexOf(LANGUAGES[i]) === 0) return LANGUAGES[i]
-  var system = String(systemLocale || "").toLowerCase()
-  return system.indexOf("pt") === 0 ? "pt" : DEFAULT_LANGUAGE
-}
-
-// For Qt.locale(), so day and month names match the strings around them.
-function localeName(lang) {
-  return normalizedLanguage(lang) === "pt" ? "pt_BR" : "en_US"
-}
-
-// The language setting's menu.
-function languageOptions(lang) {
-  var options = [{ value: "auto", label: tr(lang, "language.auto") }]
-  for (var i = 0; i < LANGUAGES.length; i++)
-    options.push({ value: LANGUAGES[i], label: LANGUAGE_NAMES[LANGUAGES[i]] })
-  return options
+// Date names and ordering are English-only.
+function localeName(_lang) {
+  return "en_US"
 }
