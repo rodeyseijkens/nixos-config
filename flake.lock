@@ -490,6 +490,26 @@
         "type": "gitlab"
       }
     },
+    "herdr-app": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794694230,
+        "narHash": "sha256-gLYj7mAuyGyRGwGoUD4hJJtytPdzKABE53Q8rJjI9L4=",
+        "owner": "rodeyseijkens",
+        "repo": "herdr-app-nix",
+        "rev": "b4d97a8b0edd2b3a6afe2c4b3a05ef58cce6bff1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rodeyseijkens",
+        "repo": "herdr-app-nix",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1316,6 +1336,7 @@
         "caldir": "caldir",
         "elephant": "elephant",
         "gen-commit": "gen-commit",
+        "herdr-app": "herdr-app",
         "home-manager": "home-manager",
         "hypr-contrib": "hypr-contrib",
         "hyprland": "hyprland",

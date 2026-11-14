@@ -69,6 +69,7 @@ Hyprlock (EXPAND)
 | **Notification Daemon**        |                                [Quickshell][Quickshell]                                 |
 | **Terminal Emulator**          |                                 [Ghostty][Ghostty]                                  |
 | **Terminal Agent Multiplexer** |                                   [herdr][herdr]                                    |
+| **Agent Desktop App**          |                              [herdr-app][herdr-app]                                |
 | **Shell**                      |                          [zsh][zsh] + [Starship][Starship]                          |
 | **Text Editor (GUI)**          |              [VSCode][VSCode] + [Zed][Zed] + [t3code][t3code]              |
 | **Text Editor (Terminal)**     |                 [Neovim][Neovim] + [micro][micro] + [Mitos][Mitos]                  |
@@ -932,6 +933,7 @@ Other dotfiles that I learned / copy from:
 [Fastfetch]: https://github.com/fastfetch-cli/fastfetch
 [Worktrunk]: https://worktrunk.dev/
 [herdr]: https://herdr.dev/
+[herdr-app]: https://github.com/herdrdev/herdr-app
 [t3code]: https://t3.codes
 [Mitos]: https://mitos.computer/
 [Superwhisper]: https://superwhisper.com/linux/
