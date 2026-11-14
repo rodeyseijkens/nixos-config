@@ -9,3 +9,6 @@ modules/home/quickshell/config/Colors.qml
 
 # Local notes and plans, not part of the configuration.
 /docs/
+
+# Scratch output of the QEMU boot test (tests/aarambh/run.sh rebuilds it).
+/build/
