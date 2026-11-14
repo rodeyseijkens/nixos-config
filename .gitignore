@@ -6,3 +6,6 @@
 # `nix develop test -c qml-regen modules/home/quickshell/config` after
 # editing tokens.nix. qml-check fails if this copy drifts. Never commit it.
 modules/home/quickshell/config/Colors.qml
+
+# Local notes and plans, not part of the configuration.
+/docs/
