@@ -16,8 +16,8 @@
 #
 # Usage: tests/aarambh/run.sh
 #
-# Needs nix. QEMU, OVMF, gnu-efi, mtools, gptfdisk, dosfstools and ImageMagick
-# come from nixpkgs through `nix shell`. Output goes to build/aarambh-qemu/.
+# Needs nix. QEMU, OVMF, gnu-efi, mtools, gptfdisk, dosfstools, ImageMagick and
+# netcat come from nixpkgs through `nix shell`. Output goes to build/aarambh-qemu/.
 
 set -euo pipefail
 
@@ -27,7 +27,7 @@ WORK="$ROOT/build/aarambh-qemu"
 
 if [ -z "${AARAMBH_TEST_SHELL:-}" ]; then
     exec nix shell nixpkgs#qemu nixpkgs#OVMF nixpkgs#gnu-efi nixpkgs#gcc nixpkgs#binutils \
-        nixpkgs#mtools nixpkgs#dosfstools nixpkgs#gptfdisk nixpkgs#imagemagick nixpkgs#python3 \
+        nixpkgs#mtools nixpkgs#dosfstools nixpkgs#gptfdisk nixpkgs#imagemagick nixpkgs#netcat \
         --command env AARAMBH_TEST_SHELL=1 bash "$0" "$@"
 fi
 
@@ -170,8 +170,8 @@ run_case() {
     # The menu draws after OVMF starts, which can take a while under emulation.
     for _ in $(seq 1 45); do
         sleep 2
-        python3 "$TEST_DIR/screen.py" dump "$sock" "$shot" >/dev/null 2>&1 || true
-        if [ -s "$shot" ] && python3 "$TEST_DIR/screen.py" check "$shot"; then
+        "$TEST_DIR/screen.sh" dump "$sock" "$shot" >/dev/null 2>&1 || true
+        if [ -s "$shot" ] && "$TEST_DIR/screen.sh" check "$shot"; then
             theme_ok=1
             break
         fi
