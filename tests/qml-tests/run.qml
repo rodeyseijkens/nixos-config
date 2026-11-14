@@ -1,5 +1,5 @@
 // Unit tests for the pure shell lib (services/Lib.qml) — run headless via
-// the qtdeclarative `qml` runner: `nix develop test -c qml-test`. The tests
+// the qtdeclarative `qml` runner: `nix develop tests -c qml-test`. The tests
 // cross the same interface callers do; expected values are hand-computed.
 import "../../modules/home/quickshell/config/services"
 import "../../modules/home/quickshell/config/plugins/panels/elsewhen/Model.js" as ElsewhenModel

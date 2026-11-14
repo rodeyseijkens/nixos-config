@@ -1,5 +1,5 @@
 # Single source for the generated quickshell Colors.qml singleton: consumed by
-# default.nix (real Stylix palette) and test/flake.nix's qml-check (stand-in
+# default.nix (real Stylix palette) and tests/flake.nix's qml-check (stand-in
 # palette, also the reference for the drift check against the repo's dev
 # copy), so the copies cannot drift unnoticed.
 {

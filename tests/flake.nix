@@ -243,7 +243,7 @@
     '';
     qml-test = pkgs.writeShellScriptBin "qml-test" ''
       set -euo pipefail
-      OUT=$(${pkgs.qt6.qtdeclarative}/bin/qml "${parentFlake}/test/qml-tests/run.qml" 2>&1 || true)
+      OUT=$(${pkgs.qt6.qtdeclarative}/bin/qml "${parentFlake}/tests/qml-tests/run.qml" 2>&1 || true)
       echo "''${OUT}"
       if echo "''${OUT}" | grep -q FAIL; then
         echo "qml-test: FAIL"
@@ -264,7 +264,7 @@
         echo "  luals-check-hypr <cfg> <schema>  type-check against real hl.meta.lua (no mocks)"
         echo "  qml-check [config-dir]  lint quickshell QML (default: ../modules/home/quickshell/config)"
         echo "  qml-regen [config-dir]  regenerate the repo Colors.qml dev copy from tokens.nix"
-        echo "  qml-test                run the pure-lib unit tests (test/qml-tests)"
+        echo "  qml-test                run the pure-lib unit tests (tests/qml-tests)"
         echo "  hyprvalidate --help     hyprvalidate tool"
         echo ""
         echo "Available hosts: desktop, desktop-work, desktop-office"

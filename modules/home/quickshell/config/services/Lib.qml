@@ -3,7 +3,7 @@ import QtQml
 
 // Pure logic shared across the shell, importable without a running shell —
 // the tests exercise exactly this module (the interface is the test surface).
-// No Quickshell imports here: `qml test/qml-tests/run.qml` runs it headless.
+// No Quickshell imports here: `qml tests/qml-tests/run.qml` runs it headless.
 QtObject {
   // relTime: "now", "5m", "3h", "2d" — the age of a received notification
   // (NotifServer wraps its receivedAt/now state around this core).
