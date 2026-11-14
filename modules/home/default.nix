@@ -4,6 +4,7 @@
     ./bat.nix # better cat command
     ./browsers # zen browser, and google chrome
     ./btop.nix # resouces monitor
+    ./caldir # calendar data directory
     ./3d-printing.nix # 3D printing slicers
     ./devpod.nix # devpod development environments
     ./fastfetch.nix # fetch tool
