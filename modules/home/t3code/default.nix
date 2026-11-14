@@ -13,7 +13,7 @@ with lib; let
   # Local override: T3 Code's diff/code syntax is hardcoded to the Pierre
   # palettes and ignores the selected theme. package.nix swaps in the Gruvbox
   # palettes (and Codey's Gruvbox diff accents) during the AppImage extraction.
-  t3codeGruvbox = pkgs.callPackage ./t3code-gruvbox/package.nix {
+  t3codeGruvbox = pkgs.callPackage ./package.nix {
     inherit (versions.stable) version hash;
   };
 in {
