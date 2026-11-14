@@ -123,6 +123,7 @@
       gawk
       gnused
       gnugrep
+      nix
       util-linux
     ];
     text =

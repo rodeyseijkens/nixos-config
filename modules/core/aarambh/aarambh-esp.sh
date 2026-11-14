@@ -154,13 +154,46 @@ uefi_path() {
 }
 
 # Writes the kernel list: the loader's oneshot line first, then one
-# title|id|kernel|initrd|cmdline line per generation, newest first. The kernels
-# are the files systemd-boot already keeps under EFI/nixos, so nothing is copied.
+# title|id|kernel|initrd|cmdline line per generation, newest first. The
+# kernels are the files systemd-boot already keeps under EFI/nixos, so nothing
+# is copied.
+#
+# Every BLS entry this builder writes has the title "NixOS"; the generation
+# number and build date live in the version line ("Generation 900 <label>,
+# built on 2026-11-12"). The dates come from the system profile's generation
+# list, the same source the boot builder uses, which is also the chronological
+# order: the file names are content hashes and say nothing about age.
 write_kernels() {
-    local entry id title kernel initrd options count=0
+    local entry id title version kernel initrd options count=0
+    local -A gen_date=()
+
+    while read -r number date _rest; do
+        [ -n "$number" ] && gen_date[$number]=$date
+    done < <(
+        nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null |
+            awk '{print $1, $2}'
+    )
+
+    # Composed from the version line when present, so the menu rows read like
+    # systemd-boot's: generation number and the date it was built.
+    entry_title() {
+        local number
+
+        version=$(bls_field version "$1")
+        if [ "${version#Generation }" != "$version" ] && [ -n "$version" ]; then
+            number=${version#Generation }
+            number=${number%% *}
+            if [ -n "${gen_date[$number]:-}" ]; then
+                echo "${2} (generation $number, built on ${gen_date[$number]})"
+                return
+            fi
+        fi
+        echo "$2"
+    }
 
     echo "@oneshot systemd-boot"
-    while read -r entry; do
+    while read -r number entry; do
+        [ -n "$entry" ] || continue
         kernel=$(bls_field linux "$entry")
         if [ -z "$kernel" ]; then
             continue
@@ -170,9 +203,16 @@ write_kernels() {
         title=$(bls_field title "$entry")
         initrd=$(bls_all initrd "$entry" | uefi_path | paste -sd, -)
         options=$(bls_field options "$entry")
-        printf '%s|%s|%s|%s|%s\n' "$title" "$id" "$(echo "$kernel" | uefi_path)" "$initrd" "$options"
+        printf '%s|%s|%s|%s|%s\n' "$(entry_title "$entry" "$title")" "$id" "$(echo "$kernel" | uefi_path)" "$initrd" "$options"
         count=$((count + 1))
-    done < <(find "$ESP/loader/entries" -maxdepth 1 -name '*.conf' 2>/dev/null | sort -rV)
+    done < <(
+        find "$ESP/loader/entries" -maxdepth 1 -name '*.conf' 2>/dev/null |
+            while read -r file; do
+                n=$(bls_field version "$file" | cut -d' ' -f2)
+                echo "$n $file"
+            done |
+            sort -rn
+    )
 
     if [ "$count" -eq 0 ]; then
         die "no boot entries with a kernel in $ESP/loader/entries"
