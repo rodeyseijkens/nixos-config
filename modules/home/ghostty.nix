@@ -23,6 +23,9 @@
       # Theme
       theme = "gruvbox";
 
+      # Blur needs background-opacity < 1 (set by stylix.opacity.terminal)
+      background-blur = true;
+
       cursor-style = "bar";
       cursor-style-blink = false;
       adjust-cursor-thickness = 1;
