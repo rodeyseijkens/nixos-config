@@ -2,7 +2,9 @@
   description = "Rodey's nixos configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # nixpkgs-unstable instead of nixos-unstable: linux_zen 7.3.4-zen2 fixes
+    # the BH worker NULL-deref boot panic (NixOS/nixpkgs#587387, #586820).
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     caldir.url = "github:t4t5/caldir";
     caldir.inputs.nixpkgs.follows = "nixpkgs";
     nur.url = "github:nix-community/NUR";
