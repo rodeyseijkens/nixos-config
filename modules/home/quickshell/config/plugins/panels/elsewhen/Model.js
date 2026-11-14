@@ -48,6 +48,17 @@ function cleanLabel(label) {
   return String(label || "").replace(/[,|]/g, " ").replace(/\s+/g, " ").trim()
 }
 
+// Lists read back from QML settings can arrive as a sequence wrapper that
+// fails `Array.isArray` even though it has a length and indexes. Copy anything
+// array-like into a real JS array so the rest of the model can use it as one.
+function asArray(value) {
+  if (Array.isArray(value)) return value
+  if (!value || typeof value !== "object" || typeof value.length !== "number") return []
+  var out = []
+  for (var i = 0; i < value.length; i++) out.push(value[i])
+  return out
+}
+
 // "Los Angeles|America/Los_Angeles, Asia/Tokyo" -> [{label, id}, ...]. Empty means a fresh install.
 function parseZones(spec) {
   var text = String(spec === undefined || spec === null ? "" : spec)
@@ -97,16 +108,17 @@ function withPlace(into, place) {
 // of { label, id, ... }. Before the first write it is unset and the older
 // "Label|Zone, ..." string in `zones` is read instead.
 function parseCities(cities, legacyZones) {
-  if (!Array.isArray(cities) || cities.length === 0) return parseZones(legacyZones)
+  var list = asArray(cities)
+  if (list.length === 0) return parseZones(legacyZones)
   var out = []
-  for (var i = 0; i < cities.length; i++) {
-    var c = cities[i]
+  for (var i = 0; i < list.length; i++) {
+    var c = list[i]
     if (!c || typeof c !== "object") continue
     var id = String(c.zone || "").trim()
     if (id === "" || !ZONE_ID.test(id)) continue
     var label = cleanLabel(c.name)
     var entry = withPlace({ label: label === "" ? labelForZoneId(id) : label, id: id }, c)
-    var people = Array.isArray(c.people) ? cleanPeople(c.people) : []
+    var people = cleanPeople(c.people)
     if (people.length > 0) entry.people = people
     out.push(entry)
   }
@@ -119,7 +131,7 @@ function serializeCities(zones) {
     var z = zones[i]
     if (!z || !z.id) continue
     var entry = withPlace({ name: z.label || labelForZoneId(z.id), zone: z.id }, z)
-    if (z.people && z.people.length > 0) entry.people = z.people.slice()
+    if (z.people && z.people.length > 0) entry.people = asArray(z.people).slice()
     out.push(entry)
   }
   return out
@@ -455,7 +467,7 @@ function parsePeople(text) {
 }
 
 function cleanPeople(list) {
-  return parsePeople((list || []).map(function(p) { return String(p).replace(/,/g, " ") }).join(","))
+  return parsePeople(asArray(list).map(function(p) { return String(p).replace(/,/g, " ") }).join(","))
 }
 
 function peopleText(list) {
