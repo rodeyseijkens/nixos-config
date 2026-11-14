@@ -1,10 +1,10 @@
-"""Google-shaped event resources built from iCalendar parts.
+"""Google-shaped event resources built from caldir's fields.
 
-The eds and ics backends read iCalendar, not Google's API, but they emit the
-same event resources gws returns. That way normalization, deduplication and
-contract validation are shared rather than reimplemented per backend. Only
-the fields iCalendar carries are filled in; the rest are simply absent, which
-normalize already treats as blank.
+caldir reads iCalendar, not Google's API, but it emits the same Google event
+resources the normalization reads. That way normalization, deduplication and contract validation are
+shared rather than reimplemented per backend. Only the fields caldir carries
+are filled in; the rest are simply absent, which normalize already treats as
+blank.
 """
 
 # iCalendar spells the invitation answer differently to Google, and the widget

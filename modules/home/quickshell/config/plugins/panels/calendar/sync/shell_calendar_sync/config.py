@@ -14,28 +14,15 @@ CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
 CONFIG_PATH = CONFIG_HOME / "shell-calendar" / "calendar-sync.json"
 
 DEFAULTS = {
-    # "caldir" reads the caldir CLI and reuses its provider sign-in. The
-    # library also carries "gws", "eds", "ics" and "caldav" for configs that
-    # name them by hand, but sync/setup only writes "caldir".
+    # The only source. caldir reads the calendars and reuses its provider
+    # sign-in, and the panel's changes go through it too.
     "backend": "caldir",
     # Off, the sync publishes no writable calendars and the panel shows no way
-    # to change an event. caldir writes are not wired up yet.
-    "write": False,
-    # ics only: feed URLs, each a string or {"url", "name", "color"}.
-    "ics": [],
-    # caldav only: an account {"url", "username", "passwordCommand"}, or a
-    # list of them. "password" works in place of the command, in a file
-    # with mode 600; sync/setup --caldav keeps it in the keyring instead.
-    "caldav": [],
-    # eds, ics and caldav: the address whose invitation answers count as "yours".
-    # Blank means responseStatus is left unset rather than guessed.
-    "identity": "",
-    "profile": str(CONFIG_HOME / "gws-shell-calendar"),
-    # Resolved to an absolute path by sync/setup. A systemd user service
-    # does not inherit an interactive shell PATH, so relying on the bare
-    # name works from a terminal and fails from the timer.
-    "gwsPath": "gws",
-    # caldir only. Same PATH caveat as gwsPath.
+    # to change an event. On, changes are saved through caldir and pushed.
+    "write": True,
+    # Resolved to an absolute path by sync/setup. A systemd user service does
+    # not inherit an interactive shell PATH, so relying on the bare name works
+    # from a terminal and fails from the timer.
     "caldirPath": "caldir",
     # caldir only: run `caldir pull` before reading. Turn it off when
     # something else already keeps caldir up to date.

@@ -10,12 +10,8 @@ from pathlib import Path
 
 from . import config as config_module
 from . import budget, contract, normalize, suggestions
-from .caldav import Caldav
 from .caldir import Caldir
-from .eds import Eds
 from .errors import SyncError
-from .gws import Gws
-from .ics import Ics
 from .localzone import resolve_local_timezone
 
 EXIT_OK = 0
@@ -175,19 +171,9 @@ def run(client, cfg, now, out_path, local_tz):
 def build_client(cfg, local_tz=None):
     """The calendar source named by the config."""
     backend = str(cfg.get("backend") or "caldir").strip().lower()
-    if backend == "gws":
-        return Gws(cfg["profile"], binary=cfg["gwsPath"])
-    if backend == "eds":
-        return Eds(identity=cfg.get("identity", ""))
-    if backend == "ics":
-        return Ics(cfg.get("ics"), identity=cfg.get("identity", ""), local_tz=local_tz)
     if backend == "caldir":
-        return Caldir(binary=cfg["caldirPath"], pull=bool(cfg.get("caldirPull")))
-    if backend == "caldav":
-        return Caldav(cfg.get("caldav"), identity=cfg.get("identity", ""), local_tz=local_tz)
-    raise config_module.ConfigError(
-        "unknown backend %r; expected \"gws\", \"eds\", \"ics\", \"caldir\" or \"caldav\"" % backend
-    )
+        return Caldir(binary=cfg["caldirPath"], pull=bool(cfg.get("caldirPull")), tz=local_tz)
+    raise config_module.ConfigError("unknown backend %r; expected \"caldir\"" % backend)
 
 
 def main(argv=None):

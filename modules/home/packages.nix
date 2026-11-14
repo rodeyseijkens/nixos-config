@@ -55,7 +55,7 @@
     mise
 
     ## Python
-    (python3.withPackages (ps: [ps.icalendar ps.recurring-ical-events])) # calendar sync: iCal and CalDAV backends
+    python3 # calendar sync entry scripts (no extra packages needed)
     python313Packages.ipython
 
     ## Misc

@@ -19,15 +19,12 @@ from pathlib import Path
 from . import config as config_module
 from . import budget, cli, contract, event_form, writes
 from .errors import EventNotFound, SyncError
-from .gws import GwsAuthError, GwsSignInError
 from .localzone import resolve_local_timezone
 
 SYNC_UNIT = "shell-calendar-sync.service"
 
 WRITE_OFF = "Writing is turned off in the calendar config."
 NOT_WRITABLE = "This backend cannot write events."
-NO_SCOPE = "Write access not granted."
-EXPIRED = "Your Google sign-in expired."
 GONE = "This event no longer exists."
 NO_FILE = "No calendar synced yet. Wait for the first sync, then try again."
 STALE_PANEL = "The panel is older than the plugin files. Restart Quickshell to reload it."
@@ -69,22 +66,22 @@ def perform(raw, cfg, client, doc_path, tz, start_sync=start_background_sync, sy
         if request["action"] == "get":
             return 0, {"ok": True, "event": _get(client, request, tz)}
         event_id, resource, series = _write(client, request, tz)
+        # The row to replace has the id the panel had. The reply carries the
+        # id the event has now: caldir's ids include the start, so a moved
+        # event changes its id.
+        reply_id = (resource or {}).get("id") or event_id
     except writes.WriteRequestError as error:
         return 1, _fail(str(error))
     except EventNotFound:
         # The file still shows the event. The sync takes the row away.
         start_sync()
         return 1, _fail(GONE)
-    except GwsSignInError as error:
-        return 1, _fail(str(error))
-    except GwsAuthError as error:
-        return 1, _fail(_auth_message(str(error)))
     except SyncError as error:
         return 1, _fail(str(error))
 
     if series and sync_now is not None:
         sync_now()
-        return 0, {"ok": True, "eventId": event_id}
+        return 0, {"ok": True, "eventId": reply_id}
 
     try:
         window = config_module.window_dates(cfg, now or datetime.now(timezone.utc), tz)
@@ -96,21 +93,7 @@ def perform(raw, cfg, client, doc_path, tz, start_sync=start_background_sync, sy
         pass
 
     start_sync()
-    return 0, {"ok": True, "eventId": event_id}
-
-
-def _auth_message(text):
-    """A person's reading of a 401 or 403.
-
-    Only a missing scope sends the user to setup. Any other 403 (an
-    invitation's shared properties, for one) is Google's own words.
-    """
-    if text.startswith("401"):
-        return EXPIRED
-    lowered = text.lower()
-    if "insufficient" in lowered and "scope" in lowered:
-        return NO_SCOPE
-    return "Google refused the change: " + text.split(": ", 1)[-1]
+    return 0, {"ok": True, "eventId": reply_id}
 
 
 def _get(client, request, tz):

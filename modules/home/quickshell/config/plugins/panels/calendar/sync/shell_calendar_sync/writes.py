@@ -1,7 +1,7 @@
 """The rules for one request from the panel, and the rows that replace an
 event's old rows in the events file.
 
-Pure functions only, so every rule is testable without gws or a file. The
+Pure functions only, so every rule is testable without a calendar or a file. The
 event body itself is built in event_form.
 """
 

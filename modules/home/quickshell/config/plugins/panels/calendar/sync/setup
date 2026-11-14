@@ -13,8 +13,9 @@ set -euo pipefail
 
 for arg in "$@"; do
   case "$arg" in
-    # Accepted because older instructions pass it. caldir is the only backend.
-    --caldir) ;;
+    # Accepted because older instructions pass them. caldir is the only
+    # backend, and writes are always on: they go through caldir too.
+    --caldir | --write) ;;
     *)
       echo "unknown option: $arg (setup takes no options; it always uses caldir)"
       exit 2
@@ -57,15 +58,10 @@ EOF
 }
 
 calendar_count() {
-  "$1" --json calendars 2>/dev/null | python3 -c '
-import json, sys
-
-try:
-    payload = json.load(sys.stdin)
-    print(len(payload) if isinstance(payload, list) else 0)
-except (ValueError, TypeError):
-    print(0)
-'
+  local count
+  # Anything that is not a JSON array, or no answer at all, counts as zero.
+  count=$("$1" --json calendars 2>/dev/null | jq -r 'if type == "array" then length else 0 end' 2>/dev/null) || count=""
+  echo "${count:-0}"
 }
 
 connect_provider() {
@@ -164,40 +160,25 @@ EOF
   fi
   echo "  $count calendar(s) available in caldir"
 
-  local identity=""
-  if [ -t 0 ]; then
-    read -r -p "  Your email address (marks declined invitations, optional): " identity || true
-  fi
-
   mkdir -p "$(dirname "$CONFIG")"
   # The new config replaces the current one only after a test sync passes.
-  local candidate
+  local candidate existing
   candidate=$(mktemp "$CONFIG.XXXXXX")
   trap 'rm -f "${candidate:-}"' EXIT
-  python3 - "$CONFIG" "$candidate" "$caldir_bin" "$identity" <<'PYEOF'
-import json, os, pathlib, sys
-
-path, dest = pathlib.Path(sys.argv[1]), sys.argv[2]
-caldir_bin, identity = sys.argv[3], sys.argv[4].strip()
-config = {}
-if path.exists():
-    try:
-        config = json.loads(path.read_text())
-    except ValueError:
-        config = {}
-config["backend"] = "caldir"
-config["caldirPath"] = caldir_bin
-config["caldirPull"] = True
-# The panel's event form writes through Google's API; caldir writes are not
-# wired up yet, so this backend publishes no writable calendars.
-config["write"] = False
-if identity:
-    config["identity"] = identity
-fd = os.open(dest, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-with os.fdopen(fd, "w") as stream:
-    stream.write(json.dumps(config, indent=2) + "\n")
-os.chmod(dest, 0o600)
-PYEOF
+  # An unreadable or non-object config starts over. mktemp makes the candidate
+  # mode 600, and jq writes into that same file, so it stays private.
+  existing=$(jq -c 'if type == "object" then . else {} end' "$CONFIG" 2>/dev/null) || existing=""
+  if [ -z "$existing" ]; then
+    existing='{}'
+  fi
+  # Writes go through caldir and are pushed to the provider, so the panel may
+  # create, edit and delete events on the calendars caldir can write to.
+  printf '%s\n' "$existing" | jq --indent 2 --arg bin "$caldir_bin" '
+    .backend = "caldir"
+    | .caldirPath = $bin
+    | .caldirPull = true
+    | .write = true
+  ' >"$candidate"
 
   step "Testing caldir"
   "$SYNC_BIN" --config "$candidate" || {
@@ -206,7 +187,7 @@ PYEOF
   }
   mv -f "$candidate" "$CONFIG"
   echo "  backend set to caldir ($caldir_bin) in $CONFIG"
-  echo "  reading only: the widget shows events, it cannot create or edit them"
+  echo "  writes: the widget can create, edit and delete events, saved through caldir"
 
   install_timer_and_sync
   exit 0

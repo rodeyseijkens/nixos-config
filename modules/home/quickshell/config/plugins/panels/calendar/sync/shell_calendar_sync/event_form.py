@@ -1,7 +1,7 @@
 """The event form the panel edits, and Google's event resource, both ways.
 
 The form shape is the spec's: one flat JSON object with local dates and
-times. Pure functions only, so every mapping is testable without gws.
+times. Pure functions only, so every mapping is testable without a calendar.
 """
 
 import calendar
@@ -108,8 +108,8 @@ def form_to_body(form, tz, had_meet=False, had_rule=False, had_color=False, rule
                 "conferenceSolutionKey": {"type": "hangoutsMeet"},
             }
         }
-    # A removed Meet is not in the body: a patch cannot remove one (gws
-    # refuses null, and Google ignores {}), so the event command replaces
+    # A removed Meet is not in the body: a patch cannot remove one (Google
+    # refuses null, and ignores {}), so the event command replaces
     # the whole event instead. See event_cli._write.
 
     preset = form.get("repeat") or "none"
@@ -134,8 +134,8 @@ def form_to_body(form, tz, had_meet=False, had_rule=False, had_color=False, rule
 
     body["transparency"] = "opaque" if form.get("busy", True) else "transparent"
     body["visibility"] = str(form.get("visibility") or "default")
-    # gws refuses a null colorId, so no colour sends no key, and removing a
-    # colour the event had sends "" (verified with --dry-run on gws 0.13.2).
+    # Google refuses a null colorId, so no colour sends no key, and removing a
+    # colour the event had sends "".
     if form.get("colorId"):
         body["colorId"] = str(form["colorId"])
     elif had_color:
