@@ -37,7 +37,7 @@
     ./tigervnc.nix # remote desktop
     ./tiled.nix # tiled mapeditor
     ./viewnior.nix # image viewer
-    ./vscode/vscode.nix # vscode
+    ./vscode # vscode
     ./walker # walker launcher
     ./worktrunk.nix # git worktree management
     ./xdg-mimes.nix # xdg config

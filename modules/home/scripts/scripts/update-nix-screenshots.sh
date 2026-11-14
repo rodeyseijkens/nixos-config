@@ -15,7 +15,7 @@ WS="${SCREENSHOT_WORKSPACE:-7}"
 REPO_DIR="${1:-${SCREENSHOT_REPO:-$HOME/nixos-config}}"
 OUT_DIR="$REPO_DIR/.github/assets/screenshots"
 TERM_BIN="ghostty"
-VSCODE_FILE="modules/home/vscode/vscode.nix"
+VSCODE_FILE="modules/home/vscode/default.nix"
 
 die() { echo "update-screenshots: $*" >&2; exit 1; }
 
