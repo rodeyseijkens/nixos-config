@@ -10,6 +10,12 @@
     inherit hash;
   };
 
+  patchAsar = pkgs.writeShellApplication {
+    name = "t3code-patch-asar";
+    runtimeInputs = with pkgs; [coreutils diffutils gnugrep gnused jq];
+    text = builtins.readFile ./patch.sh;
+  };
+
   # Upstream hardcodes syntax highlighting to the Pierre palettes, so the diff
   # and code views ignore the selected (Gruvbox) app theme. This swaps the
   # bundled Pierre palettes for the Gruvbox ones that ship with the app.
@@ -18,7 +24,7 @@
 
     postExtract = ''
       chmod u+w $out/resources/app.asar
-      ${pkgs.python3}/bin/python3 ${./patch.py} $out/resources/app.asar
+      ${patchAsar}/bin/t3code-patch-asar $out/resources/app.asar
     '';
   };
 in
