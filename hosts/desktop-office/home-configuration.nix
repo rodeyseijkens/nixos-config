@@ -32,7 +32,7 @@
     zed-editor.enable = true;
     mitos-editor.enable = true;
     t3code.enable = true;
-    herdr-app.enable = true;
+    herdr.enable = true;
     superwhisper.enable = true;
 
     # DevPod

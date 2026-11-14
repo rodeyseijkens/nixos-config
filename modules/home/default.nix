@@ -13,8 +13,7 @@
     ./git.nix # version control
     ./gnome.nix # gnome apps
     ./gtk.nix # gtk theme
-    ./herdr # terminal agent multiplexer (gruvbox theme)
-    ./herdr-app # herdr desktop app (herdr-app + herdr-core)
+    ./herdr # terminal agent multiplexer (gruvbox theme) + desktop app
     ./hyprland # window manager
     ./vesktop # discord client (Vencord)
     ./llm # llm tools and plugins
