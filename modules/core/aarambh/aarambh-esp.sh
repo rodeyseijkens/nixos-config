@@ -3,7 +3,8 @@
 #
 # The NixOS module runs "install" from the systemd-boot install hook, and
 # "remove" when aarambh.enable is false. aarambh-uninstall runs "remove" by
-# hand. The @...@ placeholders below are filled in by modules/core/aarambh.nix.
+# hand. The @...@ placeholders below are filled in by
+# modules/core/aarambh/default.nix.
 #
 # Files are staged in <esp>/EFI/aarambh.staging and swapped in, so a failed run
 # keeps the last complete menu. Firmware entries are found by content (ESP
