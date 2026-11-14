@@ -29,6 +29,7 @@ stdenv.mkDerivation {
   patches = [
     ./patches/0001-discovery.patch
     ./patches/0002-editorial-gruvbox.patch
+    ./patches/0003-clock-24h.patch
   ];
 
   nativeBuildInputs = [imagemagick librsvg fontconfig dejavu_fonts];

@@ -1,0 +1,52 @@
+From 64c46f3b845bf419ffa22b549a81dbf5ecee20cb Mon Sep 17 00:00:00 2001
+From: Rodey Seijkens <me@rodey.nl>
+Date: Sat, 14 Nov 2026 22:48:24 +0100
+Subject: [PATCH 3/4] feat(clock): show the time in 24-hour form
+
+---
+ src/core/clock.c | 22 ++++------------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
+
+diff --git a/src/core/clock.c b/src/core/clock.c
+index 1fb4e7f..4c88f8c 100644
+--- a/src/core/clock.c
++++ b/src/core/clock.c
+@@ -28,31 +28,17 @@ static int local_minutes(const EFI_TIME *time, int offset)
+ 
+ static void format_time(Clock *clock, int hour, int minute)
+ {
+-    int display_hour = hour % 12;
+     int i = 0;
+ 
+-    if (display_hour == 0) {
+-        display_hour = 12;
+-    }
+-
+-    if (display_hour >= 10) {
+-        clock->time[i] = (char)('0' + display_hour / 10);
+-        i++;
+-    }
+-
+-    clock->time[i++] = (char)('0' + display_hour % 10);
++    clock->time[i++] = (char)('0' + hour / 10);
++    clock->time[i++] = (char)('0' + hour % 10);
+     clock->time[i++] = ':';
+     clock->time[i++] = (char)('0' + minute / 10);
+     clock->time[i++] = (char)('0' + minute % 10);
+     clock->time[i] = '\0';
+ 
+-    if (hour < 12) {
+-        clock->period[0] = 'A';
+-    } else {
+-        clock->period[0] = 'P';
+-    }
+-    clock->period[1] = 'M';
+-    clock->period[2] = '\0';
++    /* 24-hour clock: the themes keep a slot for the period, so leave it empty. */
++    clock->period[0] = '\0';
+ }
+ 
+ void clock_update(Clock *clock, float now)
+-- 
+2.56.0
+
