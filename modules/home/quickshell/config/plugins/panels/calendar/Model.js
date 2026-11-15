@@ -1391,7 +1391,7 @@ function parseWriteReply(output, lang) {
 }
 
 // The form for a new event. Same shape as the one the event command's get
-// returns (see sync/shell_calendar_sync/event_form.py), with Google's
+// returns (see sync/shell-calendar-event), with Google's
 // defaults. An end at "00:00" keeps the same end date: the command reads it
 // as that midnight.
 function newEventForm(dateKeyText, times, calendarId) {
