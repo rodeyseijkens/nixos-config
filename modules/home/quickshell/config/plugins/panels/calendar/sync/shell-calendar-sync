@@ -1,22 +1,923 @@
-#!/usr/bin/env python3
-"""Executable wrapper so the sync runs without being pip installed."""
+#!/usr/bin/env bash
+#
+# Sync your calendars into the Shell Calendar widget file.
+#
+# The calendar source is caldir: this asks its CLI for the calendars and
+# events as JSON, turns them into the widget's contract rows, and writes the
+# file atomically. The write commands (creating, editing, deleting events)
+# are still in shell_calendar_sync for now.
+#
+# Needs jq, coreutils (date, timeout, mktemp), gawk, grep and sed. The shape of
+# the document is the contract in shell_calendar_sync/contract.py;
+# tests/calendar-sync/run.sh holds it against a recorded golden document.
 
-import os
-import sys
-from pathlib import Path
+set -uo pipefail
+shopt -s inherit_errexit 2>/dev/null || true
 
-# The shell reloads the plugin when any file in its folder changes. A .pyc
-# written next to the sources would close the panel in the middle of a save,
-# so the compiled modules go to the user cache instead.
-sys.pycache_prefix = os.path.join(
-    os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"),
-    "shell-calendar",
-    "pycache",
-)
+SYNC_SECONDS=120
+MAX_EVENTS=10000
+MAX_ROWS=20000
+MAX_MEMORY_KB=$((512 * 1024))
+CONTRACT_VERSION=1
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# The timer may hang on a helper; a whole-run deadline is simpler than
+# watching every wait. Re-exec once under timeout so no inner loop needs it.
+if [ -z "${SHELL_CALENDAR_DEADLINE:-}" ]; then
+    ulimit -d "$MAX_MEMORY_KB" 2>/dev/null || true
+    SHELL_CALENDAR_DEADLINE=1 exec timeout --signal=TERM "$SYNC_SECONDS" "$0" "$@"
+fi
 
-from shell_calendar_sync.cli import main  # noqa: E402
+trap 'echo "sync failed: gave up after ${SYNC_SECONDS} s" >&2; exit 1' TERM
+WORK_DIR=""
+trap '[ -n "$WORK_DIR" ] && rm -rf "$WORK_DIR"' EXIT
 
-if __name__ == "__main__":
-    sys.exit(main())
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+CONFIG_PATH="$CONFIG_HOME/shell-calendar/calendar-sync.json"
+CONTRACT_PATH="$STATE_HOME/shell-calendar/calendar-events.json"
+
+CONFIG_FILE=$CONFIG_PATH
+OUT_FILE=$CONTRACT_PATH
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+    --config) [ "$#" -ge 2 ] || { echo "usage: shell-calendar-sync [-h] [--config CONFIG] [--out OUT]" >&2; exit 2; } ; CONFIG_FILE=$2 ; shift 2 ;;
+    --out) [ "$#" -ge 2 ] || { echo "usage: shell-calendar-sync [-h] [--config CONFIG] [--out OUT]" >&2; exit 2; } ; OUT_FILE=$2 ; shift 2 ;;
+    -h | --help)
+        cat <<'EOF'
+usage: shell-calendar-sync [-h] [--config CONFIG] [--out OUT]
+
+Sync your calendars into the Shell Calendar widget file.
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG  path to calendar-sync.json
+  --out OUT        path to the contract file
+EOF
+        exit 0
+        ;;
+    *)
+        echo "usage: shell-calendar-sync [-h] [--config CONFIG] [--out OUT]" >&2
+        echo "shell-calendar-sync: error: unrecognized arguments: $1" >&2
+        exit 2
+        ;;
+    esac
+done
+
+DEFAULTS='{
+  "backend": "caldir",
+  "write": true,
+  "caldirPath": "caldir",
+  "caldirPull": true,
+  "calendars": {"include": [], "exclude": []},
+  "window": {"pastDays": 7, "futureDays": 60}
+}'
+
+config_error() {
+    echo "config error: $*" >&2
+    exit 2
+}
+
+# A failure that returns, for use inside command substitution, and one that
+# ends the run, for the top level.
+sync_fail() {
+    echo "sync failed: $*" >&2
+    echo "if this is an auth error, run \`caldir status\` in a terminal; \`caldir connect\` signs in to a provider again" >&2
+    return 1
+}
+
+sync_error() {
+    sync_fail "$@"
+    exit 1
+}
+
+# ---- Configuration ---------------------------------------------------------
+
+load_config() {
+    local raw
+    if [ ! -e "$CONFIG_FILE" ]; then
+        raw='{}'
+    else
+        if ! raw=$(jq -c . "$CONFIG_FILE" 2>/dev/null); then
+            config_error "cannot read $CONFIG_FILE: invalid JSON"
+        fi
+    fi
+    if [ "$(jq -r 'type' <<<"$raw")" != "object" ]; then
+        config_error "$CONFIG_FILE must contain a JSON object"
+    fi
+
+    CONFIG=$(jq -c --argjson defaults "$DEFAULTS" '
+        def merge($d; $o):
+          reduce ($d | keys_unsorted[]) as $k ({};
+            ($o[$k]) as $v
+            | (if ($o | has($k) | not) or $v == null then $d[$k]
+               elif ($d[$k] | type) == "object" and ($v | type) == "object" then ($d[$k] + $v)
+               else $v end) as $merged
+            | .[$k] = $merged);
+        merge($defaults; .)
+    ' <<<"$raw")
+
+    # calendars.include and calendars.exclude must be lists.
+    if ! jq -e '(.calendars // {}) as $c
+        | ($c.include == null or ($c.include | type) == "array")
+          and ($c.exclude == null or ($c.exclude | type) == "array")' <<<"$CONFIG" >/dev/null; then
+        local key=include
+        jq -e '(.calendars.include // null) | if . == null or (type == "array") then true else false end' <<<"$CONFIG" >/dev/null || key=exclude
+        config_error "calendars.$key must be a list"
+    fi
+
+    # The window day counts become integers, or fail naming the key.
+    local key value
+    for key in pastDays futureDays; do
+        value=$(jq -r --arg k "$key" '.window[$k] | tostring' <<<"$CONFIG")
+        case "$value" in
+        true | false) config_error "window.$key must be a number" ;;
+        esac
+        if ! [[ "$value" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+            config_error "window.$key must be a number"
+        fi
+        CONFIG=$(jq -c --arg k "$key" --argjson v "$(printf '%d' "$value")" '.window[$k] = $v' <<<"$CONFIG")
+    done
+
+    BACKEND=$(jq -r '.backend | tostring' <<<"$CONFIG")
+    [ "$BACKEND" = "caldir" ] || config_error "unknown backend \"$BACKEND\"; expected \"caldir\""
+    CALDIR_PATH=$(jq -r '.caldirPath | tostring' <<<"$CONFIG")
+    CALDIR_PULL=$(jq -r '.caldirPull | if . == true then "1" else "0" end' <<<"$CONFIG")
+    WRITE=$(jq -r '.write | if . == true then "1" else "0" end' <<<"$CONFIG")
+}
+
+# ---- Timezone --------------------------------------------------------------
+
+# The local IANA zone name, or "" when none can be named. A named zone is what
+# keeps an event on the far side of a daylight saving change on its own day.
+zoneinfo_root() {
+    local target
+    target=$(readlink -f /etc/localtime 2>/dev/null || true)
+    case "$target" in
+    *zoneinfo/*) printf '%s' "${target%%/zoneinfo/*}/zoneinfo" ; return 0 ;;
+    esac
+    if [ -d /usr/share/zoneinfo ]; then
+        printf '%s' /usr/share/zoneinfo
+        return 0
+    fi
+    return 1
+}
+
+resolve_local_timezone() {
+    local root name target
+    root=$(zoneinfo_root || true)
+
+    if [ -n "${TZ:-}" ]; then
+        name=${TZ#:}
+        if [ -n "$root" ] && [ -f "$root/$name" ]; then
+            printf '%s' "$name"
+            return 0
+        fi
+    fi
+
+    target=$(readlink -f /etc/localtime 2>/dev/null || true)
+    case "$target" in
+    *zoneinfo/*)
+        name=${target#*zoneinfo/}
+        if [ -n "$name" ]; then
+            printf '%s' "$name"
+            return 0
+        fi
+        ;;
+    esac
+
+    echo "warning: could not determine the named timezone; using a fixed offset instead. Events spanning a daylight saving transition may be off by a day." >&2
+    printf '%s' ""
+}
+
+LOCAL_ZONE=$(resolve_local_timezone)
+# A fixed offset, in seconds east of UTC, for when no zone could be named.
+local_offset_seconds() {
+    local sign hh mm offset
+    sign=$(date +%z)
+    hh=${sign:1:2}
+    mm=${sign:3:2}
+    offset=$(( 10#$hh * 3600 + 10#$mm * 60 ))
+    if [ "${sign:0:1}" = "-" ]; then
+        offset=$(( -offset ))
+    fi
+    printf '%d' "$offset"
+}
+
+if [ -n "$LOCAL_ZONE" ]; then
+    export TZ="$LOCAL_ZONE"
+    FIXED_OFFSET=""
+else
+    FIXED_OFFSET=$(local_offset_seconds)
+fi
+
+# A local ISO string for an epoch, in the same shape Python's isoformat gives.
+local_iso() {
+    local epoch=$1 frac=${2:-}
+    if [ -n "$LOCAL_ZONE" ]; then
+        printf '%s' "$(date -d "@$epoch" +%Y-%m-%dT%H:%M:%S)${frac}$(date -d "@$epoch" +%:z)"
+    else
+        date -u -d "@$((epoch + FIXED_OFFSET))" +%Y-%m-%dT%H:%M:%S | {
+            read -r base
+            local sign="+" off=$FIXED_OFFSET
+            if [ "$off" -lt 0 ]; then sign="-" ; off=$(( -off )) ; fi
+            printf '%s%s%s%02d:%02d' "$base" "$frac" "$sign" $((off / 3600)) $(( (off % 3600) / 60 ))
+        }
+    fi
+}
+
+add_days_epoch_ymd() {
+    date -d "$1 $2 day" +%Y-%m-%d
+}
+
+# The local date of an epoch.
+local_date() {
+    if [ -n "$LOCAL_ZONE" ]; then
+        date -d "@$1" +%Y-%m-%d
+    else
+        date -u -d "@$(($1 + FIXED_OFFSET))" +%Y-%m-%d
+    fi
+}
+
+midnight_epoch() {
+    if [ -n "$LOCAL_ZONE" ]; then
+        date -d "$1 00:00:00" +%s
+    else
+        printf '%d' $(( $(date -u -d "$1 00:00:00" +%s) - FIXED_OFFSET ))
+    fi
+}
+
+# Epoch of an RFC3339 value. A value without an offset is refused.
+parse_instant() {
+    local value=$1
+    if ! [[ "$value" =~ (Z|[+-][0-9]{2}:?[0-9]{2})$ ]]; then
+        return 1
+    fi
+    date -d "$value" +%s 2>/dev/null
+}
+
+fraction_of() {
+    if [[ "$1" =~ \.([0-9]+) ]]; then
+        printf '.%s' "$(printf '%-6s' "${BASH_REMATCH[1]:0:6}" | tr ' ' '0')"
+    fi
+}
+
+# ---- caldir ----------------------------------------------------------------
+
+run_caldir() {
+    "$CALDIR_PATH" "$@"
+}
+
+caldir_json() {
+    local out err
+    err=$(mktemp)
+    if ! out=$(run_caldir --json "$@" 2>"$err"); then
+        local excerpt
+        excerpt=$(head -c 400 "$err" | tr '\n' ' ' | cut -c1-200)
+        rm -f "$err"
+        sync_fail "caldir ${1} failed: ${excerpt:-no stderr output}"
+        return 1
+    fi
+    rm -f "$err"
+    if ! jq -e . >/dev/null 2>&1 <<<"$out"; then
+        sync_fail "caldir ${1} returned invalid JSON"
+        return 1
+    fi
+    printf '%s' "$out"
+}
+
+caldir_version() {
+    local stdout
+    if ! stdout=$("$CALDIR_PATH" --version 2>/dev/null); then
+        sync_fail "cannot read the caldir version"
+        return 1
+    fi
+    if [[ "$stdout" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+        printf '%s.%s.%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"
+    else
+        sync_fail "cannot parse caldir version from '$stdout'"
+        return 1
+    fi
+}
+
+default_calendar() {
+    local payload
+    if ! payload=$("$CALDIR_PATH" --json config 2>/dev/null); then
+        printf '%s' ""
+        return 0
+    fi
+    jq -r '.config.default_calendar // "" | tostring' <<<"$payload" 2>/dev/null || printf '%s' ""
+}
+
+caldir_calendars() {
+    local payload primary
+    if [ "$CALDIR_PULL" = "1" ]; then
+        local pull_out
+        if ! pull_out=$(run_caldir pull 2>&1); then
+            echo "caldir pull failed, using local copy: $(printf '%s' "$pull_out" | tr '\n' ' ' | cut -c1-200)" >&2
+        fi
+    fi
+
+    primary=$(default_calendar)
+    payload=$(caldir_json calendars)
+
+    if [ "$(jq -r 'type' <<<"$payload")" != "array" ]; then
+        sync_fail "caldir calendars must return a JSON array"
+        return 1
+    fi
+
+    jq -c --arg primary "$primary" '
+        [ .[]
+          | (.slug // "" | tostring) as $slug
+          | select($slug != "")
+          | {
+              id: $slug,
+              name: ((.name // "" | tostring | gsub("^\\s+|\\s+$"; "")) as $n | if $n == "" then $slug else $n end),
+              color: (.color // "#9e9e9e"),
+              primary: ($slug == $primary),
+              writable: (.read_only == false),
+              lacks: ["guests", "meet", "color", "repeat"]
+            }
+        ]
+        | sort_by(.name)
+    ' <<<"$payload"
+}
+
+# ---- Event resources -------------------------------------------------------
+
+PARTSTAT='{"ACCEPTED":"accepted","DECLINED":"declined","TENTATIVE":"tentative","NEEDSACTION":"needsAction"}'
+
+partstat_google() {
+    local upper
+    upper=$(printf '%s' "$1" | tr '[:lower:]' '[:upper:]' | tr -d '-')
+    jq -r --arg k "$upper" '.[$k] // ""' <<<"$PARTSTAT"
+}
+
+# One caldir event as the intermediate record the rest of this script uses.
+# Time fields are left raw here; they are turned into nodes per event.
+raw_record() {
+    jq -c '
+        def text: tostring;
+        (.x_properties // []) as $props
+        | ([ $props[] | select((.name // "" | ascii_upcase) == "X-GOOGLE-CONFERENCE") | .value // "" ] | first) as $conferenceProp
+        | ([ $props[] | select((.name // "" | ascii_upcase) == "X-GOOGLE-EVENT-TYPE") | .value // "" ] | first // "") as $kind
+        | {
+            uid: (if ((.uid // "") | text) != "" then (.uid | text) else (.instance_id // "" | text) end),
+            title: (if ((.title // "") | text) != "" then (.title | text) else (.summary // "" | text) end),
+            location: ((.location // "") | text),
+            description: ((.description // "") | text),
+            status: ((.status // "") | text | ascii_downcase),
+            rsvp: ((.rsvp // "") | text),
+            allDay: (.all_day == true),
+            startRaw: (if .start == null then "" else (.start | text) end),
+            endRaw: (if .end == null then "" else (.end | text) end),
+            conference: (if $conferenceProp != null then ($conferenceProp | text) else (.url // "" | text) end),
+            eventType: $kind,
+            reminders: ([ (.reminders // [])[]
+                          | .minutes_before_start
+                          | select(type == "number" and . >= 0 and . == floor) ]
+                        | unique | sort)
+          }
+    '
+}
+
+# A Google start/end node as JSON: a date for an all-day event, else a
+# dateTime with an offset. "" means unusable.
+# A datetime with its wall clock kept and its offset spelled the same way
+# Python's isoformat spells it, e.g. "+0100" and "Z" become "+01:00".
+normalise_datetime() {
+    local raw=$1 offset suffix
+    if [[ "$raw" =~ (Z|[+-][0-9]{2}:?[0-9]{2})$ ]]; then
+        offset=${BASH_REMATCH[1]}
+    else
+        return 1
+    fi
+    suffix=$offset
+    if [ "$offset" = "Z" ]; then
+        suffix="+00:00"
+    elif [[ "$offset" =~ ^([+-][0-9]{2})([0-9]{2})$ ]]; then
+        suffix="${BASH_REMATCH[1]}:${BASH_REMATCH[2]}"
+    fi
+    printf '%s%s' "${raw%"$offset"}" "$suffix"
+}
+
+node_of() {
+    local raw=$1 all_day=$2
+    [ -n "$raw" ] || return 0
+    if [ "$all_day" = "true" ]; then
+        jq -cn --arg d "${raw:0:10}" '{date: $d}'
+        return 0
+    fi
+    local normalised
+    normalised=$(normalise_datetime "$raw") || return 1
+    jq -cn --arg dt "$normalised" '{dateTime: $dt}'
+}
+
+# ---- Text: meeting links and descriptions ----------------------------------
+
+urldecode() {
+    local text=$1
+    printf '%b' "${text//%/\\x}"
+}
+
+# A safelinks wrapper around a real meeting link, and the meeting hosts the
+# widget may offer a Join button for. Brackets are left out of the "rest of
+# the URL" class because a "]" there would close the class in POSIX ERE.
+SAFELINK_RE='https://([[:alnum:]_-]+\.)*safelinks\.protection\.outlook\.com/[^[:space:]<>)]+'
+MEETING_URL_RE='https://(meet\.google\.com/[a-z]{3,4}-[a-z]{4}-[a-z]{3,4}|([[:alnum:]_-]+\.)*zoom\.us/(j|my|w)/[^[:space:]<>)]+|teams\.microsoft\.com/l/meetup-join/[^[:space:]<>)]+|teams\.live\.com/meet/[^[:space:]<>)]+|([[:alnum:]_-]+\.)*webex\.com/[^[:space:]<>)]+|meet\.jit\.si/[^[:space:]<>)]+|whereby\.com/[^[:space:]<>)]+)'
+
+is_https() {
+    [[ "$1" =~ ^https://[^[:space:]\"\'\<\>]+$ ]]
+}
+
+# The first meeting link in a text that the widget may launch, or nothing.
+first_meeting() {
+    local found
+    found=$(grep -oiE "$MEETING_URL_RE" <<<"$1" | head -n 1 || true)
+    found=${found%[.,;:!?]}
+    is_https "$found" || return 1
+    printf '%s' "$found"
+}
+
+# The video link for an event: the one the provider resolves itself first,
+# then one written into the location or the description. Outlook rewrites
+# links through Safe Links, so those are unwrapped once before matching.
+meeting_url() {
+    local hangout=$1 conference=$2 location=$3 description=$4 text match wrapped
+    if is_https "$hangout"; then
+        printf '%s' "$hangout"
+        return 0
+    fi
+    if is_https "$conference"; then
+        printf '%s' "$conference"
+        return 0
+    fi
+    for text in "$location" "$description"; do
+        [ -n "$text" ] || continue
+        while IFS= read -r match; do
+            [ -n "$match" ] || continue
+            wrapped=$(printf '%s' "${match#*\?}" | tr '&' '\n' | grep -m1 '^url=' | cut -d= -f2- || true)
+            [ -n "$wrapped" ] || continue
+            if first_meeting "$(urldecode "$wrapped")"; then
+                return 0
+            fi
+        done < <(grep -oiE "$SAFELINK_RE" <<<"$text" || true)
+        if first_meeting "$text"; then
+            return 0
+        fi
+    done
+}
+
+# shellcheck disable=SC2016 # the awk program has $ variables of its own
+AWK_PLAINTEXT='
+function trim(s) { sub(/^[ \t\f\v]+/, "", s); sub(/[ \t\f\v]+$/, "", s); return s }
+function decode(e,    name, code) {
+  if (e ~ /^&#x[0-9A-Fa-f]+;$/) { code = strtonum("0x" substr(e, 4, length(e) - 4)); return sprintf("%c", code) }
+  if (e ~ /^&#[0-9]+;$/) { code = substr(e, 3, length(e) - 3) + 0; return sprintf("%c", code) }
+  name = substr(e, 2, length(e) - 2)
+  if (name == "amp") return "&"
+  if (name == "lt") return "<"
+  if (name == "gt") return ">"
+  if (name == "quot") return "\""
+  if (name == "apos") return "\047"
+  if (name == "nbsp") return " "
+  if (name == "ndash") return "–"
+  if (name == "mdash") return "—"
+  if (name == "hellip") return "…"
+  if (name == "copy") return "©"
+  if (name == "reg") return "®"
+  if (name == "trade") return "™"
+  if (name == "laquo") return "«"
+  if (name == "raquo") return "»"
+  if (name == "times") return "×"
+  if (name == "middot") return "·"
+  if (name == "bull") return "•"
+  return e
+}
+function decode_entities(s,   out, pre, ent) {
+  out = ""
+  while (match(s, /&(#x[0-9A-Fa-f]+|#[0-9]+|[A-Za-z][A-Za-z0-9]*);/)) {
+    out = out substr(s, 1, RSTART - 1) decode(substr(s, RSTART, RLENGTH))
+    s = substr(s, RSTART + RLENGTH)
+  }
+  return out s
+}
+function line_break() { if (n > 0 && parts[n] !~ /\n$/) parts[++n] = "\n" }
+function add_data(s) { if (!skip) parts[++n] = decode_entities(s) }
+function attr_href(tag,   m) {
+  if (match(tag, /href[ \t]*=[ \t]*"[^"]*"/)) { m = substr(tag, RSTART, RLENGTH); sub(/^[^"]*"/, "", m); sub(/"$/, "", m); return m }
+  if (match(tag, /href[ \t]*=[ \t]*[^ \t>]+/)) { m = substr(tag, RSTART, RLENGTH); sub(/^[^=]*=[ \t]*/, "", m); return m }
+  return ""
+}
+{
+  text = $0
+  gsub(/\r/, "", text)
+  if (length(text) > 0) lines[++ln] = text
+}
+END {
+  n = 0; skip = 0; lnk = 0
+  joined = ""
+  for (i = 1; i <= ln; i++) joined = joined (i > 1 ? "\n" : "") lines[i]
+  rest = joined
+  html = 0
+  if (tolower(joined) ~ /<(br|p|div|a|b|i|u|s|em|strong|span|ul|ol|li|h[1-6]|blockquote|font|html|body)([ \t>\/])/) html = 1
+  if (html) {
+    while (match(rest, /<[^>]*>/)) {
+      # add_data decodes entities, which runs its own match() and would
+      # otherwise clobber RSTART/RLENGTH under this loop.
+      mstart = RSTART; mlen = RLENGTH
+      if (mstart > 1) add_data(substr(rest, 1, mstart - 1))
+      tag = substr(rest, mstart + 1, mlen - 2)
+      rest = substr(rest, mstart + mlen)
+      closing = (tag ~ /^\//)
+      selfclose = (tag ~ /\/$/)
+      sub(/^\/+/, "", tag); sub(/\/+$/, "", tag)
+      name = tolower(tag); sub(/[ \t].*$/, "", name); sub(/\n.*$/, "", name)
+      if (name == "script" || name == "style" || name == "head" || name == "title") {
+        if (closing) { if (skip > 0) skip-- } else if (!selfclose) skip++
+        continue
+      }
+      if (name == "br") { if (!skip) parts[++n] = "\n"; continue }
+      if (name == "li") {
+        if (!skip) { if (closing) line_break(); else { line_break(); parts[++n] = "• " } }
+        continue
+      }
+      if (name == "a") {
+        if (closing) {
+          if (lnk > 0) {
+            href = links[lnk]; pos = positions[lnk]; lnk--
+            label = ""
+            for (i = pos; i <= n; i++) label = label parts[i]
+            if (href ~ /^https?:\/\// && index(label, href) == 0) parts[++n] = " (" href ")"
+          }
+        } else if (!selfclose) {
+          links[++lnk] = attr_href(tag); positions[lnk] = n + 1
+        }
+        continue
+      }
+      if (name ~ /^(p|div|ul|ol|h1|h2|h3|h4|h5|h6|blockquote|tr)$/) {
+        if (!skip) line_break()
+        continue
+      }
+    }
+    if (rest != "") add_data(rest)
+  } else {
+    parts[++n] = decode_entities(joined)
+  }
+
+  text = ""
+  for (i = 1; i <= n; i++) text = text parts[i]
+  gsub(/\r\n/, "\n", text)
+  nlines = split(text, rows, "\n")
+  text = ""
+  for (i = 1; i <= nlines; i++) {
+    line = rows[i]
+    gsub(/[ \t\f\v\u00a0]+/, " ", line)
+    line = trim(line)
+    text = text (i > 1 ? "\n" : "") line
+  }
+  while (match(text, /\n\n\n+/)) text = substr(text, 1, RSTART - 1) "\n\n" substr(text, RSTART + RLENGTH)
+  sub(/^\n+/, "", text); sub(/\n+$/, "", text)
+  limit = 1500
+  if (length(text) > limit) {
+    text = substr(text, 1, limit - 1)
+    sub(/[ \t\n]+$/, "", text)
+    text = text "…"
+  }
+  printf "%s", text
+}'
+
+plaintext() {
+    local raw=$1
+    raw=${raw//$'\r\n'/$'\n'}
+    raw=${raw//$'\r'/$'\n'}
+    raw=${raw//$'\u00a0'/ }
+    gawk -v _unused=1 "$AWK_PLAINTEXT" <<<"$raw"
+}
+
+# ---- Main sync -------------------------------------------------------------
+
+build_and_write() {
+    local calendars_json selected_json source synced_at
+    local now_epoch time_min_epoch time_max_epoch window_first window_last
+    local records_file seen_file
+    local fetched=0 row_count=0
+
+    local version
+    version=$(caldir_version) || return 1
+    source="caldir/$version"
+
+    calendars_json=$(caldir_calendars) || return 1
+
+    # include / exclude, by id or name; exclude always wins.
+    selected_json=$(jq -c --argjson cfg "$CONFIG" '
+        def listed($list; $v): ($list | index($v)) != null;
+        ($cfg.calendars.include // []) as $include
+        | ($cfg.calendars.exclude // []) as $exclude
+        | [ .[]
+            | (.id | tostring) as $id
+            | (.name | tostring) as $nm
+            | select((listed($exclude; $id) or listed($exclude; $nm)) | not)
+            | select(($include | length) == 0 or listed($include; $id) or listed($include; $nm))
+          ]
+    ' <<<"$calendars_json")
+    selected_json=$(jq -c 'sort_by([(.primary | not), .name])' <<<"$selected_json")
+
+    now_epoch=$(date +%s)
+    local past future
+    past=$(jq -r '.window.pastDays' <<<"$CONFIG")
+    future=$(jq -r '.window.futureDays' <<<"$CONFIG")
+    time_min_epoch=$((now_epoch - past * 86400))
+    time_max_epoch=$((now_epoch + future * 86400))
+    window_first=$(local_date "$time_min_epoch")
+    window_last=$(local_date "$time_max_epoch")
+    synced_at=$(date -u +%Y-%m-%dT%H:%M:%S.%6N+00:00)
+
+    local work
+    work=$(mktemp -d)
+    WORK_DIR=$work
+    records_file="$work/records.jsonl"
+    seen_file="$work/seen"
+    : >"$records_file"
+    : >"$seen_file"
+
+    local count i
+    count=$(jq 'length' <<<"$selected_json")
+    for ((i = 0; i < count; i++)); do
+        local calendar id name
+        calendar=$(jq -c ".[$i]" <<<"$selected_json")
+        id=$(jq -r '.id' <<<"$calendar")
+        name=$(jq -r '.name' <<<"$calendar")
+
+        local events_json
+        if ! events_json=$(run_caldir --json events --calendar "$id" \
+            --from "$(add_days_epoch_ymd "$window_first" -1)" \
+            --to "$(add_days_epoch_ymd "$window_last" 1)" 2>"$work/err"); then
+            sync_error "caldir events failed: $(head -c 200 "$work/err" | tr '\n' ' ')"
+        fi
+        if [ "$(jq -r 'type' <<<"$events_json")" != "array" ]; then
+            sync_error "caldir events must return a JSON array"
+        fi
+
+        local fresh_file="$work/fresh-$i.jsonl"
+        local seen_copy="$work/seen-$i"
+        cp "$seen_file" "$seen_copy"
+        : >"$fresh_file"
+
+        local resources_file="$work/resources-$i.jsonl"
+        : >"$resources_file"
+
+        # Build each event's resource and local times.
+        local line
+        while IFS= read -r line; do
+            [ -n "$line" ] || continue
+            local record
+            record=$(raw_record <<<"$line")
+
+            local all_day start_raw end_raw start_node end_node
+            all_day=$(jq -r '.allDay' <<<"$record")
+            start_raw=$(jq -r '.startRaw' <<<"$record")
+            end_raw=$(jq -r '.endRaw' <<<"$record")
+            [ -n "$start_raw" ] || continue
+            if [ "$all_day" = "true" ]; then
+                start_raw=${start_raw:0:10}
+                [ -n "$end_raw" ] || end_raw=$start_raw
+                end_raw=${end_raw:0:10}
+            fi
+
+            if ! start_node=$(node_of "$start_raw" "$all_day"); then
+                sync_error "caldir returned a time without an offset: '$start_raw'"
+            fi
+            [ -n "$start_node" ] || continue
+            if ! end_node=$(node_of "$end_raw" "$all_day"); then
+                sync_error "caldir returned a time without an offset: '$end_raw'"
+            fi
+            [ -n "$end_node" ] || end_node=$start_node
+
+            local start_epoch end_epoch start_iso end_iso
+            local start_value uid
+            start_value=$(jq -r '.date // .dateTime' <<<"$start_node")
+
+            if [ "$all_day" = "true" ]; then
+                start_epoch=$(midnight_epoch "$start_raw")
+                end_epoch=$(midnight_epoch "$end_raw")
+                start_iso=$(local_iso "$start_epoch")
+                end_iso=$(local_iso "$end_epoch")
+            else
+                start_epoch=$(parse_instant "$start_raw") || sync_error "caldir returned a time without an offset: '$start_raw'"
+                end_epoch=$(parse_instant "$end_raw") || sync_error "caldir returned a time without an offset: '$end_raw'"
+                start_iso=$(local_iso "$start_epoch" "$(fraction_of "$start_raw")")
+                end_iso=$(local_iso "$end_epoch" "$(fraction_of "$end_raw")")
+            fi
+
+            local status
+            status=$(jq -r '.status' <<<"$record")
+            [ "$status" != "cancelled" ] || continue
+            if [ "$all_day" != "true" ] && [ "$end_epoch" -lt "$start_epoch" ]; then
+                continue
+            fi
+
+            # The overlap filter the client applies before normalizing.
+            if [ "$start_epoch" -ge "$time_max_epoch" ] || [ "$end_epoch" -le "$time_min_epoch" ]; then
+                continue
+            fi
+
+            uid=$(jq -r '.uid' <<<"$record")
+            local key dedup_key
+            dedup_key="$uid"$'\t'"$start_value"
+            if [ -n "$uid" ]; then
+                if grep -qxF "$dedup_key" "$seen_copy"; then
+                    continue
+                fi
+                printf '%s\n' "$dedup_key" >>"$seen_copy"
+            fi
+
+            # Days this event covers, clamped to the sync window.
+            local first_day last_day
+            first_day=$(local_date "$start_epoch")
+            if [ "$all_day" = "true" ]; then
+                last_day=$(local_date $((end_epoch - 86400)))
+            else
+                last_day=$(local_date "$end_epoch")
+                local end_hm
+                if [ -n "$LOCAL_ZONE" ]; then
+                    end_hm=$(date -d "@$end_epoch" +%H:%M:%S)
+                else
+                    end_hm=$(date -u -d "@$((end_epoch + FIXED_OFFSET))" +%H:%M:%S)
+                fi
+                if [ "$end_hm" = "00:00:00" ] && [[ "$last_day" > "$first_day" ]]; then
+                    last_day=$(date -d "$last_day -1 day" +%Y-%m-%d)
+                fi
+            fi
+            [[ "$last_day" < "$first_day" ]] && last_day=$first_day
+            [[ "$first_day" < "$window_first" ]] && first_day=$window_first
+            [[ "$last_day" > "$window_last" ]] && last_day=$window_last
+
+            local days_json='[]'
+            if [[ ! "$first_day" > "$last_day" ]]; then
+                local cursor=$first_day
+                while [[ ! "$cursor" > "$last_day" ]]; do
+                    days_json=$(jq -c --arg d "$cursor" '. + [$d]' <<<"$days_json")
+                    cursor=$(date -d "$cursor +1 day" +%Y-%m-%d)
+                done
+            fi
+
+            local title location description partstat meeting kind reminders
+            title=$(jq -r '.title' <<<"$record")
+            title=$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<<"$title")
+            [ -n "$title" ] || title="(no title)"
+            location=$(jq -r '.location' <<<"$record")
+            description=$(jq -r '.description' <<<"$record")
+            kind=$(jq -r '.eventType' <<<"$record")
+            reminders=$(jq -c '.reminders' <<<"$record")
+            partstat=$(partstat_google "$(jq -r '.rsvp' <<<"$record")")
+            meeting=$(meeting_url "$(jq -r '.conference' <<<"$record")" "" "$location" "$description")
+
+            jq -cn \
+                --argjson record "$record" \
+                --argjson start "$start_node" \
+                --argjson end "$end_node" \
+                --arg calendarId "$id" \
+                --arg calendarName "$name" \
+                --argjson color "$(jq '.color' <<<"$calendar")" \
+                --arg startIso "$start_iso" \
+                --arg endIso "$end_iso" \
+                --argjson allDay "$all_day" \
+                --arg title "$title" \
+                --arg meetingUrl "$meeting" \
+                --arg responseStatus "$partstat" \
+                --arg description "$(plaintext "$description")" \
+                --argjson reminders "$reminders" \
+                --argjson days "$days_json" \
+                --arg kind "$kind" '
+                ($record.uid) as $uid
+                | ($start.date // $start.dateTime) as $occurrence
+                | {
+                    id: (if $occurrence == "" then $uid else "\($uid):\($occurrence)" end),
+                    iCalUID: $uid,
+                    calendarId: $calendarId,
+                    calendarName: $calendarName,
+                    color: $color,
+                    start: $startIso,
+                    end: $endIso,
+                    allDay: $allDay,
+                    title: $title,
+                    location: $record.location,
+                    meetingUrl: $meetingUrl,
+                    eventUrl: "",
+                    eventType: $kind,
+                    responseStatus: $responseStatus,
+                    description: $description,
+                    reminders: $reminders,
+                    days: $days
+                  }
+            ' >>"$resources_file"
+        done < <(jq -c '.[]' <<<"$events_json")
+
+        # Budgets: a calendar past MAX_EVENTS or MAX_ROWS is skipped whole.
+        local fresh_count rows_count
+        fresh_count=$(wc -l <"$resources_file")
+        rows_count=$(jq -s 'map(.days | length) | add // 0' "$resources_file")
+
+        if [ $((fetched + fresh_count)) -gt "$MAX_EVENTS" ] || [ $((row_count + rows_count)) -gt "$MAX_ROWS" ]; then
+            echo "skipping $name: the sync would hold more than $MAX_EVENTS events or $MAX_ROWS rows"
+            continue
+        fi
+
+        fetched=$((fetched + fresh_count))
+        row_count=$((row_count + rows_count))
+        cp "$seen_copy" "$seen_file"
+        cat "$resources_file" >>"$records_file"
+    done
+
+    # Rows, in the contract's order, and the document around them.
+    local writable_json
+    writable_json='[]'
+    if [ "$WRITE" = "1" ]; then
+        writable_json=$(jq -c '
+            [ .[] | select(.writable)
+              | { id, name, color } + (if (.lacks | length) > 0 then {lacks} else {} end)
+            ]
+        ' <<<"$selected_json")
+        writable_json=$(jq -c 'sort_by([(.primary | not), .name])' <<<"$writable_json")
+    fi
+
+    local document problem
+    document=$(jq -s \
+        --argjson version "$CONTRACT_VERSION" \
+        --arg syncedAt "$synced_at" \
+        --arg source "$source" \
+        --argjson writable "$writable_json" '
+        [ .[] | . as $e | .days[] | {
+            id: $e.id,
+            calendarId: $e.calendarId,
+            calendarName: $e.calendarName,
+            color: $e.color,
+            dateKey: .,
+            start: $e.start,
+            end: $e.end,
+            allDay: $e.allDay,
+            title: $e.title,
+            location: $e.location,
+            meetingUrl: $e.meetingUrl,
+            eventUrl: $e.eventUrl,
+            eventType: $e.eventType,
+            responseStatus: $e.responseStatus,
+            description: $e.description,
+            reminders: $e.reminders
+          } ]
+        | sort_by(.dateKey, .start, .title) as $rows
+        | {version: $version, syncedAt: $syncedAt, source: $source, events: $rows}
+        + (if ($writable | length) > 0 then {writableCalendars: $writable} else {} end)
+    ' "$records_file")
+
+    if ! problem=$(jq -r '
+        def problems:
+          [ if .version != 1 then "version must be 1, got \(.version)" else empty end,
+            if ((.syncedAt | type) != "string") or .syncedAt == "" then "syncedAt must be a non-empty string" else empty end,
+            if ((.source | type) != "string") or .source == "" then "source must be a non-empty string" else empty end,
+            if (.events | type) != "array" then "events must be a list" else empty end,
+            ( .events // [] | to_entries[] | .key as $i | .value
+              | [ if has("id") and has("calendarId") and has("calendarName") and has("color")
+                   and has("dateKey") and has("start") and has("end") and has("allDay")
+                   and has("title") and has("location") then empty else "events[\($i)] is missing a required field" end,
+                  if (.allDay | type) != "boolean" then "events[\($i)].allDay must be a boolean" else empty end,
+                  if (.dateKey | type) != "string" or (.dateKey | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$") | not)
+                    then "events[\($i)].dateKey must look like YYYY-MM-DD" else empty end,
+                  if (.color | type) != "string" or (.color | test("^#[0-9a-fA-F]{6}$") | not)
+                    then "events[\($i)].color must look like #rrggbb" else empty end,
+                  if (.meetingUrl // "" | type) != "string" then "events[\($i)].meetingUrl must be a string" else empty end,
+                  if (.meetingUrl // "") != "" and (.meetingUrl | test("^https://[^[:space:]\"'\''<>]+$") | not)
+                    then "events[\($i)].meetingUrl must be an https URL" else empty end,
+                  if (.reminders // [] | type) != "array" then "events[\($i)].reminders must be a list" else empty end
+                ] )
+          ] | flatten;
+        problems | .[]
+    ' <<<"$document"); then
+        problem="document is not an object"
+    fi
+    if [ -n "$problem" ]; then
+        while IFS= read -r line; do
+            echo "refusing to write invalid document: $line" >&2
+        done <<<"$problem"
+        return 1
+    fi
+
+    mkdir -p "$(dirname "$OUT_FILE")"
+    local tmp="$OUT_FILE.tmp.$$"
+    jq . <<<"$document" >"$tmp" || {
+        rm -f "$tmp"
+        return 1
+    }
+    chmod 600 "$tmp"
+    mv -f "$tmp" "$OUT_FILE"
+    echo "wrote $(jq '.events | length' <<<"$document") rows from $(jq 'length' <<<"$selected_json") calendars to $OUT_FILE"
+}
+
+main() {
+    load_config
+    build_and_write
+}
+
+main "$@"
+exit $?

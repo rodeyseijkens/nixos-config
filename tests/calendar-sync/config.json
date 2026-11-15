@@ -1,0 +1,13 @@
+{
+  "backend": "caldir",
+  "write": true,
+  "caldirPull": true,
+  "calendars": {
+    "include": [],
+    "exclude": ["work"]
+  },
+  "window": {
+    "pastDays": 36500,
+    "futureDays": 36500
+  }
+}

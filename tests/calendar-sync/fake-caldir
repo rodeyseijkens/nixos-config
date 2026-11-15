@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# A stand-in for the caldir CLI, answering from the JSON files beside it.
+# Only what the sync reads: its version, a pull, its config, calendars and
+# one calendar's events. The range arguments are accepted and ignored.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/data"
+
+case "${1:-}" in
+--version)
+  echo "caldir 0.14.11"
+  ;;
+pull)
+  echo "pulled"
+  ;;
+--json)
+  case "${2:-}" in
+  config)
+    printf '{"config":{"calendar_dir":"/nonexistent","default_calendar":"standaard-agenda"}}\n'
+    ;;
+  calendars)
+    cat "$HERE/calendars.json"
+    ;;
+  events)
+    slug=""
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+      --calendar) slug=$2 ; shift 2 ;;
+      *) shift ;;
+      esac
+    done
+    cat "$HERE/events-$slug.json"
+    ;;
+  *)
+    echo "fake caldir: unknown command: ${2:-}" >&2
+    exit 2
+    ;;
+  esac
+  ;;
+*)
+  echo "fake caldir: unknown arguments: $*" >&2
+  exit 2
+  ;;
+esac

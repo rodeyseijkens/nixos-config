@@ -1,15 +1,15 @@
 [Unit]
-Description=Sync Google Calendar into the Shell Calendar widget
+Description=Sync the calendars into the Shell Calendar widget
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=oneshot
-# A user service starts with a minimal PATH, so a gws installed by bun,
-# cargo or pipx would be invisible. sync/setup writes an absolute path
-# into calendar-sync.json; this list is the fallback for everyone else.
-# The nix profile dirs come before the arch ones: on NixOS python3 and gws
-# live there, and the script's #!/usr/bin/env python3 has to find python3.
+# A user service starts with a minimal PATH, so a caldir installed by cargo
+# or another user-level tool would be invisible. sync/setup writes an absolute
+# path into calendar-sync.json; this list is the fallback for everyone else.
+# jq, gawk and coreutils are needed by the sync and live in the profile or the
+# system path below.
 Environment=PATH=%h/.local/bin:%h/.nix-profile/bin:/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin:%h/.cache/.bun/bin:%h/.bun/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
 ExecStart=%h/.config/quickshell/shell/plugins/panels/calendar/sync/shell-calendar-sync
 # The sync stops itself after 120 s. These hold if it cannot: a oneshot

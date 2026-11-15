@@ -1,0 +1,5 @@
+[
+  {"color": "#98971A", "name": "Feestdagen in Nederland", "provider": "google", "read_only": true, "slug": "feestdagen-in-nederland"},
+  {"color": "#D79921", "name": "Standaard Agenda", "provider": "google", "read_only": false, "slug": "standaard-agenda"},
+  {"color": "#458588", "name": "Work", "provider": "google", "read_only": false, "slug": "work"}
+]
