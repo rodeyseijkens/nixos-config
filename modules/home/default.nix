@@ -28,6 +28,7 @@
     ./spicetify.nix # spotify client
     ./starship.nix # prompt
     ./superfile # file manager with custom Gruvb0x theme
+    ./scripts # personal scripts
     ./stylix.nix # stylix theme
     ./superwhisper.nix # voice dictation
     ./t3code # t3code
