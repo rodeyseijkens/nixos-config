@@ -4,12 +4,12 @@
 #
 # The calendar source is caldir: this asks its CLI for the calendars and
 # events as JSON, turns them into the widget's contract rows, and writes the
-# file atomically. The write commands (creating, editing, deleting events)
-# are still in shell_calendar_sync for now.
+# file atomically. Creating, editing and deleting events is the separate
+# shell-calendar-event command, which edits the same caldir files.
 #
 # Needs jq, coreutils (date, timeout, mktemp), gawk, grep and sed. The shape of
-# the document is the contract in shell_calendar_sync/contract.py;
-# tests/calendar-sync/run.sh holds it against a recorded golden document.
+# the document is held by tests/calendar-sync/run.sh, against a recorded golden
+# document.
 
 set -uo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
@@ -146,168 +146,11 @@ load_config() {
     WRITE=$(jq -r '.write | if . == true then "1" else "0" end' <<<"$CONFIG")
 }
 
-# ---- Timezone --------------------------------------------------------------
-
-# The local IANA zone name, or "" when none can be named. A named zone is what
-# keeps an event on the far side of a daylight saving change on its own day.
-zoneinfo_root() {
-    local target
-    target=$(readlink -f /etc/localtime 2>/dev/null || true)
-    case "$target" in
-    *zoneinfo/*) printf '%s' "${target%%/zoneinfo/*}/zoneinfo" ; return 0 ;;
-    esac
-    if [ -d /usr/share/zoneinfo ]; then
-        printf '%s' /usr/share/zoneinfo
-        return 0
-    fi
-    return 1
-}
-
-resolve_local_timezone() {
-    local root name target
-    root=$(zoneinfo_root || true)
-
-    if [ -n "${TZ:-}" ]; then
-        name=${TZ#:}
-        if [ -n "$root" ] && [ -f "$root/$name" ]; then
-            printf '%s' "$name"
-            return 0
-        fi
-    fi
-
-    target=$(readlink -f /etc/localtime 2>/dev/null || true)
-    case "$target" in
-    *zoneinfo/*)
-        name=${target#*zoneinfo/}
-        if [ -n "$name" ]; then
-            printf '%s' "$name"
-            return 0
-        fi
-        ;;
-    esac
-
-    echo "warning: could not determine the named timezone; using a fixed offset instead. Events spanning a daylight saving transition may be off by a day." >&2
-    printf '%s' ""
-}
-
-LOCAL_ZONE=$(resolve_local_timezone)
-# A fixed offset, in seconds east of UTC, for when no zone could be named.
-local_offset_seconds() {
-    local sign hh mm offset
-    sign=$(date +%z)
-    hh=${sign:1:2}
-    mm=${sign:3:2}
-    offset=$(( 10#$hh * 3600 + 10#$mm * 60 ))
-    if [ "${sign:0:1}" = "-" ]; then
-        offset=$(( -offset ))
-    fi
-    printf '%d' "$offset"
-}
-
-if [ -n "$LOCAL_ZONE" ]; then
-    export TZ="$LOCAL_ZONE"
-    FIXED_OFFSET=""
-else
-    FIXED_OFFSET=$(local_offset_seconds)
-fi
-
-# A local ISO string for an epoch, in the same shape Python's isoformat gives.
-local_iso() {
-    local epoch=$1 frac=${2:-}
-    if [ -n "$LOCAL_ZONE" ]; then
-        printf '%s' "$(date -d "@$epoch" +%Y-%m-%dT%H:%M:%S)${frac}$(date -d "@$epoch" +%:z)"
-    else
-        date -u -d "@$((epoch + FIXED_OFFSET))" +%Y-%m-%dT%H:%M:%S | {
-            read -r base
-            local sign="+" off=$FIXED_OFFSET
-            if [ "$off" -lt 0 ]; then sign="-" ; off=$(( -off )) ; fi
-            printf '%s%s%s%02d:%02d' "$base" "$frac" "$sign" $((off / 3600)) $(( (off % 3600) / 60 ))
-        }
-    fi
-}
-
-add_days_epoch_ymd() {
-    date -d "$1 $2 day" +%Y-%m-%d
-}
-
-# The local date of an epoch.
-local_date() {
-    if [ -n "$LOCAL_ZONE" ]; then
-        date -d "@$1" +%Y-%m-%d
-    else
-        date -u -d "@$(($1 + FIXED_OFFSET))" +%Y-%m-%d
-    fi
-}
-
-midnight_epoch() {
-    if [ -n "$LOCAL_ZONE" ]; then
-        date -d "$1 00:00:00" +%s
-    else
-        printf '%d' $(( $(date -u -d "$1 00:00:00" +%s) - FIXED_OFFSET ))
-    fi
-}
-
-# Epoch of an RFC3339 value. A value without an offset is refused.
-parse_instant() {
-    local value=$1
-    if ! [[ "$value" =~ (Z|[+-][0-9]{2}:?[0-9]{2})$ ]]; then
-        return 1
-    fi
-    date -d "$value" +%s 2>/dev/null
-}
-
-fraction_of() {
-    if [[ "$1" =~ \.([0-9]+) ]]; then
-        printf '.%s' "$(printf '%-6s' "${BASH_REMATCH[1]:0:6}" | tr ' ' '0')"
-    fi
-}
-
 # ---- caldir ----------------------------------------------------------------
 
-run_caldir() {
-    "$CALDIR_PATH" "$@"
-}
-
-caldir_json() {
-    local out err
-    err=$(mktemp)
-    if ! out=$(run_caldir --json "$@" 2>"$err"); then
-        local excerpt
-        excerpt=$(head -c 400 "$err" | tr '\n' ' ' | cut -c1-200)
-        rm -f "$err"
-        sync_fail "caldir ${1} failed: ${excerpt:-no stderr output}"
-        return 1
-    fi
-    rm -f "$err"
-    if ! jq -e . >/dev/null 2>&1 <<<"$out"; then
-        sync_fail "caldir ${1} returned invalid JSON"
-        return 1
-    fi
-    printf '%s' "$out"
-}
-
-caldir_version() {
-    local stdout
-    if ! stdout=$("$CALDIR_PATH" --version 2>/dev/null); then
-        sync_fail "cannot read the caldir version"
-        return 1
-    fi
-    if [[ "$stdout" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
-        printf '%s.%s.%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"
-    else
-        sync_fail "cannot parse caldir version from '$stdout'"
-        return 1
-    fi
-}
-
-default_calendar() {
-    local payload
-    if ! payload=$("$CALDIR_PATH" --json config 2>/dev/null); then
-        printf '%s' ""
-        return 0
-    fi
-    jq -r '.config.default_calendar // "" | tostring' <<<"$payload" 2>/dev/null || printf '%s' ""
-}
+# shellcheck source=shell-calendar-lib.sh
+source "$(dirname "${BASH_SOURCE[0]}")/shell-calendar-lib.sh"
+start_clock
 
 caldir_calendars() {
     local payload primary
@@ -319,7 +162,10 @@ caldir_calendars() {
     fi
 
     primary=$(default_calendar)
-    payload=$(caldir_json calendars)
+    if ! payload=$(caldir_json calendars); then
+        sync_fail "$CALDIR_ERR"
+        return 1
+    fi
 
     if [ "$(jq -r 'type' <<<"$payload")" != "array" ]; then
         sync_fail "caldir calendars must return a JSON array"
@@ -344,74 +190,6 @@ caldir_calendars() {
 }
 
 # ---- Event resources -------------------------------------------------------
-
-PARTSTAT='{"ACCEPTED":"accepted","DECLINED":"declined","TENTATIVE":"tentative","NEEDSACTION":"needsAction"}'
-
-partstat_google() {
-    local upper
-    upper=$(printf '%s' "$1" | tr '[:lower:]' '[:upper:]' | tr -d '-')
-    jq -r --arg k "$upper" '.[$k] // ""' <<<"$PARTSTAT"
-}
-
-# One caldir event as the intermediate record the rest of this script uses.
-# Time fields are left raw here; they are turned into nodes per event.
-raw_record() {
-    jq -c '
-        def text: tostring;
-        (.x_properties // []) as $props
-        | ([ $props[] | select((.name // "" | ascii_upcase) == "X-GOOGLE-CONFERENCE") | .value // "" ] | first) as $conferenceProp
-        | ([ $props[] | select((.name // "" | ascii_upcase) == "X-GOOGLE-EVENT-TYPE") | .value // "" ] | first // "") as $kind
-        | {
-            uid: (if ((.uid // "") | text) != "" then (.uid | text) else (.instance_id // "" | text) end),
-            title: (if ((.title // "") | text) != "" then (.title | text) else (.summary // "" | text) end),
-            location: ((.location // "") | text),
-            description: ((.description // "") | text),
-            status: ((.status // "") | text | ascii_downcase),
-            rsvp: ((.rsvp // "") | text),
-            allDay: (.all_day == true),
-            startRaw: (if .start == null then "" else (.start | text) end),
-            endRaw: (if .end == null then "" else (.end | text) end),
-            conference: (if $conferenceProp != null then ($conferenceProp | text) else (.url // "" | text) end),
-            eventType: $kind,
-            reminders: ([ (.reminders // [])[]
-                          | .minutes_before_start
-                          | select(type == "number" and . >= 0 and . == floor) ]
-                        | unique | sort)
-          }
-    '
-}
-
-# A Google start/end node as JSON: a date for an all-day event, else a
-# dateTime with an offset. "" means unusable.
-# A datetime with its wall clock kept and its offset spelled the same way
-# Python's isoformat spells it, e.g. "+0100" and "Z" become "+01:00".
-normalise_datetime() {
-    local raw=$1 offset suffix
-    if [[ "$raw" =~ (Z|[+-][0-9]{2}:?[0-9]{2})$ ]]; then
-        offset=${BASH_REMATCH[1]}
-    else
-        return 1
-    fi
-    suffix=$offset
-    if [ "$offset" = "Z" ]; then
-        suffix="+00:00"
-    elif [[ "$offset" =~ ^([+-][0-9]{2})([0-9]{2})$ ]]; then
-        suffix="${BASH_REMATCH[1]}:${BASH_REMATCH[2]}"
-    fi
-    printf '%s%s' "${raw%"$offset"}" "$suffix"
-}
-
-node_of() {
-    local raw=$1 all_day=$2
-    [ -n "$raw" ] || return 0
-    if [ "$all_day" = "true" ]; then
-        jq -cn --arg d "${raw:0:10}" '{date: $d}'
-        return 0
-    fi
-    local normalised
-    normalised=$(normalise_datetime "$raw") || return 1
-    jq -cn --arg dt "$normalised" '{dateTime: $dt}'
-}
 
 # ---- Text: meeting links and descriptions ----------------------------------
 
@@ -604,7 +382,10 @@ build_and_write() {
     local fetched=0 row_count=0
 
     local version
-    version=$(caldir_version) || return 1
+    if ! version=$(caldir_version); then
+        sync_fail "$CALDIR_ERR"
+        return 1
+    fi
     source="caldir/$version"
 
     calendars_json=$(caldir_calendars) || return 1
@@ -740,11 +521,7 @@ build_and_write() {
             else
                 last_day=$(local_date "$end_epoch")
                 local end_hm
-                if [ -n "$LOCAL_ZONE" ]; then
-                    end_hm=$(date -d "@$end_epoch" +%H:%M:%S)
-                else
-                    end_hm=$(date -u -d "@$((end_epoch + FIXED_OFFSET))" +%H:%M:%S)
-                fi
+                end_hm=$(local_hms "$end_epoch")
                 if [ "$end_hm" = "00:00:00" ] && [[ "$last_day" > "$first_day" ]]; then
                     last_day=$(date -d "$last_day -1 day" +%Y-%m-%d)
                 fi
