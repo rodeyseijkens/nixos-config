@@ -152,7 +152,7 @@ class Caldir:
     """A calendar client backed by the caldir CLI.
 
     Presents the same surface as the sync needs -- check, version, calendars,
-    events -- and the four writes, so cli.run and event_cli drive it directly.
+    events -- and the four writes, so event_cli drives it directly.
     """
 
     SOURCE_NAME = "caldir"

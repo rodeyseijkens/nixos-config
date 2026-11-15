@@ -135,14 +135,6 @@ def row_order(row):
     return (row["dateKey"], row["start"], row["title"])
 
 
-def normalize_all(gevents, calendar, tz, window=None):
-    """Normalize a list of Google events, flattening the per-day rows."""
-    rows = []
-    for gevent in gevents:
-        rows.extend(normalize_event(gevent, calendar, tz, window))
-    return rows
-
-
 def normalize_event(gevent, calendar, tz, window=None):
     """Return one contract row per local day this event covers.
 

@@ -9,7 +9,6 @@ write, {"ok": false, "error": ...} on failure. The panel shows the error
 as it is, so every message is written for a person.
 """
 
-import contextlib
 import json
 import subprocess
 import sys
@@ -200,7 +199,7 @@ def main(argv=None, stdin=None):
         with budget.deadline(budget.EVENT_SECONDS):
             code, reply = perform(
                 raw, cfg, client, contract.CONTRACT_PATH, tz,
-                sync_now=lambda: _sync_inline(client, cfg, tz),
+                sync_now=_sync_inline,
             )
     except budget.TookTooLong as error:
         return _emit(1, _fail(f"The calendar did not answer: {error}."))
@@ -209,11 +208,18 @@ def main(argv=None, stdin=None):
     return _emit(code, reply)
 
 
-def _sync_inline(client, cfg, tz):
-    # The sync prints its summary on stdout, and stdout is the reply the
-    # panel parses, so the summary goes to stderr.
-    with contextlib.redirect_stdout(sys.stderr):
-        cli.run(client, cfg, datetime.now(timezone.utc), contract.CONTRACT_PATH, tz)
+def _sync_inline():
+    # A whole sync, through the same script the timer runs, so there is one
+    # implementation. Its summary goes to stderr: stdout is the panel's reply.
+    script = Path(__file__).resolve().parent.parent / "shell-calendar-sync"
+    completed = subprocess.run(
+        [str(script)], capture_output=True, text=True,
+        stdin=subprocess.DEVNULL, check=False,
+    )
+    if completed.stdout:
+        sys.stderr.write(completed.stdout)
+    if completed.stderr:
+        sys.stderr.write(completed.stderr)
 
 
 def _emit(code, reply):

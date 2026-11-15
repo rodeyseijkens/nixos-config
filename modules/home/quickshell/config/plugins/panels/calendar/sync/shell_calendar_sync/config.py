@@ -104,23 +104,6 @@ def _coerce_days(value, key):
     raise ConfigError(f"{key} must be a number")
 
 
-def select_calendars(calendars, config):
-    """Apply the include and exclude lists. Exclude always wins."""
-    rules = config.get("calendars") or {}
-    include = set(rules.get("include") or [])
-    exclude = set(rules.get("exclude") or [])
-
-    selected = []
-    for calendar in calendars:
-        keys = {calendar["id"], calendar["name"]}
-        if keys & exclude:
-            continue
-        if include and not (keys & include):
-            continue
-        selected.append(calendar)
-    return selected
-
-
 def window_bounds(config, now):
     """Return RFC3339 timeMin and timeMax for the events query."""
     window = config.get("window") or {}

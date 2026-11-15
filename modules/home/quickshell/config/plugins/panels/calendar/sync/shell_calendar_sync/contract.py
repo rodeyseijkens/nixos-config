@@ -55,25 +55,6 @@ def is_https_url(text):
     return isinstance(text, str) and bool(_HTTPS_URL.match(text))
 
 
-def build_document(events, synced_at, source, writable_calendars=None, guest_suggestions=None):
-    """Assemble a contract document from already normalized event rows.
-
-    writableCalendars is written only when the sync may write, so a file
-    from a read-only setup or from another writer carries no such key.
-    """
-    doc = {
-        "version": CONTRACT_VERSION,
-        "syncedAt": synced_at,
-        "source": source,
-        "events": events,
-    }
-    if writable_calendars:
-        doc["writableCalendars"] = writable_calendars
-    if guest_suggestions:
-        doc["guestSuggestions"] = guest_suggestions
-    return doc
-
-
 def validate(doc):
     """Return a list of human readable problems. An empty list means valid."""
     problems = []

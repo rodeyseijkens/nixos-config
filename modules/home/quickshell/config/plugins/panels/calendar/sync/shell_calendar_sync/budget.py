@@ -10,22 +10,12 @@ import signal
 
 from .errors import SyncError
 
-# A busy calendar has a few hundred events in the default window.
-MAX_EVENTS = 10000
-MAX_ROWS = 20000
-# A sync takes about 10 s. The socket timeout bounds each wait, not the sum,
-# so a server that sends a byte every 29 s would hold it open for good.
-SYNC_SECONDS = 120
 # The panel gives up on the event command after 60 s.
 EVENT_SECONDS = 55
 # What one helper process (the caldir CLI) may take.
 HELPER_SECONDS = 60
 # The heap of one run. A sync peaks under 60 MB.
 MAX_MEMORY_BYTES = 512 * 1024 * 1024
-
-
-class TooManyEvents(SyncError):
-    """One calendar has more events in the window than one sync may hold."""
 
 
 class TookTooLong(SyncError):
