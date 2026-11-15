@@ -1,22 +1,961 @@
-#!/usr/bin/env python3
-"""Executable wrapper so the event command runs without being pip installed."""
+#!/usr/bin/env bash
+#
+# The one command the panel runs to read or change an event.
+#
+# In: one JSON object on stdin. Never an argument: arguments show to every
+# user on the machine through ps, and a request carries the event's
+# description. Out: one JSON line on stdout, and exit 0 or 1:
+#   {"ok": true, "event": {...}} for get
+#   {"ok": true, "eventId": ...} for a write
+#   {"ok": false, "error": ...} on failure
+# The panel shows the error as it is, so every message is written for a person.
+#
+# Needs jq, coreutils, gawk, grep and sed.
 
-import os
-import sys
-from pathlib import Path
+set -uo pipefail
 
-# The shell reloads the plugin when any file in its folder changes. A .pyc
-# written next to the sources would close the panel in the middle of a save,
-# so the compiled modules go to the user cache instead.
-sys.pycache_prefix = os.path.join(
-    os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"),
-    "shell-calendar",
-    "pycache",
-)
+EVENT_SECONDS=55
+MAX_MEMORY_KB=$((512 * 1024))
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+if [ -z "${SHELL_CALENDAR_EVENT:-}" ]; then
+    ulimit -d "$MAX_MEMORY_KB" 2>/dev/null || true
+    SHELL_CALENDAR_EVENT=1 exec timeout --signal=TERM "$EVENT_SECONDS" "$0" "$@"
+fi
 
-from shell_calendar_sync.event_cli import main  # noqa: E402
+trap 'reply_fail "The calendar did not answer: gave up after ${EVENT_SECONDS} s."' TERM
 
-if __name__ == "__main__":
-    sys.exit(main())
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+CONFIG_PATH="$CONFIG_HOME/shell-calendar/calendar-sync.json"
+CONTRACT_PATH="$STATE_HOME/shell-calendar/calendar-events.json"
+SYNC_UNIT="shell-calendar-sync.service"
+
+WRITE_OFF="Writing is turned off in the calendar config."
+GONE="This event no longer exists."
+NO_FILE="No calendar synced yet. Wait for the first sync, then try again."
+STALE_PANEL="The panel is older than the plugin files. Restart Quickshell to reload it."
+REPEATING="caldir cannot change a repeating event yet. Edit it in caldir."
+
+reply_fail() {
+    jq -cn --arg message "$1" '{ok: false, error: $message}'
+    exit 1
+}
+
+# shellcheck source=shell-calendar-lib.sh
+source "$(dirname "${BASH_SOURCE[0]}")/shell-calendar-lib.sh"
+
+WORK_DIR=""
+trap '[ -n "$WORK_DIR" ] && rm -rf "$WORK_DIR"' EXIT
+
+# ---- Configuration ---------------------------------------------------------
+
+CALDIR_DEFAULTS='{"backend":"caldir","caldirPath":"caldir","caldirPull":true,"write":true}'
+
+load_config() {
+    local raw='{}'
+    if [ -e "$CONFIG_PATH" ]; then
+        if ! raw=$(jq -c . "$CONFIG_PATH" 2>/dev/null); then
+            reply_fail "Config error: cannot read $CONFIG_PATH: invalid JSON"
+        fi
+    fi
+    if [ "$(jq -r 'type' <<<"$raw")" != "object" ]; then
+        reply_fail "Config error: $CONFIG_PATH must contain a JSON object"
+    fi
+    CONFIG=$(jq -c --argjson defaults "$CALDIR_DEFAULTS" '
+        . as $in
+        | reduce ($defaults | keys_unsorted[]) as $k ($in;
+          ($defaults[$k]) as $fallback
+          | .[$k] = (if (.[$k] == null) then $fallback else .[$k] end))
+    ' <<<"$raw")
+    local backend
+    backend=$(jq -r '.backend | tostring' <<<"$CONFIG")
+    if [ "$backend" != "caldir" ]; then
+        reply_fail "Config error: unknown backend \"$backend\"; expected \"caldir\""
+    fi
+    CALDIR_PATH=$(jq -r '.caldirPath | tostring' <<<"$CONFIG")
+    WRITE=$(jq -r '.write | if . == true then "1" else "0" end' <<<"$CONFIG")
+}
+
+# ---- Requests --------------------------------------------------------------
+
+ACTIONS='["get","create","update","delete"]'
+SCOPES='["this","all"]'
+SEND_UPDATES='["all","none"]'
+
+# Check the request the panel sent. Sets REQUEST to one flat object.
+parse_request() {
+    local raw=$1 writable=$2
+    local action scope send_updates event ids calendar_id event_id recurring_id
+
+    REQUEST_ERROR=""
+    if [ "$(jq -r 'type' <<<"$raw")" != "object" ]; then
+        REQUEST_ERROR="The request must be a JSON object."
+        return 1
+    fi
+    action=$(jq -r '.action // "" | tostring' <<<"$raw")
+    if ! jq -e --arg a "$action" 'index($a) != null' <<<"$ACTIONS" >/dev/null; then
+        REQUEST_ERROR="Unknown action '$action'."
+        return 1
+    fi
+    if [ "$action" = "create" ] || [ "$action" = "update" ]; then
+        if [ "$(jq -r '.event | type' <<<"$raw" 2>/dev/null)" != "object" ]; then
+            REQUEST_ERROR="The event is missing."
+            return 1
+        fi
+        event=$(jq -c '.event' <<<"$raw")
+        ids=$event
+    else
+        event='null'
+        ids=$raw
+    fi
+    scope=$(jq -r 'if .scope == null or .scope == "" then "this" else (.scope | tostring) end' <<<"$raw")
+    if ! jq -e --arg s "$scope" 'index($s) != null' <<<"$SCOPES" >/dev/null; then
+        REQUEST_ERROR="Unknown scope '$scope'."
+        return 1
+    fi
+    send_updates=$(jq -r 'if .sendUpdates == null or .sendUpdates == "" then "none" else (.sendUpdates | tostring) end' <<<"$raw")
+    if ! jq -e --arg s "$send_updates" 'index($s) != null' <<<"$SEND_UPDATES" >/dev/null; then
+        REQUEST_ERROR="Unknown sendUpdates '$send_updates'."
+        return 1
+    fi
+
+    calendar_id=$(jq -r '.calendarId // "" | tostring' <<<"$ids")
+    event_id=$(jq -r '.eventId // "" | tostring' <<<"$ids")
+    recurring_id=$(jq -r '.recurringEventId // "" | tostring' <<<"$ids")
+
+    if ! jq -e --arg c "$calendar_id" '[.[] | .id] | index($c) != null' <<<"$writable" >/dev/null; then
+        REQUEST_ERROR="The panel cannot edit this calendar."
+        return 1
+    fi
+    if [ "$action" != "create" ] && [ -z "$event_id" ]; then
+        REQUEST_ERROR="The event id is missing."
+        return 1
+    fi
+    if [ "$scope" = "all" ] && [ -z "$recurring_id" ]; then
+        REQUEST_ERROR="This event is not part of a series."
+        return 1
+    fi
+
+    REQUEST=$(jq -cn \
+        --arg action "$action" --arg calendarId "$calendar_id" --arg eventId "$event_id" \
+        --arg recurringEventId "$recurring_id" --arg scope "$scope" --arg sendUpdates "$send_updates" \
+        --argjson event "$event" \
+        '{action: $action, calendarId: $calendarId, eventId: $eventId,
+          recurringEventId: $recurringEventId, scope: $scope, sendUpdates: $sendUpdates,
+          event: $event}')
+}
+
+# An id is UID:start when the row carried a start, else just the UID.
+split_event_id() {
+    local id=$1
+    if [[ "$id" =~ ^(.+):([0-9]{4}-[0-9]{2}-[0-9]{2}(T.*)?)$ ]]; then
+        printf '%s\t%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+    else
+        printf '%s\t' "$id"
+    fi
+}
+
+# ---- The event's file ------------------------------------------------------
+
+calendar_dir() {
+    local payload folder
+    if ! payload=$(caldir_json config); then
+        CALDIR_ERR="caldir did not say where its calendars are"
+        return 1
+    fi
+    folder=$(jq -r '.config.calendar_dir // "" | tostring' <<<"$payload")
+    if [ -z "$folder" ]; then
+        CALDIR_ERR="caldir did not say where its calendars are"
+        return 1
+    fi
+    printf '%s' "${folder/#\~/$HOME}"
+}
+
+# The file that holds the event with this UID, or "" when it is gone.
+locate_event() {
+    local calendar=$1 uid=$2 dir file
+    dir=$(calendar_dir) || return 1
+    for file in "$dir/$calendar"/*.ics; do
+        [ -e "$file" ] || continue
+        if [ "$(ics_field "$file" UID)" = "$uid" ]; then
+            printf '%s' "$file"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# ---- ICS text --------------------------------------------------------------
+
+# A property's value in the first event: ics_field FILE NAME.
+ics_field() {
+    awk -v want="$2" '
+        { sub(/\r$/, ""); if ($0 ~ /^[ \t]/ && n > 0) lines[n] = lines[n] substr($0, 2); else lines[++n] = $0 }
+        END {
+          start = 0
+          for (i = 1; i <= n; i++) if (toupper(lines[i]) == "BEGIN:VEVENT") { start = i; break }
+          if (!start) exit 1
+          depth = 0
+          for (i = start + 1; i <= n; i++) {
+            if (toupper(lines[i]) ~ /^BEGIN:/) { depth++; continue }
+            if (toupper(lines[i]) ~ /^END:/) { if (depth == 0) break; depth--; continue }
+            name = lines[i]; sub(/[;:].*$/, "", name)
+            if (toupper(name) == toupper(want)) {
+              value = lines[i]; sub(/^[^:]*:/, "", value); print value; exit
+            }
+          }
+        }
+    ' "$1"
+}
+
+ics_is_repeating() {
+    awk '
+        { sub(/\r$/, ""); if ($0 ~ /^[ \t]/ && n > 0) lines[n] = lines[n] substr($0, 2); else lines[++n] = $0 }
+        END {
+          start = 0
+          for (i = 1; i <= n; i++) if (toupper(lines[i]) == "BEGIN:VEVENT") { start = i; break }
+          if (!start) exit 2
+          depth = 0
+          for (i = start + 1; i <= n; i++) {
+            if (toupper(lines[i]) ~ /^BEGIN:/) { depth++; continue }
+            if (toupper(lines[i]) ~ /^END:/) { if (depth == 0) break; depth--; continue }
+            name = lines[i]; sub(/[;:].*$/, "", name); name = toupper(name)
+            if (name == "RRULE" || name == "RDATE" || name == "RECURRENCE-ID") exit 0
+          }
+          exit 1
+        }
+    ' "$1"
+}
+
+# Rewrite the first event. The spec is one instruction per line:
+#   P<TAB>NAME<TAB>content line     set these properties
+#   D<TAB>NAME                      remove these properties
+#   R<TAB>1                         replace all reminders (none unless A lines)
+#   A<TAB>minutes                   one reminder, in minutes before the start
+#   X<TAB>1|0                       set or clear X-GOOGLE-DEFAULT-REMINDERS
+#   N<TAB>stamp                     refresh LAST-MODIFIED when the event has one
+ics_apply() {
+    local file=$1 spec=$2 out=$3
+    LC_ALL=C awk -v spec="$spec" '
+        function propname(line,   p) { p = line; sub(/[;:].*$/, "", p); return toupper(p) }
+        function propvalue(line) { return index(line, ":") ? substr(line, index(line, ":") + 1) : "" }
+        function fold(line,   res, cur, size, i, ch, n) {
+          res = ""; cur = ""; size = 0; n = length(line)
+          for (i = 1; i <= n; i++) {
+            ch = substr(line, i, 1)
+            if (size + 1 > 75) { res = res cur eol; cur = " " ch; size = 2 }
+            else { cur = cur ch; size++ }
+          }
+          return res cur
+        }
+        { if (sub(/\r$/, "")) crlf = 1; if ($0 ~ /^[ \t]/ && n > 0) lines[n] = lines[n] substr($0, 2); else lines[++n] = $0 }
+        END {
+          eol = crlf ? "\r\n" : "\n"
+          sets = 0; dels = 0; replace_alarms = 0; alarm_n = 0; has_x = 0; xval = ""; has_now = 0; nowval = ""
+          while ((getline line < spec) > 0) {
+            split(line, f, "\t")
+            if (f[1] == "P") { set_name[++sets] = toupper(f[2]); set_line[sets] = f[3] }
+            else if (f[1] == "D") { del_name[++dels] = toupper(f[2]) }
+            else if (f[1] == "R") { replace_alarms = 1 }
+            else if (f[1] == "A") { alarm[++alarm_n] = f[2] }
+            else if (f[1] == "X") { has_x = 1; xval = f[2] }
+            else if (f[1] == "N") { has_now = 1; nowval = f[2] }
+          }
+          close(spec)
+
+          start = 0
+          for (i = 1; i <= n; i++) if (toupper(lines[i]) == "BEGIN:VEVENT") { start = i; break }
+          if (!start) exit 2
+          depth = 0
+          for (end = start; end <= n; end++) {
+            u = toupper(lines[end])
+            if (u ~ /^BEGIN:/) depth++
+            else if (u ~ /^END:/) { depth--; if (depth == 0) break }
+          }
+
+          cn = 0; i = start + 1
+          while (i < end) {
+            if (toupper(lines[i]) ~ /^BEGIN:/) {
+              bname = toupper(propvalue(lines[i])); j = i; d = 0
+              while (j <= end) {
+                u = toupper(lines[j])
+                if (u ~ /^BEGIN:/) d++
+                else if (u ~ /^END:/) { d--; if (d == 0) break }
+                j++
+              }
+              cn++; ctype[cn] = "block"; cname[cn] = bname; cfirst[cn] = i; clast[cn] = j
+              i = j + 1
+            } else {
+              cn++; ctype[cn] = "prop"; cname[cn] = propname(lines[i]); cfirst[cn] = i; clast[cn] = i
+              i++
+            }
+          }
+
+          on = 0
+          for (i = 1; i < start; i++) out[++on] = lines[i]
+          out[++on] = lines[start]
+          for (c = 1; c <= cn; c++) {
+            drop = 0
+            if (ctype[c] == "prop") {
+              for (k = 1; k <= sets; k++) if (cname[c] == set_name[k]) drop = 1
+              for (k = 1; k <= dels; k++) if (cname[c] == del_name[k]) drop = 1
+              if (has_x && cname[c] == "X-GOOGLE-DEFAULT-REMINDERS") drop = 1
+            } else if (replace_alarms && cname[c] == "VALARM") drop = 1
+            if (drop) continue
+            for (i = cfirst[c]; i <= clast[c]; i++) {
+              line = lines[i]
+              if (ctype[c] == "prop" && has_now && cname[c] == "LAST-MODIFIED") line = "LAST-MODIFIED:" nowval
+              out[++on] = line
+            }
+          }
+          for (k = 1; k <= sets; k++) out[++on] = set_line[k]
+          if (has_x && xval == "1") out[++on] = "X-GOOGLE-DEFAULT-REMINDERS:TRUE"
+          if (replace_alarms) {
+            for (k = 1; k <= alarm_n; k++) {
+              out[++on] = "BEGIN:VALARM"
+              out[++on] = "ACTION:DISPLAY"
+              out[++on] = "DESCRIPTION:Reminder"
+              out[++on] = "TRIGGER;RELATED=START:-PT" alarm[k] "M"
+              out[++on] = "END:VALARM"
+            }
+          }
+          for (i = end; i <= n; i++) out[++on] = lines[i]
+
+          for (i = 1; i <= on; i++) printf "%s%s", fold(out[i]), eol
+        }
+    ' "$file" >"$out"
+}
+
+# ---- Forms and resources ---------------------------------------------------
+
+json_str() {
+    jq -r --arg k "$2" '.[$k] // "" | tostring' <<<"$1"
+}
+
+# Escape a value the way iCalendar text wants it.
+ics_escape() {
+    local value=$1
+    value=${value//\\/\\\\}
+    value=${value//;/\\;}
+    value=${value//,/\\,}
+    value=${value//$'\r\n'/$'\n'}
+    value=${value//$'\n'/\\n}
+    printf '%s' "$value"
+}
+
+# A DTSTART/DTEND line from a Google node. Timed values are written in UTC.
+ics_time_line() {
+    local name=$1 node=$2 value
+    if jq -e 'has("date")' <<<"$node" >/dev/null; then
+        value=$(jq -r '.date' <<<"$node")
+        printf '%s;VALUE=DATE:%s' "$name" "${value//-/}"
+    else
+        value=$(jq -r '.dateTime' <<<"$node")
+        printf '%s:%s' "$name" "$(date -u -d "@$(date -d "$value" +%s)" +%Y%m%dT%H%M%SZ)"
+    fi
+}
+
+# caldir's name for an event: its start, then its title as a slug.
+event_file_name() {
+    local node=$1 title=$2 stamp slug
+    if jq -e 'has("date")' <<<"$node" >/dev/null; then
+        stamp=$(jq -r '.date' <<<"$node")
+    else
+        stamp=$(date -d "$(jq -r '.dateTime' <<<"$node")" +%Y-%m-%dT%H%M)
+    fi
+    slug=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9][^a-z0-9]*/-/g' -e 's/^-//' -e 's/-$//')
+    [ -n "$slug" ] || slug="event"
+    printf '%s__%s.ics' "$stamp" "$slug"
+}
+
+# Validate the form's dates and times and return start<TAB>end nodes.
+form_nodes() {
+    local form=$1 all_day start_date end_date start_time end_time start_epoch end_epoch end_plus
+    all_day=$(jq -r '.allDay == true' <<<"$form")
+    start_date=$(json_str "$form" startDate)
+    end_date=$(json_str "$form" endDate)
+    [ -n "$end_date" ] || end_date=$start_date
+    start_time=$(json_str "$form" startTime)
+    end_time=$(json_str "$form" endTime)
+
+    if ! [[ "$start_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        FORM_ERROR="The start date must look like YYYY-MM-DD."
+        return 1
+    fi
+    if ! [[ "$end_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        FORM_ERROR="The end date must look like YYYY-MM-DD."
+        return 1
+    fi
+
+    if [ "$all_day" = "true" ]; then
+        if [[ "$end_date" < "$start_date" ]]; then
+            FORM_ERROR="The end date must be on or after the start date."
+            return 1
+        fi
+        end_plus=$(date -d "$end_date +1 day" +%Y-%m-%d)
+        printf '%s\t%s' "$(jq -cn --arg d "$start_date" '{date: $d}')" "$(jq -cn --arg d "$end_plus" '{date: $d}')"
+        return 0
+    fi
+
+    if ! [[ "$start_time" =~ ^[0-9]{2}:[0-9]{2}$ ]]; then
+        FORM_ERROR="The start time must look like HH:MM."
+        return 1
+    fi
+    if ! [[ "$end_time" =~ ^[0-9]{2}:[0-9]{2}$ ]]; then
+        FORM_ERROR="The end time must look like HH:MM."
+        return 1
+    fi
+    start_epoch=$(date -d "$start_date $start_time" +%s)
+    end_epoch=$(date -d "$end_date $end_time" +%s)
+    if [ "$end_epoch" -le "$start_epoch" ] && [ "$end_date" = "$start_date" ] && [ "$end_time" = "00:00" ]; then
+        end_epoch=$((end_epoch + 86400))
+    fi
+    if [ "$end_epoch" -le "$start_epoch" ]; then
+        FORM_ERROR="The end must be after the start."
+        return 1
+    fi
+    printf '%s\t%s' \
+        "$(jq -cn --arg dt "$(local_iso "$start_epoch")" '{dateTime: $dt}')" \
+        "$(jq -cn --arg dt "$(local_iso "$end_epoch")" '{dateTime: $dt}')"
+}
+
+# The form's reminders as one canonical value for comparison.
+form_reminders_key() {
+    local form=$1
+    if [ "$(jq -r 'if .reminders.useDefault == null then true else .reminders.useDefault end' <<<"$form")" = "true" ]; then
+        printf 'default'
+        return 0
+    fi
+    jq -c '[.reminders.overrides // [] | .[] | {method: (.method // "popup"), minutes: (.minutes // 0 | tonumber | floor)}] | sort_by(.method, .minutes)' <<<"$form"
+}
+
+# The reminders of a resource, in the same canonical shape.
+resource_reminders_key() {
+    local resource=$1
+    if [ "$(jq -r 'if .reminders.useDefault == null then true else .reminders.useDefault end' <<<"$resource")" = "true" ]; then
+        printf 'default'
+        return 0
+    fi
+    jq -c '[.reminders.overrides // [] | .[] | {method: (.method // "popup"), minutes: (.minutes // 0 | tonumber | floor)}] | sort_by(.method, .minutes)' <<<"$resource"
+}
+
+# The form for a Google-shaped resource, as the panel's event form reads it.
+resource_to_form() {
+    local resource=$1 calendar_id=$2
+    local start_node end_node all_day start_day end_day start_time end_time start_epoch end_epoch
+    start_node=$(jq -c '.start // {}' <<<"$resource")
+    end_node=$(jq -c --argjson s "$start_node" '.end // $s' <<<"$resource")
+    all_day=$(jq -r 'has("date")' <<<"$start_node")
+
+    if [ "$all_day" = "true" ]; then
+        start_day=$(jq -r '.date' <<<"$start_node")
+        end_day=$(jq -r '.date' <<<"$end_node")
+        end_day=$(date -d "$end_day -1 day" +%Y-%m-%d)
+        [[ "$end_day" < "$start_day" ]] && end_day=$start_day
+        start_time=""; end_time=""
+    else
+        start_epoch=$(parse_instant "$(jq -r '.dateTime' <<<"$start_node")")
+        end_epoch=$(parse_instant "$(jq -r '.dateTime' <<<"$end_node")")
+        start_day=$(local_date "$start_epoch")
+        end_day=$(local_date "$end_epoch")
+        start_time=$(local_hms "$start_epoch" | cut -c1-5)
+        end_time=$(local_hms "$end_epoch" | cut -c1-5)
+    fi
+
+    jq -cn \
+        --argjson r "$resource" \
+        --arg calendarId "$calendar_id" \
+        --argjson allDay "$all_day" \
+        --arg startDate "$start_day" --arg startTime "$start_time" \
+        --arg endDate "$end_day" --arg endTime "$end_time" '
+        {
+          calendarId: $calendarId,
+          eventId: ($r.id // ""),
+          recurringEventId: ($r.recurringEventId // ""),
+          title: ($r.summary // ""),
+          allDay: $allDay,
+          startDate: $startDate,
+          startTime: $startTime,
+          endDate: $endDate,
+          endTime: $endTime,
+          location: ($r.location // ""),
+          description: ($r.description // ""),
+          guests: [ ($r.attendees // [])[] | select(.resource != true) | {
+              email: (.email // ""),
+              optional: (if .optional == null then false else .optional end),
+              responseStatus: (.responseStatus // "needsAction"),
+              organizer: (if .organizer == null then false else .organizer end)
+          } ],
+          meet: (($r.hangoutLink // "") != ""),
+          meetUrl: ($r.hangoutLink // ""),
+          repeat: "none",
+          rrule: [],
+          reminders: {
+            useDefault: (if $r.reminders.useDefault == null then true else $r.reminders.useDefault end),
+            overrides: ($r.reminders.overrides // [])
+          },
+          busy: (($r.transparency // "opaque") != "transparent"),
+          visibility: ($r.visibility // "default"),
+          colorId: ($r.colorId // ""),
+          guestsCanModify: (if $r.guestsCanModify == null then false else $r.guestsCanModify end),
+          guestsCanInviteOthers: (if $r.guestsCanInviteOthers == null then true else $r.guestsCanInviteOthers end),
+          guestsCanSeeOtherGuests: (if $r.guestsCanSeeOtherGuests == null then true else $r.guestsCanSeeOtherGuests end)
+        }
+    '
+}
+
+# One caldir event as a Google-shaped resource.
+resource_of_record() {
+    local record=$1 nodes start_node end_node all_day start_raw end_raw start_epoch end_epoch
+    local uid title status partstat reminders conference start_value
+    all_day=$(jq -r '.allDay' <<<"$record")
+    nodes=$(nodes_of_record "$record") || return 1
+    start_node=${nodes%%$'\t'*}
+    end_node=${nodes#*$'\t'}
+    start_value=$(jq -r '.date // .dateTime' <<<"$start_node")
+    start_raw=$(jq -r '.startRaw' <<<"$record")
+    end_raw=$(jq -r '.endRaw' <<<"$record")
+    if [ "$all_day" = "true" ]; then
+        start_epoch=$(midnight_epoch "${start_raw:0:10}")
+        end_epoch=$(midnight_epoch "$([ -n "$end_raw" ] && printf '%s' "${end_raw:0:10}" || printf '%s' "${start_raw:0:10}")")
+    else
+        start_epoch=$(parse_instant "$start_raw") || return 1
+        end_epoch=$(parse_instant "$end_raw") || return 1
+    fi
+    uid=$(jq -r '.uid' <<<"$record")
+    title=$(jq -r '.title' <<<"$record")
+    status=$(jq -r '.status' <<<"$record")
+    reminders=$(jq -c '.reminders' <<<"$record")
+    conference=$(jq -r '.conference' <<<"$record")
+    partstat=$(partstat_google "$(jq -r '.rsvp' <<<"$record")")
+
+    jq -cn \
+        --arg uid "$uid" --arg startValue "$start_value" \
+        --argjson start "$start_node" --argjson end "$end_node" \
+        --argjson r "$record" --arg status "$status" \
+        --arg conference "$conference" --argjson reminders "$reminders" \
+        --arg partstat "$partstat" '
+        {
+          id: (if $startValue == "" then $uid else "\($uid):\($startValue)" end),
+          iCalUID: $uid,
+          summary: $r.title,
+          location: $r.location,
+          description: $r.description,
+          start: $start,
+          end: $end
+        }
+        + (if $status != "" then {status: $status} else {} end)
+        + (if $conference != "" then {hangoutLink: $conference} else {} end)
+        + (if ($reminders | length) > 0 then
+             {reminders: {useDefault: false, overrides: [ $reminders[] | {method: "popup", minutes: .} ]}}
+           else {} end)
+        + (if $partstat != "" then {attendees: [{self: true, responseStatus: $partstat}]} else {} end)
+    '
+}
+
+day_of_start() {
+    local value=$1
+    if [[ "$value" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        printf '%s' "$value"
+    else
+        local epoch
+        epoch=$(parse_instant "$value") || return 1
+        local_date "$epoch"
+    fi
+}
+
+# Search one date range for the UID. Prints the resource, or nothing.
+search_resource() {
+    local calendar=$1 uid=$2 first=$3 last=$4 want_id=$5 payload raw resource found
+    if ! payload=$(caldir_json events --calendar "$calendar" --from "$first" --to "$last"); then
+        return 1
+    fi
+    if [ "$(jq -r 'type' <<<"$payload")" != "array" ]; then
+        CALDIR_ERR="caldir events must return a JSON array"
+        return 1
+    fi
+    found=""
+    while IFS= read -r raw; do
+        [ -n "$raw" ] || continue
+        [ "$(jq -r '.uid // "" | tostring' <<<"$raw")" = "$uid" ] || continue
+        resource=$(resource_of_record "$(raw_record <<<"$raw")") || continue
+        if [ -z "$want_id" ] || [ "$(jq -r '.id' <<<"$resource")" = "$want_id" ]; then
+            printf '%s' "$resource"
+            return 0
+        fi
+        [ -n "$found" ] || found=$resource
+    done < <(jq -c '.[]' <<<"$payload")
+    if [ -n "$found" ]; then
+        printf '%s' "$found"
+        return 0
+    fi
+    return 2
+}
+
+# The resource for an event id, a day either side first, then a year around it.
+current_resource() {
+    local calendar=$1 event_id=$2 uid start day first last result
+    IFS=$'\t' read -r uid start <<<"$(split_event_id "$event_id")"
+    day=$(day_of_start "$start") || day=$(local_date "$(date +%s)")
+    local spread
+    for spread in 1 366; do
+        first=$(date -d "$day -$spread day" +%Y-%m-%d)
+        last=$(date -d "$day +$spread day" +%Y-%m-%d)
+        if result=$(search_resource "$calendar" "$uid" "$first" "$last" "$event_id"); then
+            printf '%s' "$result"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# ---- Writes ----------------------------------------------------------------
+
+push_calendar() {
+    local calendar=$1 out err text
+    err=$(mktemp)
+    if ! out=$(run_caldir push --calendar "$calendar" 2>"$err"); then
+        text=$(cat "$err")
+        [ -n "$text" ] || text=$out
+        rm -f "$err"
+        # Stripped, then cut to 200 characters, as the Python version reports it.
+        text="${text#"${text%%[![:space:]]*}"}"
+        text="${text%"${text##*[![:space:]]}"}"
+        [ -n "$text" ] || text="no output"
+        CALDIR_ERR="Google did not accept the change, so it was not saved: ${text:0:200}"
+        return 1
+    fi
+    rm -f "$err"
+}
+
+# Refuse a field caldir cannot store, instead of dropping it silently.
+refuse_unsupported() {
+    local form=$1 creating=$2
+    if [ "$creating" = "1" ] && [ "$(jq -r '[.guests // [] | .[] | select((.email // "") != "")] | length' <<<"$form")" -gt 0 ]; then
+        REFUSAL="caldir cannot store guests yet, so this event cannot be saved with them."
+        return 1
+    fi
+    if [ "$(jq -r '.meet == true' <<<"$form")" = "true" ]; then
+        REFUSAL="caldir cannot add a Meet link yet."
+        return 1
+    fi
+    if [ -n "$(json_str "$form" colorId)" ]; then
+        REFUSAL="caldir cannot store event colours yet."
+        return 1
+    fi
+    if [ "$(jq -r '(.repeat // "none") != "none" or ((.rrule // []) | length) > 0' <<<"$form")" = "true" ]; then
+        REFUSAL="$REPEATING"
+        return 1
+    fi
+    if [ "$(jq -r '.busy == false' <<<"$form")" = "true" ]; then
+        REFUSAL="caldir cannot store the busy setting yet."
+        return 1
+    fi
+    if [ "$(jq -r '(.visibility // "default") != "default"' <<<"$form")" = "true" ]; then
+        REFUSAL="caldir cannot store the visibility setting yet."
+        return 1
+    fi
+    return 0
+}
+
+# The spec lines that set one field (or clear it when empty).
+spec_text_field() {
+    local name=$1 value=$2
+    if [ -n "$value" ]; then
+        printf 'P\t%s\t%s:%s\n' "$name" "$name" "$(ics_escape "$value")"
+    else
+        printf 'D\t%s\n' "$name"
+    fi
+}
+
+apply_edit() {
+    local original=$1 spec=$2 out=$3
+    ics_apply "$original" "$spec" "$out"
+}
+
+# ---- Actions ---------------------------------------------------------------
+
+action_get() {
+    local calendar event_id resource form
+    calendar=$(jq -r '.calendarId' <<<"$REQUEST")
+    event_id=$(jq -r '.eventId' <<<"$REQUEST")
+    if ! resource=$(current_resource "$calendar" "$event_id"); then
+        reply_fail "$GONE"
+    fi
+    form=$(resource_to_form "$resource" "$calendar")
+    jq -cn --argjson event "$form" '{ok: true, event: $event}'
+}
+
+action_create() {
+    local calendar form nodes start_node end_node title args out path uid spec new_file
+    local reminders_key start_epoch start_stamp final original
+    calendar=$(jq -r '.calendarId' <<<"$REQUEST")
+    form=$(jq -c '.event' <<<"$REQUEST")
+
+    refuse_unsupported "$form" 1 || reply_fail "$REFUSAL"
+    if ! nodes=$(form_nodes "$form"); then
+        reply_fail "$FORM_ERROR"
+    fi
+    start_node=${nodes%%$'\t'*}
+    end_node=${nodes#*$'\t'}
+    title=$(json_str "$form" title)
+    [ -n "$title" ] || title="(no title)"
+
+    args=(new --calendar "$calendar" --no-reminders)
+    if jq -e 'has("date")' <<<"$start_node" >/dev/null; then
+        args+=(--start "$(jq -r '.date' <<<"$start_node")")
+    else
+        start_epoch=$(date -d "$(jq -r '.dateTime' <<<"$start_node")" +%s)
+        start_stamp=$(date -d "@$start_epoch" +%Y-%m-%dT%H:%M)
+        args+=(--start "$start_stamp" \
+            --end "$(date -d "$(jq -r '.dateTime' <<<"$end_node")" +%Y-%m-%dT%H:%M)")
+    fi
+    args+=(-- "$title")
+
+    if ! out=$(run_caldir "${args[@]}" 2>&1); then
+        reply_fail "caldir could not make the event: $(printf '%s' "$out" | tr '\n' ' ' | cut -c1-200)"
+    fi
+    path=$(printf '%s' "$out" | sed -e 's/\x1b\[[0-9;]*m//g' | sed -n 's/.*Created: \(.*\.ics\).*/\1/p' | head -n 1)
+    if [ -z "$path" ] || [ ! -f "$path" ]; then
+        reply_fail "caldir did not say which file it made"
+    fi
+
+    uid=$(ics_field "$path" UID)
+    original=$(cat "$path")
+    spec="$WORK_DIR/spec"
+    {
+        printf 'P\tSUMMARY\tSUMMARY:%s\n' "$(ics_escape "$title")"
+        spec_text_field LOCATION "$(json_str "$form" location)"
+        spec_text_field DESCRIPTION "$(json_str "$form" description)"
+        printf 'P\tDTSTART\t%s\n' "$(ics_time_line DTSTART "$start_node")"
+        printf 'P\tDTEND\t%s\n' "$(ics_time_line DTEND "$end_node")"
+        printf 'D\tDURATION\n'
+        reminders_spec "$form"
+        printf 'N\t%s\n' "$(date -u +%Y%m%dT%H%M%SZ)"
+    } >"$spec"
+
+    apply_edit "$path" "$spec" "$WORK_DIR/edited" || {
+        rm -f "$path"
+        reply_fail "could not write the event file"
+    }
+    cat "$WORK_DIR/edited" >"$path"
+    final="$path"
+    local renamed=""
+    new_file="$(dirname "$path")/$(event_file_name "$start_node" "$title")"
+    if [ "$new_file" != "$path" ] && [ ! -e "$new_file" ]; then
+        mv -f "$path" "$new_file"
+        final=$new_file
+        renamed=1
+    fi
+
+    if ! push_calendar "$calendar"; then
+        rm -f "$final"
+        reply_fail "$CALDIR_ERR"
+    fi
+
+    action_reply_after_write "$calendar" "$uid" "$(jq -r '.date // .dateTime' <<<"$start_node")"
+}
+
+# The spec lines for the form's reminders.
+reminders_spec() {
+    local form=$1 key
+    key=$(form_reminders_key "$form")
+    printf 'R\t1\n'
+    if [ "$key" = "default" ]; then
+        printf 'X\t1\n'
+        return 0
+    fi
+    printf 'X\t0\n'
+    jq -r '(.reminders.overrides // [])[] | "A\t\(.minutes // 0 | tonumber | floor)"' <<<"$form"
+}
+
+action_update() {
+    local calendar event_id uid start path original current form nodes start_node end_node
+    local title summary location description reminders_key current_reminders spec
+    local patch_summary=0 patch_location=0 patch_description=0 patch_times=0 patch_reminders=0
+    local start_value final new_file renamed=""
+
+    calendar=$(jq -r '.calendarId' <<<"$REQUEST")
+    event_id=$(jq -r '.eventId' <<<"$REQUEST")
+    form=$(jq -c '.event' <<<"$REQUEST")
+
+    refuse_unsupported "$form" 0 || reply_fail "$REFUSAL"
+    IFS=$'\t' read -r uid start <<<"$(split_event_id "$event_id")"
+
+    if ! path=$(locate_event "$calendar" "$uid"); then
+        reply_fail "$GONE"
+    fi
+    cp "$path" "$WORK_DIR/original"
+    if ics_is_repeating "$path"; then
+        reply_fail "$REPEATING"
+    fi
+
+    if ! current=$(current_resource "$calendar" "$event_id"); then
+        reply_fail "$GONE"
+    fi
+    if ! nodes=$(form_nodes "$form"); then
+        reply_fail "$FORM_ERROR"
+    fi
+    start_node=${nodes%%$'\t'*}
+    end_node=${nodes#*$'\t'}
+    title=$(json_str "$form" title)
+
+    summary=$(jq -r '.summary // ""' <<<"$current")
+    location=$(jq -r '.location // ""' <<<"$current")
+    description=$(jq -r '.description // ""' <<<"$current")
+    [ "$title" != "$summary" ] && patch_summary=1
+    [ "$(json_str "$form" location)" != "$location" ] && patch_location=1
+    [ "$(json_str "$form" description)" != "$description" ] && patch_description=1
+
+    # Times: compare the instants, not the text they were written as.
+    local form_start_epoch current_start_epoch form_end_epoch current_end_epoch
+    if jq -e 'has("date")' <<<"$start_node" >/dev/null; then
+        form_start_epoch=$(midnight_epoch "$(jq -r '.date' <<<"$start_node")")
+        form_end_epoch=$(midnight_epoch "$(jq -r '.date' <<<"$end_node")")
+        current_start_epoch=$(midnight_epoch "$(jq -r '.start.date' <<<"$current")")
+        current_end_epoch=$(midnight_epoch "$(jq -r '.end.date' <<<"$current")")
+    else
+        form_start_epoch=$(date -d "$(jq -r '.dateTime' <<<"$start_node")" +%s)
+        form_end_epoch=$(date -d "$(jq -r '.dateTime' <<<"$end_node")" +%s)
+        current_start_epoch=$(date -d "$(jq -r '.start.dateTime' <<<"$current")" +%s)
+        current_end_epoch=$(date -d "$(jq -r '.end.dateTime' <<<"$current")" +%s)
+    fi
+    [ "$form_start_epoch" != "$current_start_epoch" ] || [ "$form_end_epoch" != "$current_end_epoch" ] && patch_times=1
+
+    reminders_key=$(form_reminders_key "$form")
+    current_reminders=$(resource_reminders_key "$current")
+    [ "$reminders_key" != "$current_reminders" ] && patch_reminders=1
+
+    if [ $((patch_summary + patch_location + patch_description + patch_times + patch_reminders)) -eq 0 ]; then
+        jq -cn --arg id "$(jq -r '.id' <<<"$current")" '{ok: true, eventId: $id}'
+        return 0
+    fi
+
+    spec="$WORK_DIR/spec"
+    {
+        if [ "$patch_summary" = "1" ]; then
+            printf 'P\tSUMMARY\tSUMMARY:%s\n' "$(ics_escape "$title")"
+        fi
+        if [ "$patch_location" = "1" ]; then
+            spec_text_field LOCATION "$(json_str "$form" location)"
+        fi
+        if [ "$patch_description" = "1" ]; then
+            spec_text_field DESCRIPTION "$(json_str "$form" description)"
+        fi
+        if [ "$patch_times" = "1" ]; then
+            printf 'P\tDTSTART\t%s\n' "$(ics_time_line DTSTART "$start_node")"
+            printf 'P\tDTEND\t%s\n' "$(ics_time_line DTEND "$end_node")"
+            printf 'D\tDURATION\n'
+        fi
+        if [ "$patch_reminders" = "1" ]; then
+            reminders_spec "$form"
+        fi
+        printf 'N\t%s\n' "$(date -u +%Y%m%dT%H%M%SZ)"
+    } >"$spec"
+
+    apply_edit "$path" "$spec" "$WORK_DIR/edited" || reply_fail "could not write the event file"
+    cat "$WORK_DIR/edited" >"$path"
+
+    final=$path
+    new_file="$(dirname "$path")/$(event_file_name "$start_node" "${title:-$summary}")"
+    if [ "$new_file" != "$path" ] && [ ! -e "$new_file" ]; then
+        mv -f "$path" "$new_file"
+        final=$new_file
+        renamed=1
+    fi
+
+    start_value=$(jq -r '.date // .dateTime' <<<"$start_node")
+    if ! push_calendar "$calendar"; then
+        if [ -n "$renamed" ]; then mv -f "$final" "$path"; fi
+        cp "$WORK_DIR/original" "$path"
+        reply_fail "$CALDIR_ERR"
+    fi
+
+    action_reply_after_write "$calendar" "$uid" "$start_value"
+}
+
+action_delete() {
+    local calendar event_id uid start path original
+    calendar=$(jq -r '.calendarId' <<<"$REQUEST")
+    event_id=$(jq -r '.eventId' <<<"$REQUEST")
+    IFS=$'\t' read -r uid start <<<"$(split_event_id "$event_id")"
+
+    if ! path=$(locate_event "$calendar" "$uid"); then
+        reply_fail "$GONE"
+    fi
+    cp "$path" "$WORK_DIR/original"
+    if ics_is_repeating "$path"; then
+        reply_fail "$REPEATING"
+    fi
+    rm -f "$path"
+    if ! push_calendar "$calendar"; then
+        cp "$WORK_DIR/original" "$path"
+        reply_fail "$CALDIR_ERR"
+    fi
+    restart_sync
+    jq -cn --arg id "$event_id" '{ok: true, eventId: $id}'
+}
+
+# After a write: read the event back for its current id, and let a sync pick
+# the new rows up.
+action_reply_after_write() {
+    local calendar=$1 uid=$2 start=$3 resource id
+    restart_sync
+    if resource=$(current_resource "$calendar" "$uid" ":$start"); then
+        id=$(jq -r '.id' <<<"$resource")
+    else
+        id="$uid:$start"
+    fi
+    jq -cn --arg id "$id" '{ok: true, eventId: $id}'
+}
+
+restart_sync() {
+    systemctl --user restart --no-block "$SYNC_UNIT" >/dev/null 2>&1 || true
+}
+
+# ---- Main ------------------------------------------------------------------
+
+main() {
+    # A panel loaded before an update passes the request as an argument and
+    # leaves stdin open: reading it would wait until the panel gives up.
+    if [ "$#" -gt 0 ]; then
+        reply_fail "$STALE_PANEL"
+    fi
+
+    local raw
+    raw=$(cat)
+    if ! jq -e 'type == "object"' >/dev/null 2>&1 <<<"$raw"; then
+        reply_fail "Expected one JSON object on stdin."
+    fi
+
+    load_config
+    start_clock
+
+    if [ "$WRITE" != "1" ]; then
+        reply_fail "$WRITE_OFF"
+    fi
+    if [ ! -e "$CONTRACT_PATH" ]; then
+        reply_fail "$NO_FILE"
+    fi
+    local doc writable
+    if ! doc=$(jq -c 'if type == "object" then . else empty end' "$CONTRACT_PATH" 2>/dev/null); then
+        reply_fail "$NO_FILE"
+    fi
+    [ -n "$doc" ] || reply_fail "$NO_FILE"
+    writable=$(jq -c '.writableCalendars // []' <<<"$doc")
+
+    WORK_DIR=$(mktemp -d)
+    if ! parse_request "$raw" "$writable"; then
+        reply_fail "$REQUEST_ERROR"
+    fi
+
+    case "$(jq -r '.action' <<<"$REQUEST")" in
+    get) action_get ;;
+    create) action_create ;;
+    update) action_update ;;
+    delete) action_delete ;;
+    esac
+}
+
+main "$@"
+exit $?
