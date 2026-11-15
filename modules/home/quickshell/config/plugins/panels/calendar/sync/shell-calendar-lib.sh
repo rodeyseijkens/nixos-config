@@ -173,6 +173,12 @@ node_of() {
 
 # ---- caldir ----------------------------------------------------------------
 
+# caldir reports paths as they are configured, so a calendar_dir of
+# "~/.caldir" comes back with the tilde still in it.
+expand_home() {
+    printf '%s' "${1/#\~/$HOME}"
+}
+
 run_caldir() {
     "$CALDIR_PATH" "$@"
 }

@@ -168,7 +168,7 @@ calendar_dir() {
         CALDIR_ERR="caldir did not say where its calendars are"
         return 1
     fi
-    printf '%s' "${folder/#\~/$HOME}"
+    printf '%s' "$(expand_home "$folder")"
 }
 
 # The file that holds the event with this UID, or "" when it is gone.
@@ -716,6 +716,7 @@ action_create() {
         reply_fail "caldir could not make the event: $(printf '%s' "$out" | tr '\n' ' ' | cut -c1-200)"
     fi
     path=$(printf '%s' "$out" | sed -e 's/\x1b\[[0-9;]*m//g' | sed -n 's/.*Created: \(.*\.ics\).*/\1/p' | head -n 1)
+    path=$(expand_home "$path")
     if [ -z "$path" ] || [ ! -f "$path" ]; then
         reply_fail "caldir did not say which file it made"
     fi
