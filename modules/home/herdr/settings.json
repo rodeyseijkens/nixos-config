@@ -1,0 +1,12 @@
+{
+  "zoom": 1,
+  "sounds": {
+    "enabled": true
+  },
+  "font_ligatures": true,
+  "minimum_contrast": 1,
+  "appearance": "dark",
+  "theme": "gruvb0x",
+  "font": "Maple Mono NF CN",
+  "ui_font": "Maple Mono NF CN"
+}
