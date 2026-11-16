@@ -759,6 +759,11 @@ Singleton {
   }
 
   // --------------------------------------------------------------- actions
+  // A click is the sender's own "default" action, per the freedesktop spec.
+  // The sender knows which window or tab raised the notification: Chrome maps
+  // it back to the exact tab, so Slack comes forward instead of a new one
+  // opening. A sender that names the process owning its window is more
+  // specific, and a detected link is the last resort.
   function activate(key): void {
     var row = rowFor(key);
     if (!row) return;
@@ -770,6 +775,7 @@ Singleton {
         return;
       }
     }
+    if (invokeAction(key, "default")) return;
     var link = String(row.link || "");
     if (!link && row.source) {
       var host = Security.canonicalHostname(String(row.source));
