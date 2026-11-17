@@ -1,20 +1,20 @@
-From d88446a01cbacde5d6062cbcf1b56377e470b49b Mon Sep 17 00:00:00 2001
+From 26fda26a0b42dfecfa7eaca5cc7c71e1b0a77db7 Mon Sep 17 00:00:00 2001
 From: Rodey Seijkens <me@rodey.nl>
-Date: Sat, 14 Nov 2026 22:48:24 +0100
-Subject: [PATCH 4/4] feat(config): pick the default entry on a weekly schedule
+Date: Tue, 17 Nov 2026 21:56:09 +0100
+Subject: [PATCH] feat(config): pick the default entry on a weekly schedule
 
 ---
  config/aarambh.conf           |   9 ++
  src/core/clock.c              |   4 +-
  src/core/clock.h              |   5 +
- src/core/config.c             | 268 ++++++++++++++++++++++++++++++++++
+ src/core/config.c             | 272 ++++++++++++++++++++++++++++++++++
  src/core/config.h             |  17 +++
  tests/unit/config_test.c      |   1 -
  tests/unit/run.sh             |   5 +-
  tests/unit/schedule_test.c    | 211 ++++++++++++++++++++++++++
  tests/unit/support/efi_mock.c |  27 ++++
  tests/unit/support/efi_mock.h |   3 +
- 10 files changed, 545 insertions(+), 5 deletions(-)
+ 10 files changed, 549 insertions(+), 5 deletions(-)
  create mode 100644 tests/unit/schedule_test.c
 
 diff --git a/config/aarambh.conf b/config/aarambh.conf
@@ -81,7 +81,7 @@ index 83c14f7..a82e2dd 100644
 +
  #endif
 diff --git a/src/core/config.c b/src/core/config.c
-index fb513da..8568cea 100644
+index fb513da..abc8e52 100644
 --- a/src/core/config.c
 +++ b/src/core/config.c
 @@ -37,12 +37,16 @@ static char *split_key_value(char *line)
@@ -101,7 +101,7 @@ index fb513da..8568cea 100644
      } else if (str_equal(key, "utc_offset")) {
          config->utc_offset_minutes = clock_parse_offset(value);
      } else if (str_equal(key, "autodetect")) {
-@@ -102,6 +106,269 @@ static int find_default(const EntryList *entries, const char *name)
+@@ -102,6 +106,273 @@ static int find_default(const EntryList *entries, const char *name)
      return 0;
  }
  
@@ -183,22 +183,26 @@ index fb513da..8568cea 100644
 +    str_copy(buffer, text, sizeof(buffer));
 +    cursor = buffer;
 +    while (*cursor != '\0') {
-+        char *comma = cursor;
++        char *separator = cursor;
++        int more = 0;
 +        int ok;
 +
-+        while (*comma != '\0' && *comma != ',') {
-+            comma++;
++        while (*separator != '\0' && *separator != ',') {
++            separator++;
 +        }
-+        *comma = '\0';
++        if (*separator == ',') {
++            *separator = '\0';
++            more = 1;
++        }
 +
 +        ok = parse_day_part(str_trim(cursor), days);
 +        if (!ok) {
 +            return 0;
 +        }
-+        if (comma[1] == '\0') {
++        if (!more) {
 +            break;
 +        }
-+        cursor = comma + 1;
++        cursor = separator + 1;
 +    }
 +
 +    return *days != 0;
@@ -371,7 +375,7 @@ index fb513da..8568cea 100644
  static void parse_config(Config *config, EntryList *entries, char *text)
  {
      char *cursor = text;
-@@ -141,4 +408,5 @@ void config_load(Config *config, EntryList *entries)
+@@ -141,4 +412,5 @@ void config_load(Config *config, EntryList *entries)
      entries_move_actions_last(entries);
  
      config->default_index = find_default(entries, config->default_entry);
