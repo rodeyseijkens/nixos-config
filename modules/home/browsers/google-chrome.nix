@@ -12,14 +12,28 @@ with lib; let
       "--enable-features=UseOzonePlatform"
       "--ozone-platform=wayland"
       "--profile-directory=Default"
+      # Dawn (WebGPU) cannot open the NVIDIA Vulkan ICD from the sandboxed GPU
+      # process, so WebGPU silently falls back to the slow OpenGL compatibility
+      # path (~100fps with stutters). Without the sandbox Dawn uses Vulkan and
+      # runs at the full refresh rate (165fps, no stutter on an RTX 3080).
+      "--disable-gpu-sandbox"
     ];
   };
+
+  # NixOS keeps Vulkan ICDs in /run/opengl-driver, which the Vulkan loader does
+  # not scan by default, and the session environment does not export
+  # VK_ICD_FILENAMES. Point the loader at the NVIDIA ICD so Dawn can use Vulkan.
+  chromeVulkan = pkgs.writeShellScript "google-chrome-vulkan" ''
+    export VK_ICD_FILENAMES="/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json"
+    export VK_DRIVER_FILES="/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json"
+    exec "${chrome}/bin/google-chrome-stable" "$@"
+  '';
 
   # Launcher: under Hyprland, the first google-chrome window (when no other
   # google-chrome window exists yet) is spawned on cfg.initialSpawnWorkspace. All
   # later windows, and non-Hyprland invocations, start chrome normally.
   launcher = pkgs.writeShellScript "google-chrome-stable" ''
-    real_bin="${chrome}/bin/google-chrome-stable"
+    real_bin="${chromeVulkan}"
     workspace="${toString cfg.initialSpawnWorkspace}"
 
     if [ -n "$workspace" ] &&
