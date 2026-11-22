@@ -10,7 +10,12 @@
 # keeps the last complete menu. Firmware entries are found by content (ESP
 # PARTUUID plus loader path), never by boot number.
 
-set -euo pipefail
+set -Eeuo pipefail
+
+# If a command fails without a message of its own, name the command and the
+# line instead of letting the bootloader hook fail with no explanation.
+status=0
+trap 'status=$?; echo "aarambh: line $LINENO failed (status $status): $BASH_COMMAND" >&2; exit "$status"' ERR
 
 AARAMBH_SHARE="@share@"
 CONF="@conf@"
@@ -26,6 +31,22 @@ action=""
 die() {
     echo "aarambh: $*" >&2
     exit 1
+}
+
+# Firmware can transiently refuse EFI variable writes, for example while a
+# boot loader update is settling. Retry briefly before treating it as failed.
+retry() {
+    local attempt
+
+    for attempt in 1 2 3; do
+        if "$@"; then
+            return 0
+        fi
+        if [ "$attempt" -lt 3 ]; then
+            sleep 1
+        fi
+    done
+    return 1
 }
 
 usage() {
@@ -95,14 +116,23 @@ check_esp() {
 #   Boot0006* Aarambh  HD(1,GPT,<uuid>,0x1000,0x100000)/\EFI\aarambh\aarambh.efi
 # There is no File() label on the path node, so the match is on the raw path.
 find_boot_entry() {
-    efibootmgr -v | PART="${1,,}" FILE="${2,,}" awk '
+    local output
+
+    # A transient efivarfs read error would otherwise abort the hook with no
+    # useful message, so retry the read before matching. Disable the inner trap
+    # so only the caller reports the failure once.
+    output=$(retry efibootmgr -v) || {
+        trap - ERR
+        return 1
+    }
+    PART="${1,,}" FILE="${2,,}" awk '
         /^Boot[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]/ {
             line = tolower($0)
             if (index(line, "gpt," ENVIRON["PART"] ",") > 0 && index(line, ENVIRON["FILE"]) > 0) {
                 print substr($1, 5, 4)
                 exit
             }
-        }'
+        }' <<<"$output"
 }
 
 # Puts the given boot numbers first, in the given order, then the rest of the
@@ -123,10 +153,14 @@ set_boot_order() {
         if [ "$skip" = 0 ]; then
             rest+=("$number")
         fi
-    done < <(efibootmgr | sed -n 's/^BootOrder: //p' | tr ',' '\n')
+    done < <(retry efibootmgr | sed -n 's/^BootOrder: //p' | tr ',' '\n')
 
     local IFS=,
-    efibootmgr -o "${order[*]}${rest[*]:+,${rest[*]}}" >/dev/null
+    local order_string="${order[*]}${rest[*]:+,${rest[*]}}"
+
+    # Retries make a transient firmware refusal disappear; a real failure still
+    # fails the activation and the ERR trap names this line.
+    retry efibootmgr -o "$order_string" >/dev/null
 }
 
 # Adds the Aarambh firmware entry for the ESP that is mounted at $ESP.
@@ -137,7 +171,7 @@ create_firmware_entry() {
     disk="/dev/$(lsblk -no PKNAME "$source" | head -n1)"
     part=$(cat "/sys/class/block/$(basename "$source")/partition")
 
-    efibootmgr -c -d "$disk" -p "$part" -L Aarambh -l "$AARAMBH_LOADER" >/dev/null
+    retry efibootmgr -c -d "$disk" -p "$part" -L Aarambh -l "$AARAMBH_LOADER" >/dev/null
 }
 
 # Prints one BootLoaderSpec field value, e.g. the linux line of an entry.
@@ -296,7 +330,7 @@ remove_menu() {
 
     entry=$(find_boot_entry "$PARTUUID" "$AARAMBH_LOADER")
     if [ -n "$entry" ]; then
-        efibootmgr -b "$entry" -B >/dev/null
+        retry efibootmgr -b "$entry" -B >/dev/null
     fi
 
     rm -rf "$ESP_EFI/aarambh"
