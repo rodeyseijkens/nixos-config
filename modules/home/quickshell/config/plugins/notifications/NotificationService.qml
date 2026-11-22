@@ -309,7 +309,19 @@ Singleton {
   // the panel does not pop back onto the desktop when the panel closes.
   property var panelOnly: ({})
   property bool panelOpen: false
-  onPanelOpenChanged: if (panelOpen) markPanelOnly()
+  onPanelOpenChanged: {
+    if (panelOpen) markPanelOnly()
+    else expireTransientRows()
+  }
+
+  // The panel's cards are the only clock a panel-only row has, so closing the
+  // panel takes its transient rows with it instead of leaving them to return.
+  function expireTransientRows(): void {
+    var keys = []
+    for (var i = 0; i < toasts.count; i++)
+      if (toasts.get(i).transient === true) keys.push(String(toasts.get(i).key))
+    for (var j = 0; j < keys.length; j++) expire(keys[j])
+  }
 
   function markPanelOnly(): void {
     var next = Object.assign({}, panelOnly)
@@ -679,10 +691,18 @@ Singleton {
   // --------------------------------------------------------------- closing
   // A card that times out leaves the desktop but not the panel: it is still a
   // notification with actions until someone dismisses it. So expiry only moves
-  // the row into the panel's list; nothing is sent back to the sender.
+  // the row into the panel's list; nothing is sent back to the sender. A
+  // transient row is the exception: it was only meant for the moment it
+  // appeared ("Copied to clipboard"), so it closes instead of parking there.
   function expire(key): void {
     var at = rowIndexFor(key);
     if (at < 0) return;
+    var row = rowsByKey[key];
+    if (row && row.transient === true) {
+      toasts.setProperty(at, "duration", 0);
+      closeLive(key, "expired");
+      return;
+    }
     toasts.setProperty(at, "duration", 0);
     if (!panelOnly[key]) {
       var next = Object.assign({}, panelOnly);

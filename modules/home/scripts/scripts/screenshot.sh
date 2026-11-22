@@ -4,12 +4,14 @@
 SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"
 mkdir -p "$SCREENSHOTS_DIR"
 
-# Notification function
+# Notification function: notify <message> <timeout-ms> [transient]
 notify() {
+    local hint=()
+    [ "${3:-}" = "transient" ] && hint=(-h int:transient:1)
     if [ -z "$notification_id" ]; then
-        notification_id=$(notify-send -a "Screenshot" -p -t $2 "$1")
+        notification_id=$(notify-send -a "Screenshot" "${hint[@]}" -p -t "$2" "$1")
     else
-        notify-send -a "Screenshot" -t $2 --replace-id="$notification_id" "$1"
+        notification_id=$(notify-send -a "Screenshot" "${hint[@]}" -p -t "$2" --replace-id="$notification_id" "$1")
     fi
 }
 
@@ -21,7 +23,7 @@ get_screenshot_file() {
 
 countdown() {
     for sec in $(seq "$1" -1 1); do
-        notify "Taking shot in: $sec seconds" 1100
+        notify "Taking shot in: $sec seconds" 1100 transient
         sleep 1
     done
 }
@@ -29,13 +31,13 @@ countdown() {
 # Actions
 copy_area() {
     grimblast copy area
-    notify "Copied to clipboard" 3000
+    notify "Copied to clipboard" 3000 transient
 }
 
 copy_output() {
     sleep 0.7
     grimblast copy output
-    notify "Copied to clipboard" 3000
+    notify "Copied to clipboard" 3000 transient
 }
 
 save_area() {
@@ -73,6 +75,9 @@ timer() {
     local mode="${2:-save-output}"
 
     countdown "$seconds"
+    # The transient countdown toast clears itself; the action's own
+    # notification must start a fresh row rather than replace a dead id.
+    notification_id=""
 
     case "$mode" in
         copy-output)
