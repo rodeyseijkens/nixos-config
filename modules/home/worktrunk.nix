@@ -9,6 +9,8 @@
   ];
 
   xdg.configFile."worktrunk/config.toml".text = ''
+    worktree-path = "~/Projects/.worktrees/{{ repo }}/{{ branch | sanitize }}"
+
     [[pre-start]]
     copy = "wt step copy-ignored"
 
