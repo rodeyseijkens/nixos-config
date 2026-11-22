@@ -309,7 +309,9 @@ Item {
             place: ({ y: 0, scale: 1, opacity: 1, z: 1, front: true, hidden: false, height: 0 })
             scene: null
             sole: true
-            paused: true
+            // A transient row keeps its own clock even while the panel is
+            // open, so it cannot become permanent just because it was read.
+            paused: row.transient !== true
             now: NotificationService.now
             actions: {
               NotificationService.refsRevision;
@@ -321,6 +323,7 @@ Item {
             deckFront: true
             onTargetHeightChanged: NotificationService.noteHeight(row.key, targetHeight)
             Component.onCompleted: NotificationService.noteHeight(row.key, targetHeight)
+            onExpired: NotificationService.expire(row.key)
             onActivated: NotificationService.activate(row.key)
             onDismissed: NotificationService.dismiss(row.key)
             onGroupToggled: NotificationService.toggleGroupFor(row)
