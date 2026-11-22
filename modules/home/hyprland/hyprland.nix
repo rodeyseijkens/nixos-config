@@ -9,6 +9,8 @@
     inputs.hyprpicker.packages.${pkgs.stdenv.hostPlatform.system}.hyprpicker
     inputs.hyprmag.packages.${pkgs.stdenv.hostPlatform.system}.hyprmag
     slurp
+    grim # screenshot by output or geometry (grimblast only wraps it privately)
+    wlrctl # virtual pointer/keyboard: click, scroll, type
     wl-clip-persist
     cliphist
     wf-recorder
