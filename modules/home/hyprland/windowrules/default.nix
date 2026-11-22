@@ -13,6 +13,7 @@
     ./udiskie.nix
     ./viewnior.nix
     ./vscode.nix
+    ./xdg-desktop-portal-gtk.nix
     ./zenity.nix
   ];
 }
