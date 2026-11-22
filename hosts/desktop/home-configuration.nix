@@ -50,6 +50,12 @@
         match.class = "^(steam_app_3164500)$";
         workspace = "5";
       }
+      # Games launched through gamescope (e.g. Deadlock) use gamescope as their
+      # window class, so send any of them to the gaming workspace.
+      {
+        match.class = "(?i).*gamescope.*";
+        workspace = "5";
+      }
     ];
   };
 
