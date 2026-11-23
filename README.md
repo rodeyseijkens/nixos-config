@@ -93,7 +93,6 @@ Hyprlock (EXPAND)
 | **Color Picker**               |                              [hyprpicker][hyprpicker]                               |
 | **Theme Manager**              |                                  [Stylix][Stylix]                                   |
 | **Git Worktree Manager**       |                               [Worktrunk][Worktrunk]                                |
-| **Speech-to-text**             |              [Handy][Handy] (via [numtide/llm-agents.nix][llm-agents])              |
 
 
 ## 📝 Shell aliases
@@ -937,4 +936,3 @@ Other dotfiles that I learned / copy from:
 [t3code]: https://t3.codes
 [Mitos]: https://mitos.computer/
 [Superwhisper]: https://superwhisper.com/linux/
-[llm-agents]: https://github.com/numtide/llm-agents.nix
