@@ -14,7 +14,7 @@ with lib; let
   # palettes and ignores the selected theme. package.nix swaps in the Gruvbox
   # palettes (and Codey's Gruvbox diff accents) during the AppImage extraction.
   t3codeGruvbox = pkgs.callPackage ./package.nix {
-    inherit (versions.stable) version hash;
+    inherit (versions.stable) version hash url;
   };
 in {
   options.modules.t3code = {

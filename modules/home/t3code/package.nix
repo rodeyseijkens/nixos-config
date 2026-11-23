@@ -4,10 +4,12 @@
   pname ? "t3code",
   version,
   hash,
+  # Upstream renamed the stable AppImage asset (no version in the filename as
+  # of 0.1.11), so prefer the URL recorded in the t3code flake's versions.nix.
+  url ? "https://github.com/pingdotgg/t3code/releases/download/v${version}/T3-Code-${version}-x86_64.AppImage",
 }: let
   src = pkgs.fetchurl {
-    url = "https://github.com/pingdotgg/t3code/releases/download/v${version}/T3-Code-${version}-x86_64.AppImage";
-    inherit hash;
+    inherit url hash;
   };
 
   patchAsar = pkgs.writeShellApplication {
