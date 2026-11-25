@@ -1,4 +1,4 @@
-{inputs, ...}: {
+{...}: {
   imports = [
     ./hyprland.nix
     ./screen-share.nix
@@ -7,6 +7,5 @@
     ./env.nix
     ./exec-once.nix
     ./binds.nix
-    inputs.hyprland.homeManagerModules.default
   ];
 }
