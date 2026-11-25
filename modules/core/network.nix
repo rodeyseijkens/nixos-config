@@ -29,5 +29,8 @@
       };
       enableIPv6 = false;
     };
+
+    # Allow ipv4 https to work for vercel portless
+    boot.kernel.sysctl."net.ipv4.ip_unprivileged_port_start" = 0;
   };
 }
