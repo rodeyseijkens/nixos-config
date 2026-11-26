@@ -13,6 +13,7 @@
     ./git.nix # version control
     ./gnome.nix # gnome apps
     ./gtk.nix # gtk theme
+    ./handy-cleanup.nix # remove stale Handy autostart from older hosts
     ./herdr # terminal agent multiplexer (gruvbox theme) + desktop app
     ./hyprland # window manager
     ./vesktop # discord client (Vencord)
